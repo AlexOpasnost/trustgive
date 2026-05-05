@@ -87,3 +87,9 @@ test-results/
 # --- Project-specific ---
 research/screenshots/
 *.local.md
+
+# Django project-specific
+backend/.env
+backend/staticfiles/
+backend/media/
+backend/db.sqlite3*

@@ -1,0 +1,16 @@
+# Шаблонные RU строки для меток source-документов и money-breakdown линий.
+source_documents:
+  irs_990: "Налоговая форма IRS 990"
+  irs_990ez: "Налоговая форма IRS 990-EZ"
+  irs_990pf: "Налоговая форма IRS 990-PF"
+  charity_commission_filing: "Регистрация в Charity Commission"
+  minjust_registration: "Регистрация в Минюсте"
+  sonko_registration: "Регистрация СОНКО"
+  audit: "Независимый аудит"
+  state_registration: "Регистрация на уровне штата"
+  annual_report: "Годовой отчёт"
+
+money_breakdown_lines:
+  programs: "Программы"
+  administration: "Администрация"
+  fundraising: "Привлечение средств"

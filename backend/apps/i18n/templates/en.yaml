@@ -1,0 +1,17 @@
+# Templated EN strings for source-document labels and money-breakdown line labels.
+# These are applied at serialisation time (not stored per row).
+source_documents:
+  irs_990: "IRS Form 990"
+  irs_990ez: "IRS Form 990-EZ"
+  irs_990pf: "IRS Form 990-PF"
+  charity_commission_filing: "Charity Commission Filing"
+  minjust_registration: "Минюст Registration"
+  sonko_registration: "СОНКО Registration"
+  audit: "Independent Audit"
+  state_registration: "State Registration"
+  annual_report: "Annual Report"
+
+money_breakdown_lines:
+  programs: "Programs"
+  administration: "Administration"
+  fundraising: "Fundraising"
