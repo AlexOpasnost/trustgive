@@ -242,3 +242,30 @@ All notable decisions, agent actions, and artifact changes are logged here in ch
 **Reflection**: The hand-pivot from agent to Project Lead was forced by sandbox issues but the architectural plan from the agent's first run was preserved 100%. Cost: ~150K tokens between agent attempt + Project Lead persistence vs estimated $5-15 budget. Quality not compromised.
 
 **Next**: Awaiting Gate 3 user approval → Phase 4 (Frontend Developer builds React + Vite + Tailwind + Hugeicons app). Gate 3 should focus on: (a) does the schema match SPEC stories?, (b) any missing endpoint?, (c) deployment-ready Dockerfile / Railway config?
+
+---
+
+## [2026-05-05] [Project Lead] [Gate 3 — APPROVED]
+
+- User approved Django backend with "го"
+- **Gate 3: ✅ Approved**
+- Decision: skip Frontend Developer agent for Phase 4 (sandbox Write block proven 2× across prior phases — Backend Developer + Designer + Cost Tracker). Hand-write directly to avoid 2× cost overhead.
+
+---
+
+## [2026-05-05] [Project Lead] [Phase 4 — Frontend Implementation]
+
+**Files created** (~30 files, ~1500 LOC TS/TSX/CSS): React 19 + Vite 7 + TypeScript + Tailwind v4 + Hugeicons Free + i18next + TanStack Query + zustand + Radix Dialog. All design tokens from DESIGN.md v1.1 §2-§5 encoded in `src/index.css` `@theme {}` block. All implemented components map to DESIGN.md §6 patterns: TopNav (§6.1), CharityCard (§6.3), CharityDetailPage (§6.4), DonateConfirmModal (§6.5), MethodologyPage (§6.6), SourceDocumentDrawer (§6.7 the wedge UI). Hugeicons-only icons used (Tick02Icon, Search01Icon, ArrowRight01Icon, Cancel01Icon, LinkSquare02Icon, Download04Icon, Menu01Icon, ArrowUpRight01Icon, ArrowLeft02Icon, FileVerifiedIcon). i18n: full EN+RU dictionaries with localStorage persistence under `trustgive.lang`. Server state via TanStack Query; UI state via zustand persist; filter state via URL params. Hand-written API types in `src/types/api.ts` matching API_SPEC §2 — replaceable via `npm run gen-api`.
+
+**Open items (Phase 4.5 deliverables)**:
+- Comparison page (DESIGN.md §6.8)
+- ⌘K cmdk search palette
+- Mobile nav + filter drawer collapse
+- Dark mode toggle UI (token system supports it)
+- SSR/SSG for SEO landing pages (`react-snap` or Vike migration)
+- PostHog client + Sentry frontend wiring
+- Tests (Vitest + RTL via Testing Engineer)
+- E2E (Playwright via E2E Engineer)
+- Accessibility audit (axe-core via Accessibility Auditor)
+
+**Next**: Phase 4.5 — 4 agents in parallel (Testing Engineer, E2E Engineer, Performance Engineer, Accessibility Auditor) per CLAUDE.md.
