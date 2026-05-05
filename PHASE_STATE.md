@@ -5,10 +5,10 @@
 
 ---
 
-## Current Phase: 2 — Design
-## Status: 🔄 In Progress (Designer running)
+## Current Phase: 2 — Design (Complete, Awaiting Approval)
+## Status: 🟡 Awaiting User Approval (Gate 2)
 ## Last Updated: 2026-05-05
-## Active Agent: Designer + Cost Tracker (background)
+## Active Agent: Project Lead (presenting DESIGN.md to user) + GitHub/Railway setup in parallel
 
 ---
 
@@ -32,7 +32,7 @@
 |-------|------|-------|--------|-----------|
 | 0 | Intake Interview | Project Lead | ✅ Complete (SPEC.md v1.0 approved) | 2026-05-05 |
 | 1 | Market Research | Market Analyst | ✅ Complete | 2026-05-05 |
-| 2 | Design | Designer | 🔄 In Progress | — |
+| 2 | Design | Designer | 🟡 Awaiting Approval | 2026-05-05 |
 | 2.5 | API Design + ADRs | Backend Developer | ⏳ Pending | — |
 | 3 | Backend Architecture | Backend Developer | ⏳ Pending | — |
 | 4 | Frontend Development | Frontend Developer | ⏳ Pending | — |

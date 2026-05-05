@@ -64,3 +64,42 @@ All notable decisions, agent actions, and artifact changes are logged here in ch
   - `projects/trustgive/PHASE_STATE.md` — Gate 0+1 marked approved
   - `projects/trustgive/PROJECTS.md` — status to In Progress, phase to Phase 2
 - **Next**: Phase 2 (Designer) — UI/UX research via Playwright, color palette, typography, wireframes for catalog/detail/methodology pages. Cost Tracker logging Phase 0+1 in parallel.
+
+---
+
+## [2026-05-05] [Cost Tracker] [Phase 0+1 logged]
+
+- Logged 3 sessions for trustgive: Phase 0 ($1.17), Phase 1 ($2.96), Phase 0+1 finalization ($1.95)
+- **Project total: $6.08 / $200 budget (3.0% used)** · ~189,690 tokens (Opus 4.7 standard tier)
+- Files updated: `costs/COSTS.md`, `PROJECTS.md` (root), `knowledge-base/by-role/cost-tracker/lessons-learned.md`
+- KB entry added: KB-COST-TRUSTGIVE-001 (HIGH severity) — Opus 4.7 1M context two-tier pricing rule
+- Optimization recs for next phases: Sonnet 4.6 for docs/devops phases (~5x savings)
+- Note: Cost Tracker subagent had Write blocked; Project Lead applied changes manually
+
+---
+
+## [2026-05-05] [Designer] [Phase 2 — Design]
+
+- Researched 8 design references: Stripe Press, NYT Open + NYT.com, Charity:Water (anti-pattern), Effektiv-Spenden (methodology + home), Linear, Vercel, Are.na — plus Charity Navigator as anti-pattern reference
+- ⚠️ **Note**: Playwright `browser_take_screenshot` was sandbox-blocked — no design-research PNGs saved. Visual analysis was done via navigate-only reads. URLs preserved in DESIGN.md §12 for human re-verification
+- Produced `DESIGN.md` v1.0 — full design system:
+  - 6 design principles (documents over ratings, restraint over emphasis, numbers as first-class, dignity not pity, bilingual at byte 1, methodology-as-homepage)
+  - Semantic color tokens (light + dark) with **WCAG AA contrast computed per pair** — every text/bg combination ≥ 4.5:1
+  - Type scale: **Inter (sans) + Source Serif 4 (serif) + Geist Mono** — verified Cyrillic-complete $0-budget triplet
+  - Lucide icons, 4-px spacing, 8/12 radius, no shadows (1px rules)
+  - 9 component patterns (top nav, filter sidebar, charity card, charity detail, donate-modal, methodology page, source-document drawer, comparison view, empty/loading/error states)
+  - 6 key-screen wireframes (homepage, catalog, charity detail, comparison, SEO landing, methodology)
+  - Motion + a11y + brand mini-kit
+- **Key opinionated decisions** (open for revision at Gate 2):
+  1. Forest green `#0E7C5C` as trust accent — differentiates from Charity Navigator/GuideStar/BBB (all navy)
+  2. Wordmark-only logo in v1 (no symbol-logo until v2)
+  3. **Zero photography of people across the entire site** — strongest brand differentiator
+  4. Source-document drawer is the over-designed wedge interaction
+- **Component library**: shadcn/ui + Radix primitives + TailwindCSS v4 + Recharts (all MIT/free)
+- **Files created**: `projects/trustgive/DESIGN.md`
+- **KB entries added** (3) to `knowledge-base/by-role/designer/lessons-learned.md`:
+  - KB-DESIGNER-TRUSTGIVE-001 (MEDIUM) — Bilingual EN+RU font triplet
+  - KB-DESIGNER-TRUSTGIVE-002 (MEDIUM) — "Trust UI" anti-pattern: ban photography of people
+  - KB-DESIGNER-TRUSTGIVE-003 (LOW) — Off-white paper requires per-pair WCAG re-audit
+- **Reflection**: research-discipline (8 deep refs > 30 shallow) paid off; for bilingual products, font choice is single biggest decision; for trust UIs, photography policy is stronger differentiator than palette
+- **Next**: Awaiting Gate 2 user approval → Phase 2.5 (Backend Developer for API design + ADRs)
