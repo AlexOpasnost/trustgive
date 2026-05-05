@@ -5,10 +5,10 @@
 
 ---
 
-## Current Phase: 2.5 — API Design + ADRs
-## Status: 🔄 In Progress (Backend Developer running)
+## Current Phase: 2.5 — API Design + ADRs (Complete, Awaiting Approval)
+## Status: 🟡 Awaiting User Approval (Gate 2.5)
 ## Last Updated: 2026-05-05
-## Active Agent: Backend Developer (API design only — no implementation code yet)
+## Active Agent: Project Lead (presenting API_SPEC + 8 ADRs to user)
 
 ---
 
@@ -33,7 +33,7 @@
 | 0 | Intake Interview | Project Lead | ✅ Complete (SPEC.md v1.0 approved) | 2026-05-05 |
 | 1 | Market Research | Market Analyst | ✅ Complete | 2026-05-05 |
 | 2 | Design | Designer | ✅ Complete (v1.1 with Hugeicons) | 2026-05-05 |
-| 2.5 | API Design + ADRs | Backend Developer | 🔄 In Progress | — |
+| 2.5 | API Design + ADRs | Backend Developer | 🟡 Awaiting Approval | 2026-05-05 |
 | 3 | Backend Architecture | Backend Developer | ⏳ Pending | — |
 | 4 | Frontend Development | Frontend Developer | ⏳ Pending | — |
 | 4.5 | Testing / E2E / Perf / A11y | 4 agents in parallel | ⏳ Pending | — |

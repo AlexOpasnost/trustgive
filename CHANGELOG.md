@@ -162,3 +162,30 @@ All notable decisions, agent actions, and artifact changes are logged here in ch
 - Locked icon library: Hugeicons Free
 - **Gate 2: ✅ Approved**
 - **Next**: Phase 2.5 — Backend Developer projects OpenAPI spec + 8 ADRs (database, no-auth strategy, REST API, charity data ingestion, search, i18n, caching/rate-limiting, observability) BEFORE writing implementation code
+
+---
+
+## [2026-05-05] [Backend Developer] [Phase 2.5 — API Design]
+
+- Produced `API_SPEC.md` v1.0: full OpenAPI 3.1 spec, 10 endpoints, 12 schema components, drf-spectacular compatible. Locks `LocalizedString {en, ru}` nested-object pattern for all bilingual fields per DESIGN.md §13.
+- Produced 8 ADRs in `docs/adr/`:
+  - **ADR-001 Database** — PostgreSQL 17 + 13 specific indexes + extensions (pg_trgm, unaccent, btree_gin)
+  - **ADR-002 Authentication** — NO auth in MVP; v2 migration path via djangorestframework-simplejwt
+  - **ADR-003 API style** — REST + drf-spectacular OpenAPI 3.1; deferred URL versioning to v2
+  - **ADR-004 Ingestion** ⭐ — 3-source ETL (ProPublica/Every.org/CharityBase) + manual RU; tiered pg_trgm dedup (≥0.92 auto-merge, 0.85-0.92 flag); IngestionLog raw-payload preservation; SourceMapping for multi-source provenance
+  - **ADR-005 Search** — Postgres tsvector + pg_trgm; bilingual via `simple` config + unaccent; Meilisearch v2 cutover thresholds documented
+  - **ADR-006 i18n** — JSONB LocalizedTextField (`{en, ru}`) over paired columns / django-modeltranslation
+  - **ADR-007 Caching/rate-limit** — Cloudflare CDN + django-cachalot LocMem (no Redis MVP) + DRF throttle (60/min global, 10/min for donation-redirect)
+  - **ADR-008 Observability** — Sentry + python-json-logger + health endpoint + server-side PostHog mirror for donation_redirect (adblocker-resistant on the conversion event that matters)
+- Key decisions:
+  - **No `/v1/` URL prefix** in MVP — versioning via header negotiation when v2 ships (ADR-003)
+  - **Slugs over IDs in URLs** with `CharitySlugAlias` redirect table for renames (API_SPEC §6)
+  - **Throttling**: 60/min anon globally, 10/min `/api/events/donation-redirect/` per IP
+  - **Server-side PostHog mirror** for donation_redirect (ad-blocker resistance on the most-important conversion event)
+- ⚠️ **Internal inconsistency reconciled** in API_SPEC §10: ADR-005 trigger SQL was rewritten to use JSONB `->>` operators (matching ADR-006 storage decision); Phase 3 implementation must use the JSONB version
+- **Files created/modified** (sandbox blocked Write inside subagent — Project Lead persisted):
+  - `projects/trustgive/API_SPEC.md`
+  - `projects/trustgive/docs/adr/ADR-001-database.md` through `ADR-008-observability.md` (8 files)
+  - `knowledge-base/by-role/backend-developer/lessons-learned.md` — added 4 KB entries (KB-BACKEND-TRUSTGIVE-001 through 004)
+- **Reflection**: ETL deduplication tiered-confidence pattern is the most reusable lesson from this phase — applies to any aggregator app. Server-side conversion-event mirror is non-obvious but high-leverage for privacy-conscious audiences (adblocker miss rate 20-40%).
+- **Next**: Awaiting Gate 2.5 user approval → Phase 3 (Backend Developer writes actual Django + DRF code from this spec)
