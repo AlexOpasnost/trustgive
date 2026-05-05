@@ -1,0 +1,99 @@
+{
+  "nav": {
+    "catalog": "Catalog",
+    "methodology": "Methodology",
+    "about": "About",
+    "search": "Search",
+    "switchLang": "Switch language to Russian"
+  },
+  "home": {
+    "headline": "The only charity discovery tool that shows you the source documents.",
+    "subhead": "Filter 1.2M+ verified US, UK, and Russian charities by cause, country, and size. Every \"verified\" claim links to the actual IRS 990, Charity Commission filing, or Минюст registration.",
+    "noFee": "platform fee. We never see your money.",
+    "exploreCatalog": "Explore catalog",
+    "howWeVerify": "How we verify",
+    "browseByCause": "Browse by cause",
+    "verifySection": {
+      "title": "How we verify",
+      "registry": {
+        "title": "Government registry verification",
+        "body": "Each charity is confirmed via IRS, Charity Commission, or Минюст.",
+        "link": "Read methodology"
+      },
+      "filings": {
+        "title": "Recent financial filings",
+        "body": "We require a Form 990 or Charity Commission filing in the last 24 months."
+      },
+      "outbound": {
+        "title": "Direct outbound donations",
+        "body": "You donate on the charity's site — we never touch the money."
+      }
+    }
+  },
+  "catalog": {
+    "title": "Charities",
+    "showing": "Showing {{from}}–{{to}} of {{count}}",
+    "filters": "Filters",
+    "reset": "Reset",
+    "cause": "Cause",
+    "country": "Country",
+    "size": "Size (annual revenue)",
+    "verification": "Verification",
+    "search": "Search by name, EIN, or cause",
+    "sort": "Sort by",
+    "noResults": "No charities match these filters",
+    "tryRemoving": "Try removing a filter or broadening the cause selection.",
+    "view": "View"
+  },
+  "charity": {
+    "verified": "Verified",
+    "listed": "Listed",
+    "stale": "Stale",
+    "viewSource": "View source documents",
+    "back": "Back to results",
+    "moneyGoes": "Where the money goes",
+    "fiscalYear": "Fiscal year {{year}}",
+    "programs": "Programs",
+    "administration": "Administration",
+    "fundraising": "Fundraising",
+    "topExecComp": "Top exec comp {{amount}} ({{name}})",
+    "donateOn": "Donate on {{site}}",
+    "noFee": "0% platform fee. We never see your money.",
+    "sourceDocuments": "Source documents",
+    "description": "Description",
+    "press": "Press mentions",
+    "methodology": "Methodology",
+    "staleWarning": "Last filing {{date}}. Older than 24 months — review with caution.",
+    "leavingTitle": "You're leaving TrustGive",
+    "leavingBody": "Your donation will go directly to {{name}} on their own website. We don't process payments.",
+    "continueTo": "Continue to {{site}}",
+    "cancel": "Cancel"
+  },
+  "methodology": {
+    "title": "How we verify",
+    "lead": "We don't grade charities. We show you the documents that grade them for us — and link straight to those documents.",
+    "lastReviewed": "Last reviewed {{date}}",
+    "verifiedMeansTitle": "What \"verified\" means on TrustGive",
+    "verifiedMeansBody": "A charity is marked Verified on TrustGive if all three are true: (1) it is registered with at least one government registry; (2) it has filed financial documents in the last 24 months; (3) we link directly to those documents on the charity's page.",
+    "doNotVerifyTitle": "What we do NOT verify",
+    "doNotVerifyBody": "We do not assess program effectiveness, mission outcomes, or donor satisfaction. For deeper rigor, we recommend GiveWell, Effektiv-Spenden, and CharityWatch.",
+    "deeperTitle": "Want deeper rigor?",
+    "deeperBody": "For mission-effectiveness analysis, we recommend GiveWell, Effektiv-Spenden, and CharityWatch."
+  },
+  "common": {
+    "loading": "Loading…",
+    "error": "Something went wrong",
+    "errorBody": "This is on us, not on the charity. Please try again in a moment.",
+    "reload": "Reload",
+    "notFound": "Page not found"
+  },
+  "footer": {
+    "tagline": "Discovery for verified charities. 0% platform fee.",
+    "links": {
+      "methodology": "Methodology",
+      "press": "Press",
+      "github": "GitHub",
+      "rss": "RSS"
+    }
+  }
+}
