@@ -3,6 +3,7 @@
 > **Status**: ✅ Approved v1.0
 > **Created**: 2026-05-05 · **Approved**: 2026-05-05
 > **Approval covers**: Gate 0 (Intake) + Gate 1 (Market Research) — combined approval after Phase 1
+> **Repository**: https://github.com/AlexOpasnost/trustgive
 
 ---
 

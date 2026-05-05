@@ -103,3 +103,16 @@ All notable decisions, agent actions, and artifact changes are logged here in ch
   - KB-DESIGNER-TRUSTGIVE-003 (LOW) — Off-white paper requires per-pair WCAG re-audit
 - **Reflection**: research-discipline (8 deep refs > 30 shallow) paid off; for bilingual products, font choice is single biggest decision; for trust UIs, photography policy is stronger differentiator than palette
 - **Next**: Awaiting Gate 2 user approval → Phase 2.5 (Backend Developer for API design + ADRs)
+
+---
+
+## [2026-05-05] [Project Lead] [Infra Setup — GitHub]
+
+- Initialized git in `projects/trustgive/` (main branch)
+- Created `.gitignore` (Django + React + Flutter + IDE/OS) + `README.md` (build-in-public landing)
+- Two commits pushed:
+  - `9baf71f` Initial commit (SPEC, MARKET_ANALYSIS, CHANGELOG, PHASE_STATE, README, .gitignore)
+  - `407e546` DESIGN.md v1.0 + Phase 2 tracking
+- **Repository**: https://github.com/AlexOpasnost/trustgive (public)
+- User authenticated via `gh auth login` (AlexOpasnost account, scopes: repo, workflow, gist, read:org)
+- **Next**: User connects to Railway dashboard manually (PostgreSQL add-on first; GitHub deploy linkage deferred to Phase 3 when first backend code lands)
