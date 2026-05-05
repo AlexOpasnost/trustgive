@@ -116,3 +116,20 @@ All notable decisions, agent actions, and artifact changes are logged here in ch
 - **Repository**: https://github.com/AlexOpasnost/trustgive (public)
 - User authenticated via `gh auth login` (AlexOpasnost account, scopes: repo, workflow, gist, read:org)
 - **Next**: User connects to Railway dashboard manually (PostgreSQL add-on first; GitHub deploy linkage deferred to Phase 3 when first backend code lands)
+
+---
+
+## [2026-05-05] [Project Lead] [Infra Setup — Railway]
+
+- User created Railway project via dashboard, renamed to `trustgive`
+- **Railway Project ID**: `09bd8e82-2325-4e13-8404-fe3f1832a0dd`
+- PostgreSQL 17 service provisioned (DATABASE_URL ready for Phase 3 backend)
+- Created skeleton `DEVOPS.md` (Phase 7 expansion deferred) with:
+  - Current infra state (GitHub + Railway IDs)
+  - CLI link instructions for future deploys
+  - Frontend hosting plan (Cloudflare Pages vs Vercel decision deferred)
+  - Phase 7 deliverables checklist
+  - Cost projection through public launch
+- Created `.env.example` with all required env vars (Django, DATABASE_URL, ProPublica/Every.org/CharityBase APIs, Sentry, PostHog) — placeholders only, no secrets
+- **Files created/modified**: `DEVOPS.md`, `.env.example`, `PROJECTS.md` (root)
+- **Next**: Awaiting Gate 2 approval of DESIGN.md → Phase 2.5 (Backend Developer for OpenAPI design + ADRs)
