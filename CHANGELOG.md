@@ -189,3 +189,16 @@ All notable decisions, agent actions, and artifact changes are logged here in ch
   - `knowledge-base/by-role/backend-developer/lessons-learned.md` — added 4 KB entries (KB-BACKEND-TRUSTGIVE-001 through 004)
 - **Reflection**: ETL deduplication tiered-confidence pattern is the most reusable lesson from this phase — applies to any aggregator app. Server-side conversion-event mirror is non-obvious but high-leverage for privacy-conscious audiences (adblocker miss rate 20-40%).
 - **Next**: Awaiting Gate 2.5 user approval → Phase 3 (Backend Developer writes actual Django + DRF code from this spec)
+
+---
+
+## [2026-05-05] [Project Lead] [Gate 2.5 — APPROVED]
+
+- User approved API_SPEC.md + 8 ADRs with "го"
+- All 4 reviewable decisions confirmed:
+  - No auth in MVP
+  - Server-side PostHog mirror for donation-redirect
+  - RSS feed instead of email digest
+  - Tiered fuzzy dedup (auto-merge ≥0.92, flag 0.85-0.92)
+- **Gate 2.5: ✅ Approved**
+- **Next**: Phase 3 — Backend Developer writes actual Django 6 + DRF code from API_SPEC. Expected outputs: `projects/trustgive/backend/` Django project + `BACKEND.md` architecture notes. Then Gate 3 (mid-Phase review) before Phase 4 (Frontend).
