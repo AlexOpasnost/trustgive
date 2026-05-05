@@ -37,6 +37,7 @@ TrustGive is neither. It is a **discovery layer** built on free public data — 
 - **Backend**: Python 3.13 + Django 6 + DRF + PostgreSQL 17
 - **Frontend**: React 19 + TypeScript + Tailwind v4 + Vite (web-first responsive)
 - **i18n**: i18next (English + Russian at launch)
+- **Icons**: Hugeicons Free (5,100+ MIT icons via `@hugeicons/react`)
 - **Data sources**: ProPublica Nonprofit Explorer API · Every.org Charity API · CharityBase.uk
 - **Hosting**: Railway (backend + Postgres) + Cloudflare Pages or Vercel (frontend)
 - **Observability**: Sentry · PostHog (cookie-less mode)

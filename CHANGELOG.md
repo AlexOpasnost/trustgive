@@ -133,3 +133,18 @@ All notable decisions, agent actions, and artifact changes are logged here in ch
 - Created `.env.example` with all required env vars (Django, DATABASE_URL, ProPublica/Every.org/CharityBase APIs, Sentry, PostHog) — placeholders only, no secrets
 - **Files created/modified**: `DEVOPS.md`, `.env.example`, `PROJECTS.md` (root)
 - **Next**: Awaiting Gate 2 approval of DESIGN.md → Phase 2.5 (Backend Developer for OpenAPI design + ADRs)
+
+---
+
+## [2026-05-05] [Project Lead] [Design Iteration — Hugeicons swap]
+
+- User requested icon-library upgrade from Lucide → **Hugeicons Free**
+- Verified that `garrytan/gstack` repo (referenced by user) does NOT contain Hugeicons or any specific UI template — it's a Claude Code agent framework analogous to our `app_creater`. Hugeicons is a separate library at hugeicons.com
+- **Hugeicons Free** package: 5,100+ MIT icons, Stroke-Rounded style, `@hugeicons/react` + `@hugeicons/core-free-icons`
+- Rationale: 4× larger catalogue than Lucide, more expressive editorial linework, still tree-shakeable, $0
+- DESIGN.md updated to v1.1:
+  - §4 Iconography: rewritten with Hugeicons rationale, install snippet, ~30-icon vocabulary mapped to likely Hugeicons names (Frontend Developer confirms exact names on import in Phase 4)
+  - §11 Component library: added `@hugeicons/react` to stack
+- README.md: added Hugeicons to stack list
+- **Files modified**: `DESIGN.md`, `README.md`, `CHANGELOG.md`
+- **Next**: Awaiting Gate 2 approval — DESIGN.md is now at v1.1 with Hugeicons
