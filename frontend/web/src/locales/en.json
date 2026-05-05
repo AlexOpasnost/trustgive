@@ -7,27 +7,35 @@
     "switchLang": "Switch language to Russian"
   },
   "home": {
-    "headline": "The only charity discovery tool that shows you the source documents.",
-    "subhead": "Filter 1.2M+ verified US, UK, and Russian charities by cause, country, and size. Every \"verified\" claim links to the actual IRS 990, Charity Commission filing, or Минюст registration.",
-    "noFee": "platform fee. We never see your money.",
-    "exploreCatalog": "Explore catalog",
-    "howWeVerify": "How we verify",
-    "browseByCause": "Browse by cause",
-    "verifySection": {
-      "title": "How we verify",
-      "registry": {
-        "title": "Government registry verification",
-        "body": "Each charity is confirmed via IRS, Charity Commission, or Минюст.",
-        "link": "Read methodology"
-      },
-      "filings": {
-        "title": "Recent financial filings",
-        "body": "We require a Form 990 or Charity Commission filing in the last 24 months."
-      },
-      "outbound": {
-        "title": "Direct outbound donations",
-        "body": "You donate on the charity's site — we never touch the money."
-      }
+    "headline": "We don't grade charities. We show you the documents that grade them for us.",
+    "subhead": "A discovery layer for verified US, UK, and Russian charities — built from public registries. Every claim of “verified” links to the original IRS 990, Charity Commission filing, or Минюст registration. We never process donations.",
+    "exploreCatalog": "Explore the catalog",
+    "howWeVerify": "Read the methodology",
+    "stats": {
+      "eyebrow": "By the numbers",
+      "charities": "Verified charities, US + UK + curated RU",
+      "fee": "Platform fee. Always.",
+      "tips": "Hidden “tips”, ever",
+      "sources": "Government registries we cross-check"
+    },
+    "editorial": {
+      "eyebrow": "Why this exists",
+      "title": "Star ratings get gamed. Source documents don't.",
+      "p1": "Charity Navigator dropped overhead-ratio scoring in 2023 because nonprofits learned to mis-categorise expenses. JustGiving's largest Trustpilot complaint is a default-on “tip” that pulls 17.5% out of every donation before the charity sees a cent. The dominant trust tools have visible weaknesses.",
+      "p2": "TrustGive takes a narrower stance. We aggregate public data — IRS Form 990, UK Charity Commission, Минюст СОНКО — and link directly to the source documents. We don't publish a single trust score. We don't process payments. The job of the platform is to take you to the original record in one click.",
+      "p3": "The result is a discovery surface that reads more like a research catalogue than a fundraising site. Filter by cause, country, and size. Click through. Read the filing. Decide for yourself.",
+      "cta": "Read the full methodology"
+    },
+    "sources": {
+      "eyebrow": "Cross-verified against"
+    },
+    "causes": {
+      "eyebrow": "Browse",
+      "title": "Find a charity by cause"
+    },
+    "bottomCta": {
+      "title": "Start with a filing, not a feeling.",
+      "body": "1.2 million verified charities. Filter by cause, country, and size. Donate on the charity's own site — we never see your money."
     }
   },
   "catalog": {
@@ -88,7 +96,34 @@
     "notFound": "Page not found"
   },
   "footer": {
-    "tagline": "Discovery for verified charities. 0% platform fee.",
+    "tagline": "Discovery for verified charities. Public-data first. 0% platform fee.",
+    "discover": {
+      "title": "Discover",
+      "catalog": "Full catalog",
+      "us": "United States",
+      "uk": "United Kingdom",
+      "ru": "Russia (curated)"
+    },
+    "method": {
+      "title": "Methodology",
+      "howWeVerify": "How we verify",
+      "dataSources": "Data sources",
+      "standards": "What we don't verify"
+    },
+    "opendata": {
+      "title": "Open data",
+      "api": "API documentation",
+      "rss": "RSS feed",
+      "schema": "OpenAPI schema"
+    },
+    "about": {
+      "title": "About",
+      "github": "Source on GitHub",
+      "changelog": "Changelog",
+      "contact": "Contact"
+    },
+    "colophon": "We don't process donations. We never see your money.",
+    "builtWith": "Built with",
     "links": {
       "methodology": "Methodology",
       "press": "Press",

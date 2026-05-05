@@ -6,14 +6,15 @@
  */
 
 @theme {
-  /* --- Colors: Light mode (default) --- */
-  --color-paper: #fafaf7;
-  --color-surface: #ffffff;
+  /* --- Colors: Light mode (Anthropic-inspired warm cream + clay) --- */
+  --color-paper: #f5f1e8;        /* warm cream — Anthropic-style background */
+  --color-surface: #faf7ee;      /* lifted from paper, warm-white for cards */
   --color-surface-raised: #ffffff;
-  --color-ink: #0f1a2a;
-  --color-ink-2: #3a4356;
-  --color-ink-3: #5c6577;
-  --color-rule: #d9d5c7;
+  --color-ink: #181612;          /* warm near-black, not blue-cool */
+  --color-ink-2: #3d3a32;        /* warm secondary text */
+  --color-ink-3: #6d685c;        /* warm taupe — distinct from cool grey */
+  --color-rule: #d8d2bd;         /* warm hairline borders */
+  --color-clay: #bfb6a0;         /* abstract shapes + decorative dividers */
 
   --color-verified: #0e7c5c;
   --color-verified-on: #fafaf7;
@@ -125,6 +126,23 @@ body {
 }
 .numeric {
   font-variant-numeric: tabular-nums;
+}
+
+/* Marquee — infinite horizontal scroll for sources strip */
+@keyframes marquee {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}
+.animate-marquee {
+  animation: marquee 60s linear infinite;
+  will-change: transform;
+}
+.animate-marquee:hover {
+  animation-play-state: paused;
 }
 
 /* Skeleton shimmer (DESIGN.md §6.9) — luminance only, respects reduced motion */
