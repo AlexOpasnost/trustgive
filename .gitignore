@@ -1,0 +1,89 @@
+# --- Secrets & env ---
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+secrets/
+
+# --- Python / Django ---
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+.eggs/
+.installed.cfg
+*.egg
+build/
+dist/
+.tox/
+.coverage
+.coverage.*
+htmlcov/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.venv/
+venv/
+env/
+db.sqlite3
+db.sqlite3-journal
+staticfiles/
+media/
+celerybeat-schedule
+celerybeat.pid
+
+# --- Node / React / Vite ---
+node_modules/
+.pnp.*
+.yarn/
+dist/
+build/
+.next/
+out/
+.turbo/
+.parcel-cache/
+coverage/
+*.tsbuildinfo
+.vite/
+
+# --- Flutter / Dart (deferred to v2 but ignored proactively) ---
+.dart_tool/
+.flutter-plugins
+.flutter-plugins-dependencies
+.packages
+.pub-cache/
+.pub/
+build/
+ios/Pods/
+ios/.symlinks/
+android/.gradle/
+android/local.properties
+
+# --- IDE / OS ---
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# --- Logs & temp ---
+*.log
+logs/
+tmp/
+.cache/
+
+# --- Test artifacts ---
+playwright-report/
+test-results/
+.lighthouseci/
+
+# --- Lockfiles policy ---
+# Keep package-lock.json, yarn.lock, poetry.lock, requirements.txt — needed for reproducible builds
+
+# --- Project-specific ---
+research/screenshots/
+*.local.md
