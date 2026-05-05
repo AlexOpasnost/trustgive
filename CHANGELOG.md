@@ -148,3 +148,17 @@ All notable decisions, agent actions, and artifact changes are logged here in ch
 - README.md: added Hugeicons to stack list
 - **Files modified**: `DESIGN.md`, `README.md`, `CHANGELOG.md`
 - **Next**: Awaiting Gate 2 approval — DESIGN.md is now at v1.1 with Hugeicons
+
+---
+
+## [2026-05-05] [Project Lead] [Gate 2 — APPROVED]
+
+- User approved DESIGN.md v1.1 with "по плану идём" — declined optional static-prototype path, chose to proceed by canonical workflow
+- All 4 opinionated design decisions accepted:
+  - Forest green `#0E7C5C` as trust accent (vs all-blue competitors)
+  - Wordmark-only logo in v1
+  - Zero photography of people
+  - Source-document drawer as primary wedge interaction
+- Locked icon library: Hugeicons Free
+- **Gate 2: ✅ Approved**
+- **Next**: Phase 2.5 — Backend Developer projects OpenAPI spec + 8 ADRs (database, no-auth strategy, REST API, charity data ingestion, search, i18n, caching/rate-limiting, observability) BEFORE writing implementation code
