@@ -1,0 +1,30 @@
+name: Nightly ETL
+
+on:
+  schedule:
+    # 02:00 UTC daily
+    - cron: '0 2 * * *'
+  workflow_dispatch: {}
+
+permissions:
+  contents: read
+
+jobs:
+  ingest-propublica:
+    name: ingest_propublica --since=24h
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Install Railway CLI
+        run: npm install -g @railway/cli@latest
+      - name: Run ingestion via Railway
+        env:
+          RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
+        run: |
+          railway run --service backend python manage.py ingest_propublica --since=24h
+        # Note: ingest_every_org and ingest_charitybase are stubs (BACKEND.md §9)
+        # Add their `railway run` calls here once implemented
