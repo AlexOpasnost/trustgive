@@ -33,6 +33,7 @@ export function Footer() {
             <FooterLink to="/charities?country=US">{t("footer.discover.us")}</FooterLink>
             <FooterLink to="/charities?country=GB">{t("footer.discover.uk")}</FooterLink>
             <FooterLink to="/charities?country=RU">{t("footer.discover.ru")}</FooterLink>
+            <FooterLink to="/compare">{t("footer.discover.compare")}</FooterLink>
           </FooterCol>
 
           <FooterCol title={t("footer.method.title")}>
