@@ -1,54 +1,28 @@
-# --- Build stage ---
-# Pin to bookworm (Debian 12 stable LTS) — trixie/13 is still in transition
-# in some Docker registries and can have transient apt-get failures.
-FROM python:3.13-slim-bookworm AS build
+# Single-stage Dockerfile — keeps the image build deterministic on Railway.
+# Why no apt-get: `psycopg[binary]` ships with libpq bundled, so we don't need
+# `libpq5` / `libpq-dev` from Debian repos. Avoiding apt-get also dodges the
+# transient mirror failures we saw on Railway's runner.
+FROM python:3.13-slim-bookworm
 
 ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1 \
     PIP_NO_CACHE_DIR=1 \
     PIP_DISABLE_PIP_VERSION_CHECK=1 \
-    DEBIAN_FRONTEND=noninteractive
-
-RUN apt-get update \
-    && apt-get install -y --no-install-recommends \
-        build-essential \
-        libpq-dev \
-    && rm -rf /var/lib/apt/lists/*
-
-WORKDIR /app
-COPY requirements.txt .
-RUN pip install --prefix=/install -r requirements.txt
-
-# --- Runtime stage ---
-FROM python:3.13-slim-bookworm AS runtime
-
-ENV PYTHONDONTWRITEBYTECODE=1 \
-    PYTHONUNBUFFERED=1 \
     DJANGO_SETTINGS_MODULE=trustgive.settings.production \
-    PORT=8000 \
-    DEBIAN_FRONTEND=noninteractive
+    PORT=8000
 
-RUN apt-get update \
-    && apt-get install -y --no-install-recommends \
-        libpq5 \
-        curl \
-        ca-certificates \
-    && rm -rf /var/lib/apt/lists/* \
-    && useradd --create-home --shell /bin/bash app
-
-COPY --from=build /install /usr/local
 WORKDIR /app
-COPY --chown=app:app . /app
 
-USER app
+# Copy requirements first — Docker layer cache hits when only app code changes
+COPY backend/requirements.txt /app/requirements.txt
+RUN pip install -r /app/requirements.txt
 
-# Entrypoint: run migrations, collect static, start gunicorn
-RUN printf '#!/bin/sh\nset -e\npython manage.py migrate --noinput\npython manage.py collectstatic --noinput\nexec gunicorn trustgive.wsgi:application --bind 0.0.0.0:${PORT} --workers 2 --access-logfile - --error-logfile -\n' > /app/entrypoint.sh \
-    && chmod +x /app/entrypoint.sh
+# Copy the rest of the backend
+COPY backend/ /app/
 
 EXPOSE 8000
 
-HEALTHCHECK --interval=30s --timeout=10s --start-period=20s --retries=3 \
-    CMD curl -fsS "http://localhost:${PORT}/api/health/" || exit 1
-
-CMD ["/app/entrypoint.sh"]
+# Migrations + static collection + gunicorn on container start.
+# Railway has its own healthcheck (railway.json -> healthcheckPath /api/health/)
+# so we don't ship a Dockerfile-level HEALTHCHECK that would also need curl.
+CMD ["sh", "-c", "python manage.py migrate --noinput && python manage.py collectstatic --noinput && exec gunicorn trustgive.wsgi:application --bind 0.0.0.0:$PORT --workers 2 --access-logfile - --error-logfile -"]
