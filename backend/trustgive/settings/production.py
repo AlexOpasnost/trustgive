@@ -49,16 +49,42 @@ def _scrub_sensitive_fields(event: dict[str, Any], _hint: dict[str, Any]) -> dic
     return event
 
 
-if SENTRY_DSN:
-    sentry_sdk.init(
-        dsn=SENTRY_DSN,
-        environment=SENTRY_ENVIRONMENT or "production",
-        release=RAILWAY_DEPLOYMENT_ID,
-        integrations=[
-            DjangoIntegration(transaction_style="url"),
-            LoggingIntegration(level=logging.INFO, event_level=logging.ERROR),
-        ],
-        traces_sample_rate=SENTRY_TRACES_SAMPLE_RATE,
-        send_default_pii=False,
-        before_send=_scrub_sensitive_fields,
+def _looks_like_real_sentry_dsn(dsn: str) -> bool:
+    """Reject placeholder values like https://your-key@sentry.io/your-project.
+
+    A real DSN has an integer project ID at the path. We don't import
+    sentry_sdk.utils to validate (would cause import side-effects); a
+    pragmatic regex check is enough to avoid the most common pitfalls.
+    """
+    if not dsn:
+        return False
+    import re as _re
+
+    pattern = _re.compile(r"^https?://[^@]+@[^/]+/\d+$")
+    return bool(pattern.match(dsn.strip()))
+
+
+if _looks_like_real_sentry_dsn(SENTRY_DSN):
+    try:
+        sentry_sdk.init(
+            dsn=SENTRY_DSN,
+            environment=SENTRY_ENVIRONMENT or "production",
+            release=RAILWAY_DEPLOYMENT_ID,
+            integrations=[
+                DjangoIntegration(transaction_style="url"),
+                LoggingIntegration(level=logging.INFO, event_level=logging.ERROR),
+            ],
+            traces_sample_rate=SENTRY_TRACES_SAMPLE_RATE,
+            send_default_pii=False,
+            before_send=_scrub_sensitive_fields,
+        )
+    except Exception as exc:  # noqa: BLE001
+        # Anything goes wrong with Sentry setup must NOT take down the whole
+        # app — observability is opt-in, app correctness is mandatory.
+        logging.getLogger(__name__).warning(
+            "Sentry init failed (%s); continuing without error tracking.", exc
+        )
+elif SENTRY_DSN:
+    logging.getLogger(__name__).info(
+        "SENTRY_DSN set but doesn't look like a real DSN — skipping init."
     )
