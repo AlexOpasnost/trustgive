@@ -89,6 +89,27 @@
     "continueTo": "Continue to {{site}}",
     "cancel": "Cancel"
   },
+  "compare": {
+    "title": "Side-by-side comparison",
+    "back": "Back to catalog",
+    "emptyTitle": "Compare two or three charities, side by side",
+    "emptyBody": "Pass charity slugs in the URL — minimum 2, maximum 3. The same comparison page works as a shareable link.",
+    "browseCatalog": "Browse the catalog",
+    "donate": "Donate",
+    "footnote": "All figures pulled from the most recent IRS Form 990 / Charity Commission filing / Минюст registration. We do not normalise across reporting standards — interpret with care.",
+    "row": {
+      "verified": "Verified",
+      "country": "Country",
+      "registration": "Registration / EIN",
+      "revenue": "Total revenue",
+      "programs": "% to programs",
+      "admin": "% admin",
+      "fundraising": "% fundraising",
+      "topExec": "Top exec comp",
+      "lastFiled": "Last filed",
+      "source": "Primary source"
+    }
+  },
   "methodology": {
     "title": "How we verify",
     "lead": "We don't grade charities. We show you the documents that grade them for us — and link straight to those documents.",
@@ -121,7 +142,8 @@
       "catalog": "Full catalog",
       "us": "United States",
       "uk": "United Kingdom",
-      "ru": "Russia (curated)"
+      "ru": "Russia (curated)",
+      "compare": "Compare side-by-side"
     },
     "method": {
       "title": "Methodology",
