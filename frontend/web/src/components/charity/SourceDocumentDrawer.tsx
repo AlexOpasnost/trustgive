@@ -1,6 +1,11 @@
 import * as Dialog from "@radix-ui/react-dialog"
 import { HugeiconsIcon } from "@hugeicons/react"
-import { Cancel01Icon, LinkSquare02Icon, Download04Icon } from "@hugeicons/core-free-icons"
+import {
+  Cancel01Icon,
+  Download04Icon,
+  FileVerifiedIcon,
+  LinkSquare02Icon,
+} from "@hugeicons/core-free-icons"
 import { useTranslation } from "react-i18next"
 
 import type { SourceDocument } from "@/types/api"
@@ -61,19 +66,25 @@ export function SourceDocumentDrawer({ document, charityName, registrationId, on
               </header>
 
               <div className="flex-1 overflow-y-auto p-6 space-y-6">
-                <div className="aspect-[8.5/11] bg-paper border border-rule rounded-md flex items-center justify-center">
-                  <iframe
-                    src={document.url}
-                    title={label}
-                    className="w-full h-full border-0"
-                    loading="lazy"
-                  />
+                {/*
+                  Government registries (ProPublica, IRS, Charity Commission)
+                  serve their PDFs with X-Frame-Options: DENY, so iframe
+                  embedding is blocked. We instead show a stylised preview
+                  card + prominent "Open original" CTA. Cross-origin PDF.js
+                  remains a Phase 4.5+ option.
+                */}
+                <div className="aspect-[8.5/11] bg-paper border border-rule rounded-md flex flex-col items-center justify-center text-center px-8 py-10">
+                  <HugeiconsIcon icon={FileVerifiedIcon} size={56} className="text-clay mb-6" />
+                  <p className="font-serif text-h3 text-ink mb-2" style={{ fontWeight: 400 }}>
+                    {label}
+                  </p>
+                  <p className="text-body-sm text-ink-3 max-w-xs">
+                    {t("drawer.previewUnavailable")}
+                  </p>
                 </div>
 
-                <div className="bg-paper border-l-4 border-verified px-4 py-3">
-                  <p className="text-body-sm text-ink-2">
-                    This is the original filing. TrustGive did not edit it.
-                  </p>
+                <div className="bg-verified-soft border-l-4 border-verified px-4 py-3">
+                  <p className="text-body-sm text-ink-2">{t("drawer.notEdited")}</p>
                 </div>
 
                 <div className="flex flex-wrap gap-3">
@@ -81,19 +92,27 @@ export function SourceDocumentDrawer({ document, charityName, registrationId, on
                     href={document.url}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="inline-flex items-center gap-2 px-4 py-2 bg-verified text-verified-on rounded-md text-body-sm font-medium hover:opacity-90"
+                    className="inline-flex items-center gap-2 px-5 py-3 bg-ink text-paper rounded-md text-body font-medium hover:bg-ink-2"
                   >
                     <HugeiconsIcon icon={LinkSquare02Icon} size={16} />
-                    View on {document.source_label || "source"}
+                    {t("drawer.openOn", { source: document.source_label || "source" })}
                   </a>
                   <a
                     href={document.url}
                     download
-                    className="inline-flex items-center gap-2 px-4 py-2 border border-rule rounded-md text-body-sm font-medium text-ink hover:bg-paper"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-2 px-5 py-3 border border-rule rounded-md text-body font-medium text-ink hover:bg-paper"
                   >
                     <HugeiconsIcon icon={Download04Icon} size={16} />
-                    Download
+                    {t("drawer.download")}
                   </a>
+                </div>
+
+                <div className="pt-4 border-t border-rule">
+                  <p className="text-caption text-ink-3 font-mono">
+                    {t("drawer.howItWorks")}
+                  </p>
                 </div>
               </div>
             </>

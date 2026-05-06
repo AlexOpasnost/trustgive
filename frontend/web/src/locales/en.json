@@ -135,6 +135,13 @@
     "reload": "Reload",
     "notFound": "Page not found"
   },
+  "drawer": {
+    "previewUnavailable": "Government registries don't allow embedded preview. Open the original to read the full filing.",
+    "notEdited": "This is the original filing. TrustGive did not edit it.",
+    "openOn": "View original on {{source}}",
+    "download": "Download",
+    "howItWorks": "TrustGive links straight to the registry — we don't host or modify charity filings."
+  },
   "footer": {
     "tagline": "Discovery for verified charities. Public-data first. 0% platform fee.",
     "discover": {

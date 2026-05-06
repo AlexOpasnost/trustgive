@@ -122,6 +122,11 @@ def _money_breakdown_from_financial(charity: Charity) -> dict[str, Any] | None:
     _push("Administration", "Администрация", latest.admin_expenses_usd)
     _push("Fundraising", "Привлечение средств", latest.fundraising_expenses_usd)
 
+    # No usable per-category split → don't render a misleading partial breakdown.
+    # Frontend's CharityDetailPage already conditionally renders the section.
+    if not lines:
+        return None
+
     return {
         "year": latest.year,
         "lines": lines,
