@@ -111,6 +111,22 @@ class DebugGiveDirectlyRawView(APIView):
                 orm_name = f"ERROR: {e}"
                 orm_tagline_ru = ""
                 orm_name_type = "(error)"
+
+            # ALSO try after busting cachalot — distinguishes cache vs reader bug
+            from django.core.cache import cache as django_cache
+            try:
+                from cachalot.api import invalidate as cachalot_invalidate
+                cachalot_invalidate(Charity, db_alias="default")
+            except Exception:
+                pass
+            django_cache.clear()
+            try:
+                fresh = Charity.objects.get(registration_id="271661997")
+                fresh_name = fresh.name
+                fresh_name_type = type(fresh.name).__name__
+            except Exception as e:
+                fresh_name = f"ERROR: {e}"
+                fresh_name_type = "(error)"
         except Exception as e:
             return Response({"error": str(e)}, status=500)
 
@@ -135,6 +151,10 @@ class DebugGiveDirectlyRawView(APIView):
                     "name": orm_name,
                     "name_type": orm_name_type,
                     "tagline_ru": orm_tagline_ru,
+                },
+                "orm_after_cache_clear": {
+                    "name": fresh_name,
+                    "name_type": fresh_name_type,
                 },
             },
             status=200,
