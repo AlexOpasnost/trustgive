@@ -68,11 +68,26 @@ MIDDLEWARE = [
 ]
 
 # --- CORS (REVIEW H-003 fix) ---
+# Explicit list (env-overridable) for local dev defaults. Production origins are
+# matched via regex below, so this list does not need updating when the
+# Cloudflare worker subdomain or Pages project name changes.
 CORS_ALLOWED_ORIGINS = env(
     "CORS_ALLOWED_ORIGINS",
     default=[
         "http://localhost:5173",
         "http://127.0.0.1:5173",
+    ],
+)
+# Regex-based allow-list — covers production domain family without env-var churn:
+#   - https://trustgive.org and https://www.trustgive.org (production)
+#   - https://*.railyrains.workers.dev (Cloudflare Worker dev URLs, account-scoped)
+#   - https://*.pages.dev (future Cloudflare Pages preview URLs, project-scoped)
+CORS_ALLOWED_ORIGIN_REGEXES = env(
+    "CORS_ALLOWED_ORIGIN_REGEXES",
+    default=[
+        r"^https://(www\.)?trustgive\.org$",
+        r"^https://[a-z0-9-]+\.railyrains\.workers\.dev$",
+        r"^https://trustgive-web-[a-z0-9-]+\.pages\.dev$",
     ],
 )
 CORS_ALLOW_CREDENTIALS = False  # No auth → no cookies needed cross-origin
