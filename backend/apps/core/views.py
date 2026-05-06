@@ -81,36 +81,61 @@ class DebugGiveDirectlyRawView(APIView):
     authentication_classes: list = []
 
     def get(self, request) -> Response:
+        from apps.charities.models import Charity
+
         try:
             with connection.cursor() as cursor:
+                cursor.execute("SHOW client_encoding")
+                client_encoding = cursor.fetchone()[0]
+                cursor.execute("SHOW server_encoding")
+                server_encoding = cursor.fetchone()[0]
+
+                # Raw SQL — bypasses LocalizedTextField.from_db_value
                 cursor.execute(
-                    "SELECT id::text, slug, name::text, tagline::text, "
+                    "SELECT id::text, slug, name::text, name->>'en' AS name_en, "
+                    "name->>'ru' AS name_ru, tagline::text, "
                     "description::text, methodology_note::text, donation_url, "
                     "name_trgm, registration_id "
                     "FROM charities_charity WHERE registration_id = %s",
                     ["271661997"],
                 )
-                rows = cursor.fetchall()
+                row = cursor.fetchone()
+
+            # Same row through the runtime ORM (LocalizedTextField + JSONField path)
+            try:
+                charity = Charity.objects.get(registration_id="271661997")
+                orm_name = charity.name
+                orm_tagline_ru = charity.tagline.get("ru", "") if isinstance(charity.tagline, dict) else "(non-dict)"
+                orm_name_type = type(charity.name).__name__
+            except Exception as e:
+                orm_name = f"ERROR: {e}"
+                orm_tagline_ru = ""
+                orm_name_type = "(error)"
         except Exception as e:
             return Response({"error": str(e)}, status=500)
 
         return Response(
             {
-                "row_count": len(rows),
-                "rows": [
-                    {
-                        "id": r[0],
-                        "slug": r[1],
-                        "name_text": r[2],
-                        "tagline_text": r[3],
-                        "description_text": r[4][:200] if r[4] else r[4],
-                        "methodology_note_text": r[5][:200] if r[5] else r[5],
-                        "donation_url": r[6],
-                        "name_trgm": r[7],
-                        "registration_id": r[8],
-                    }
-                    for r in rows
-                ],
+                "client_encoding": client_encoding,
+                "server_encoding": server_encoding,
+                "raw_sql": {
+                    "id": row[0],
+                    "slug": row[1],
+                    "name_text": row[2],
+                    "name_op_en": row[3],  # via JSONB ->> 'en' operator
+                    "name_op_ru": row[4],
+                    "tagline_text": row[5],
+                    "description_text_first200": row[6][:200] if row[6] else row[6],
+                    "methodology_note_text_first200": row[7][:200] if row[7] else row[7],
+                    "donation_url": row[8],
+                    "name_trgm": row[9],
+                    "registration_id": row[10],
+                },
+                "orm": {
+                    "name": orm_name,
+                    "name_type": orm_name_type,
+                    "tagline_ru": orm_tagline_ru,
+                },
             },
             status=200,
         )
