@@ -1,6 +1,7 @@
 """Custom Django fields — LocalizedTextField for {en, ru} JSONB storage (per ADR-006)."""
 from __future__ import annotations
 
+import json
 from typing import Any
 
 from django.db import models
@@ -26,6 +27,14 @@ class LocalizedTextField(models.JSONField):
     def from_db_value(self, value: Any, expression: Any, connection: Any) -> dict[str, str]:
         if value is None:
             return _empty_localized()
+        # psycopg3 with Postgres returns JSONB as Python dict (auto-deserialised),
+        # but some configurations / driver versions may return the JSON text instead.
+        # Handle both — string is parsed as JSON, anything else degrades to default.
+        if isinstance(value, str):
+            try:
+                value = json.loads(value)
+            except (ValueError, TypeError):
+                return _empty_localized()
         if isinstance(value, dict):
             value.setdefault("en", "")
             value.setdefault("ru", "")
