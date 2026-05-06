@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import logging
+import os
 
 import sentry_sdk
 from django.conf import settings
@@ -58,6 +59,33 @@ class HealthView(APIView):
             "db": "ok" if db_ok else "fail",
             "sentry": sentry_status,
             "version": settings.APP_VERSION,
+            "commit_sha": _read_commit_sha(),
+            "latest_migration": _latest_migration() if db_ok else None,
             "timestamp": timezone.now().isoformat(),
         }
         return Response(body, status=200 if status_ok else 503)
+
+
+def _read_commit_sha() -> str:
+    """Read the deploy commit SHA from env (Railway provides RAILWAY_GIT_COMMIT_SHA)."""
+    sha = os.environ.get("RAILWAY_GIT_COMMIT_SHA", "")
+    return sha[:7] if sha else "unknown"
+
+
+def _latest_migration() -> str | None:
+    """Return the name of the most-recently-applied migration on charities app.
+
+    Lets ops verify which schema/data version is live without DB access — useful
+    for confirming that data migrations like 0005/0006 have run.
+    """
+    try:
+        with connection.cursor() as cursor:
+            cursor.execute(
+                "SELECT name FROM django_migrations WHERE app=%s ORDER BY id DESC LIMIT 1",
+                ["charities"],
+            )
+            row = cursor.fetchone()
+            return row[0] if row else None
+    except Exception:
+        logger.exception("Health check: latest_migration lookup failed")
+        return None
