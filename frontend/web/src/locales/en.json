@@ -6,6 +6,18 @@
     "search": "Search",
     "switchLang": "Switch language to Russian"
   },
+  "search": {
+    "placeholder": "Search charities, sources, or pages…",
+    "noResults": "No charities match \"{{q}}\"",
+    "charities": "Charities",
+    "quickNav": "Quick navigation",
+    "allCharities": "Browse the full catalog",
+    "methodology": "How we verify",
+    "usCharities": "United States charities",
+    "ukCharities": "United Kingdom charities",
+    "ruCharities": "Russia charities (curated)",
+    "poweredBy": "TrustGive search"
+  },
   "home": {
     "headline": "We don't grade charities. We show you the documents that grade them for us.",
     "subhead": "A discovery layer for verified US, UK, and Russian charities — built from public registries. Every claim of “verified” links to the original IRS 990, Charity Commission filing, or Минюст registration. We never process donations.",
@@ -85,6 +97,13 @@
     "verifiedMeansBody": "A charity is marked Verified on TrustGive if all three are true: (1) it is registered with at least one government registry; (2) it has filed financial documents in the last 24 months; (3) we link directly to those documents on the charity's page.",
     "doNotVerifyTitle": "What we do NOT verify",
     "doNotVerifyBody": "We do not assess program effectiveness, mission outcomes, or donor satisfaction. For deeper rigor, we recommend GiveWell, Effektiv-Spenden, and CharityWatch.",
+    "complianceTitle": "Legal compliance constraints",
+    "complianceBody": "TrustGive is operated from Russia. Russian law requires us to exclude the following categories of organisations from our catalogue, regardless of the work they do:",
+    "complianceItem1": "Organisations recognised as foreign agents by the Ministry of Justice of the Russian Federation",
+    "complianceItem2": "Organisations recognised as extremist or undesirable by Russian courts or executive bodies",
+    "complianceItem3": "Organisations providing material assistance to parties of active armed conflicts",
+    "complianceItem4": "Organisations registered in territories where compliance with Russian regulations cannot be reliably verified",
+    "complianceFooter": "These exclusions are a legal compliance requirement, not an editorial judgement about the work these organisations do. Donors who wish to support such organisations can do so directly through other discovery tools.",
     "deeperTitle": "Want deeper rigor?",
     "deeperBody": "For mission-effectiveness analysis, we recommend GiveWell, Effektiv-Spenden, and CharityWatch."
   },

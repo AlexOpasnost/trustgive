@@ -4,6 +4,11 @@ import { createRoot } from "react-dom/client"
 import { App } from "./App"
 import "./index.css"
 import "./lib/i18n"
+import { initPostHog } from "./lib/posthog"
+import { initSentry } from "./lib/sentry"
+
+initSentry()
+initPostHog()
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>

@@ -22,6 +22,7 @@ from django.core.management.base import BaseCommand
 from django.db import transaction
 from django.utils.text import slugify
 
+from apps.charities.blocklist import is_blocked
 from apps.charities.models import (
     Charity,
     Country,
@@ -185,6 +186,19 @@ class Command(BaseCommand):
         name = (org.get("name") or "").strip()
         if not name or not ein_clean:
             log.errors.append({"ein": ein_clean, "error_class": "ParseError", "message": "Missing name or EIN"})
+            log.records_skipped += 1
+            return
+
+        # Legal compliance — never ingest blocked records (per blocklist.py)
+        block_reason = is_blocked(
+            country=Country.US,
+            registration_id=ein_clean,
+            cause_tags=org.get("category_codes") or [],
+            name=name,
+            description=(org.get("description") or org.get("mission") or ""),
+        )
+        if block_reason is not None:
+            logger.info("Skipping blocked record EIN=%s reason=%s", ein_clean, block_reason)
             log.records_skipped += 1
             return
 

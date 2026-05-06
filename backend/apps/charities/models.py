@@ -20,6 +20,9 @@ class Country(models.TextChoices):
     US = "US", "United States"
     GB = "GB", "United Kingdom"
     RU = "RU", "Russia"
+    CA = "CA", "Canada"
+    AU = "AU", "Australia"
+    NL = "NL", "Netherlands"
 
 
 class SizeBucket(models.TextChoices):

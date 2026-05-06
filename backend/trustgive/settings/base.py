@@ -43,6 +43,7 @@ INSTALLED_APPS = [
     "rest_framework",
     "drf_spectacular",
     "django_filters",
+    "corsheaders",
     "cachalot",
     "apps.core",
     "apps.charities",
@@ -54,6 +55,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     "apps.core.middleware.RequestIDMiddleware",
+    "corsheaders.middleware.CorsMiddleware",
     "django.middleware.security.SecurityMiddleware",
     "whitenoise.middleware.WhiteNoiseMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
@@ -63,6 +65,25 @@ MIDDLEWARE = [
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "apps.core.middleware.CacheControlMiddleware",
+]
+
+# --- CORS (REVIEW H-003 fix) ---
+CORS_ALLOWED_ORIGINS = env(
+    "CORS_ALLOWED_ORIGINS",
+    default=[
+        "http://localhost:5173",
+        "http://127.0.0.1:5173",
+    ],
+)
+CORS_ALLOW_CREDENTIALS = False  # No auth → no cookies needed cross-origin
+CORS_PREFLIGHT_MAX_AGE = 60 * 60 * 24
+CORS_ALLOW_METHODS = ["GET", "POST", "OPTIONS"]
+CORS_ALLOW_HEADERS = [
+    "accept",
+    "accept-encoding",
+    "accept-language",
+    "content-type",
+    "x-request-id",
 ]
 
 ROOT_URLCONF = "trustgive.urls"

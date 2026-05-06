@@ -44,6 +44,26 @@ export function MethodologyPage() {
 
       <hr className="border-rule my-12" />
 
+      <section className="mb-16">
+        <h2 className="text-h2 font-semibold text-ink mb-4 font-sans">
+          {t("methodology.complianceTitle")}
+        </h2>
+        <p className="text-body leading-relaxed text-ink-2" style={{ fontSize: "19px", lineHeight: "32px" }}>
+          {t("methodology.complianceBody")}
+        </p>
+        <ul className="mt-6 space-y-3 list-disc list-inside text-body text-ink-2 font-sans" style={{ fontSize: "17px", lineHeight: "28px" }}>
+          <li>{t("methodology.complianceItem1")}</li>
+          <li>{t("methodology.complianceItem2")}</li>
+          <li>{t("methodology.complianceItem3")}</li>
+          <li>{t("methodology.complianceItem4")}</li>
+        </ul>
+        <p className="text-body leading-relaxed text-ink-2 mt-6" style={{ fontSize: "19px", lineHeight: "32px" }}>
+          {t("methodology.complianceFooter")}
+        </p>
+      </section>
+
+      <hr className="border-rule my-12" />
+
       <section>
         <h2 className="text-h2 font-semibold text-ink mb-4 font-sans">
           {t("methodology.deeperTitle")}
