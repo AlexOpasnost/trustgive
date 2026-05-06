@@ -367,3 +367,74 @@ Confluence-ready structure; cross-links to all source-of-truth artifacts (SPEC, 
 - Cloudflare Pages deploy (push triggers auto-deploy after dashboard linkage)
 - Railway backend deploy (push triggers auto-deploy after dashboard linkage)
 - 8-week timeline build → soft launch → Product Hunt + Show HN public launch (Week 8)
+
+---
+
+## [2026-05-06] [Project Lead] [Live deployment — trustgive.org domain wired]
+
+**Live URLs**:
+- Frontend: **https://trustgive.org** (Cloudflare Worker `trustgive-web` direct upload + custom domain)
+- Backend: **https://api.trustgive.org** (Railway service `trustgive` + custom domain)
+- Repo: https://github.com/AlexOpasnost/trustgive
+
+**Commits landed (a6ea857..0e43df8, 7 commits)**:
+- `2c95b4c` — CORS regex patterns (no more env-var churn on domain changes)
+- `4921897` — Migration 0005: GiveDirectly cleanup via `charity.save()` (partial — only scalar fields persisted)
+- `01dfc78` — Migration 0006: raw-SQL `UPDATE ... SET name = %s::jsonb` (no-op — JSONB still empty)
+- `d412fdd` — Health endpoint exposes `commit_sha` + `latest_migration` (deploy diagnostics)
+- `5dbd57d` — Migration 0007: ORM `Charity.objects.filter().update(name={...})` (DB write succeeded)
+- `2a7023e`, `4c91c27` — Debug endpoint v2/v3 with raw SQL + ORM-after-cache-clear comparison
+- `0e43df8` — **Root-cause fix**: `LocalizedTextField.from_db_value` now handles string values from psycopg3 (was silently returning empty default)
+
+**Domain wiring**:
+1. **Cloudflare Registrar** purchase: `trustgive.org` ($10/yr, auto-renew, registered 2026-05-06, expires 2027-05-06)
+2. **api.trustgive.org → Railway**: Used Railway's "One-click DNS Setup" via Cloudflare API. Railway auto-created CNAME `api → stxwq0nu.up.railway.app` + TXT verification. Cloudflare proxy ON (orange cloud), Full TLS to Railway. SSL provisioned in <60s.
+3. **trustgive.org → Cloudflare Worker**:
+   - Original `trustgive` Worker (deployed via wrangler.jsonc) had `assets.not_found_handling: single-page-application` — proper SPA fallback
+   - New `trustgive-web` Worker created via dashboard **Direct Upload** (drag-and-drop `dist/` folder). Necessary because wrangler CLI required OAuth login that failed under Yandex.Browser CSRF
+   - Custom domain `trustgive.org` migrated from old Worker to new (delete from old → add to new)
+   - **Open issue**: Direct Upload didn't preserve SPA fallback. Direct URLs to `/charities`, `/methodology` etc. return 404; client-side navigation works fine. Fix is one click: `trustgive-web` → Workers configuration → set `not_found_handling`. Deferred.
+
+**Frontend rebuild**:
+- Created `frontend/web/.env.production` with `VITE_API_BASE_URL=https://api.trustgive.org` (gitignored)
+- `npm run build` produced new `dist/` (583 KB main bundle, 188 KB gzipped)
+- Verified bundle has zero references to old `trustgive-production.up.railway.app`
+
+**CORS regex** (`2c95b4c`) replaces explicit allow-list to avoid Railway env churn:
+```python
+CORS_ALLOWED_ORIGIN_REGEXES = [
+    r"^https://(www\.)?trustgive\.org$",
+    r"^https://[a-z0-9-]+\.railyrains\.workers\.dev$",
+    r"^https://trustgive-web-[a-z0-9-]+\.pages\.dev$",
+]
+```
+Verified preflight: `Access-Control-Allow-Origin: https://trustgive.org` returned for that Origin.
+
+**GiveDirectly data cleanup saga** (4-commit detective story):
+- Initial state: `name = {"en":"","ru":""}`, `program_expenses_usd = $130.3M`, `fundraising_expenses_usd = $79.8M` (56.8% — bogus from ETL `totliabend → fundraising` mismapping)
+- Migration 0005 (`charity.save()` on historical model): donation_url + Financial.update() persisted; JSONB columns remained empty. Mystery #1.
+- Migration 0006 (raw `schema_editor.execute("UPDATE ... %s::jsonb")`): JSONB still empty after migration recorded as applied. Mystery #2.
+- Health endpoint (`d412fdd`) added `commit_sha` + `latest_migration` for deploy verification without dashboard access — confirmed both 0005 and 0006 ran.
+- Migration 0007 (`Charity.objects.filter().update()`): DB write persisted — confirmed via debug endpoint's raw SQL `name::text` showing `'{"en":"GIVEDIRECTLY, INC.","ru":"GiveDirectly"}'`. **But public API still returned empty!**
+- Debug endpoint v3 (`4c91c27`): added `cachalot.invalidate` + `cache.clear` + ORM re-fetch comparison. **Root cause revealed**: ORM returned `{"en":"","ru":""}` even post-cache-bust. Raw SQL had data, ORM didn't.
+- **Root cause**: `LocalizedTextField.from_db_value` had three branches (None / dict / fallback), fallback returned empty default. With psycopg3 + Postgres native JSONB the value SHOULD arrive as Python dict — but in this Railway/Neon config it arrives as a JSON-text string. Fallback silently swallowed data.
+- **Fix (`0e43df8`)**: `from_db_value` now `json.loads()` string values before the `isinstance(value, dict)` check. 9 LOC, 1 character of insight.
+
+**KB lesson to log**:
+> psycopg3 + PostgreSQL JSONB is documented as auto-deserialised to Python dict, but in some hosting configurations (observed: Railway → Neon Postgres) the JSON arrives as a string in `from_db_value`. Custom JSONField subclasses MUST handle the string case (`json.loads(value)`) before checking `isinstance(value, dict)` — otherwise data silently round-trips to defaults with no exception. Symptom: writes succeed (raw SQL confirms), reads return field defaults. Diagnosis: debug endpoint with raw SQL `name::text` vs ORM `.name` side-by-side reveals the disconnect.
+
+**Playwright verification pass** (1440×900 viewport, saved to `screenshots/portfolio-2026-05-06/`):
+- ✅ `01-homepage-hero.png` — RU, *"Мы не выставляем оценки. Мы показываем документы, по которым их оценивают."* (editorial Anthropic-inspired serif on cream)
+- ✅ `02-catalog-fixed.png` — каталог с **GiveDirectly** карточкой, RU tagline *"Денежные переводы людям в крайней бедности"*, $140.3M, 92.8% программы, filed 2024-01
+- ✅ `03-detail-fixed.png` — full RU detail page: header **GiveDirectly**, EIN/Reg 271661997, donate CTA forest-green "Пожертвовать на givedirectly.org", source doc "Налоговая форма IRS 990 (2023) [PDF]", полные Описание + Методология на чистом русском
+- ✅ `04-cmdk-palette.png` — ⌘K палитра, placeholder *"Найти организацию, источник или страницу..."*, 5 default suggestions, ESC chip
+- ✅ `05-methodology.png` — full methodology page incl. "Юридические ограничения" Russia-law блок (foreign-agents / extremists / war-relief / occupied-territories blocklist explanation)
+- ✅ `06-homepage-en.png` — EN switch works: *"We don't grade charities. We show you the documents that grade them for us."* with mention of US/UK/Russian charities + IRS 990 / Charity Commission / Минюст
+
+**Open items**:
+- **H-001 (REVIEW)**: SPA fallback on `trustgive-web` Worker — one click in CF dashboard
+- **H-002 (REVIEW)**: ProPublica Form 990 Part IX field mapping — currently `program/admin/fundraising_expenses_usd` are NULL after cleanup; proper re-ingest with corrected mapping is long-term fix
+- **Cleanup**: remove `/api/_debug/givedirectly-raw/` endpoint (no auth, exposes single row — low risk but unnecessary)
+- **Migration squash**: 0005+0006+0007 are all elidable — squash into one cleanup migration before next major release
+
+**Live deployment confirmed end-to-end** at 2026-05-06 21:18 Moscow / 18:18 UTC.
