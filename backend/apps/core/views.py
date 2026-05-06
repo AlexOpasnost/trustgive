@@ -66,6 +66,56 @@ class HealthView(APIView):
         return Response(body, status=200 if status_ok else 503)
 
 
+class DebugGiveDirectlyRawView(APIView):
+    """Diagnostic only: dumps raw SQL select for the GiveDirectly row.
+
+    Used to debug why migrations 0005/0006 didn't seem to land — distinguishes
+    between "UPDATE didn't run" (raw value is empty default) and "UPDATE ran
+    but reader strips" (raw value is correct, API serializer returns empty).
+
+    Remove after the data fix is confirmed.
+    """
+
+    permission_classes = [AllowAny]
+    throttle_classes: list = []
+    authentication_classes: list = []
+
+    def get(self, request) -> Response:
+        try:
+            with connection.cursor() as cursor:
+                cursor.execute(
+                    "SELECT id::text, slug, name::text, tagline::text, "
+                    "description::text, methodology_note::text, donation_url, "
+                    "name_trgm, registration_id "
+                    "FROM charities_charity WHERE registration_id = %s",
+                    ["271661997"],
+                )
+                rows = cursor.fetchall()
+        except Exception as e:
+            return Response({"error": str(e)}, status=500)
+
+        return Response(
+            {
+                "row_count": len(rows),
+                "rows": [
+                    {
+                        "id": r[0],
+                        "slug": r[1],
+                        "name_text": r[2],
+                        "tagline_text": r[3],
+                        "description_text": r[4][:200] if r[4] else r[4],
+                        "methodology_note_text": r[5][:200] if r[5] else r[5],
+                        "donation_url": r[6],
+                        "name_trgm": r[7],
+                        "registration_id": r[8],
+                    }
+                    for r in rows
+                ],
+            },
+            status=200,
+        )
+
+
 def _read_commit_sha() -> str:
     """Read the deploy commit SHA from env (Railway provides RAILWAY_GIT_COMMIT_SHA)."""
     sha = os.environ.get("RAILWAY_GIT_COMMIT_SHA", "")
