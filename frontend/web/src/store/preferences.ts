@@ -11,10 +11,15 @@ type PreferencesState = {
   setColorScheme: (scheme: ColorScheme) => void
 }
 
+/**
+ * v3.0: hard EN default. RU is opt-in via the nav toggle.
+ * Persisted to `trustgive.preferences`. The TopNav lang toggle still updates
+ * both this store and i18next.
+ */
 export const usePreferences = create<PreferencesState>()(
   persist(
     (set) => ({
-      lang: (typeof navigator !== "undefined" && navigator.language?.startsWith("ru") ? "ru" : "en") as Lang,
+      lang: "en",
       colorScheme: "system",
       setLang: (lang) => set({ lang }),
       setColorScheme: (scheme) => set({ colorScheme: scheme }),

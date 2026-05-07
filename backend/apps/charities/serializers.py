@@ -136,6 +136,15 @@ def _money_breakdown_from_financial(charity: Charity) -> dict[str, Any] | None:
 
 
 class CharitySummarySerializer(serializers.ModelSerializer):
+    """Catalog/featured-card payload (DESIGN.md v3.0 §B).
+
+    v3.0 added `hero_photo_url` and `bucket` for the photo-on-top card layout
+    and the People/Animals/Planet bucket filter. Caption + credit + license
+    intentionally OMITTED here — the catalog card surfaces only the photo
+    (with a single overlay credit in the corner if present), so the wire
+    payload stays minimal. Detail page gets the full set.
+    """
+
     name = LocalizedSerializerField()
     tagline = LocalizedSerializerField()
     trust_badges = serializers.SerializerMethodField()
@@ -157,6 +166,9 @@ class CharitySummarySerializer(serializers.ModelSerializer):
             "total_revenue_usd",
             "program_expense_pct",
             "trust_badges",
+            # --- v3.0 ---
+            "hero_photo_url",
+            "bucket",
         )
 
     def get_trust_badges(self, obj: Charity) -> list[dict[str, Any]]:
@@ -164,8 +176,16 @@ class CharitySummarySerializer(serializers.ModelSerializer):
 
 
 class CharityDetailSerializer(CharitySummarySerializer):
+    """Detail-page payload (DESIGN.md v3.0 §C).
+
+    Inherits hero_photo_url + bucket from summary; adds the remaining 3 photo
+    fields (caption + credit + license) so the detail-page hero overlay can
+    render the credit string and (optionally) the caption per §D.6.
+    """
+
     description = LocalizedSerializerField()
     methodology_note = LocalizedSerializerField()
+    hero_photo_caption = LocalizedSerializerField()
     money_breakdown = serializers.SerializerMethodField()
     financial_history = FinancialSerializer(many=True, read_only=True)
     source_documents = SourceDocumentSerializer(many=True, read_only=True)
@@ -184,6 +204,10 @@ class CharityDetailSerializer(CharitySummarySerializer):
             "methodology_note",
             "ingestion_source",
             "data_freshness",
+            # --- v3.0 photo-detail-only ---
+            "hero_photo_caption",
+            "hero_photo_credit",
+            "hero_photo_license",
         )
 
     def get_money_breakdown(self, obj: Charity) -> dict[str, Any] | None:
@@ -194,38 +218,3 @@ class CharityDetailSerializer(CharitySummarySerializer):
             "last_synced_at": obj.updated_at.isoformat(),
             "source": obj.get_ingestion_source_display(),
         }
-
-
-class CharityComparisonSerializer(CharitySummarySerializer):
-    money_breakdown = serializers.SerializerMethodField()
-    top_executive_comp_usd = serializers.SerializerMethodField()
-    donation_url = serializers.URLField()
-    primary_source_document = serializers.SerializerMethodField()
-
-    class Meta(CharitySummarySerializer.Meta):
-        fields = CharitySummarySerializer.Meta.fields + (
-            "money_breakdown",
-            "top_executive_comp_usd",
-            "donation_url",
-            "primary_source_document",
-        )
-
-    def get_money_breakdown(self, obj: Charity) -> dict[str, Any] | None:
-        return _money_breakdown_from_financial(obj)
-
-    def get_top_executive_comp_usd(self, obj: Charity) -> float | None:
-        latest = obj.financial_history.order_by("-year").first()
-        if latest is None or latest.top_executive_comp_usd is None:
-            return None
-        return float(latest.top_executive_comp_usd)
-
-    def get_primary_source_document(self, obj: Charity) -> dict[str, Any] | None:
-        doc = (
-            obj.source_documents.filter(kind__startswith="irs_990")
-            .order_by("-filed_date")
-            .first()
-            or obj.source_documents.order_by("-filed_date").first()
-        )
-        if doc is None:
-            return None
-        return SourceDocumentSerializer(doc).data

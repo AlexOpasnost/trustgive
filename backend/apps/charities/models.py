@@ -42,6 +42,33 @@ class IngestionSource(models.TextChoices):
     EVERY_ORG = "every_org"
     CHARITYBASE = "charitybase"
     MANUAL_RU = "manual_ru"
+    MANUAL_CURATION = "manual_curation"
+
+
+class Bucket(models.TextChoices):
+    """v3.0 emotional taxonomy — 3 top-level buckets for the homepage hero cards.
+
+    See DESIGN.md v3.0 §A. The cause_tags ArrayField stays as fine-grained
+    metadata; bucket is the user-facing primary filter.
+    """
+
+    PEOPLE = "people", "People"
+    ANIMALS = "animals", "Animals"
+    PLANET = "planet", "Planet"
+
+
+class PhotoLicense(models.TextChoices):
+    """Short license codes for hero_photo_license. Empty string when no photo.
+
+    See DESIGN.md v3.0 §D photo policy.
+    """
+
+    CC0 = "cc0", "CC0 / Public Domain"
+    CC_BY = "cc-by", "CC-BY"
+    CC_BY_SA = "cc-by-sa", "CC-BY-SA"
+    PRESS_KIT = "press-kit", "Press kit / media-resources"
+    UNSPLASH = "unsplash", "Unsplash"
+    OGL = "ogl", "Open Government License"
 
 
 class Cause(models.Model):
@@ -74,6 +101,30 @@ class Charity(models.Model):
     methodology_note = LocalizedTextField()
     logo_url = models.URLField(blank=True, default="")
     donation_url = models.URLField(blank=True, default="")
+
+    # v3.0 photo-first redesign (DESIGN.md v3.0 §A, §B, §C, §D).
+    # hero_photo_url is a public, hot-linkable URL to a 3:2 (or 16:9) landscape
+    # photo of the charity's actual work. Empty string ⇒ frontend renders the
+    # BrandedAvatar fallback (DESIGN.md §B.3, §D fallback chain).
+    hero_photo_url = models.URLField(blank=True, default="")
+    hero_photo_caption = LocalizedTextField()
+    hero_photo_credit = models.CharField(max_length=200, blank=True, default="")
+    hero_photo_license = models.CharField(
+        max_length=20,
+        choices=PhotoLicense.choices,
+        blank=True,
+        default="",
+    )
+
+    # v3.0 emotional taxonomy — primary filter (DESIGN.md v3.0 §A).
+    # Default "people" because all v2.0 seeds are people-bucket charities;
+    # migration 0011 explicitly stamps that, migration 0012 adds animals/planet.
+    bucket = models.CharField(
+        max_length=10,
+        choices=Bucket.choices,
+        default=Bucket.PEOPLE,
+        db_index=True,
+    )
 
     country = models.CharField(max_length=2, choices=Country.choices)
     registration_id = models.CharField(max_length=64)

@@ -4,6 +4,93 @@ All notable decisions, agent actions, and artifact changes are logged here in ch
 
 ---
 
+## [2026-05-07] [Designer] [Phase 2 — Design v3.0]
+
+- Photo-first immersive redesign — supersedes v2.0 + v1.1 for primary surfaces (homepage hero, catalog cards, detail-page hero)
+- 3 emotional buckets (People / Animals / Planet) replace v2.0 manifesto + 6-card featured strip + cause grid as homepage above-the-fold
+- Catalog card refactored to photo-on-top (3:2) with white verified-pill overlay; v2.0 left-logo + right-anchor layout deleted
+- Detail page section order: photo hero → identity strip → about → Donate CTA → money breakdown → source docs → methodology → press
+- Photo policy v1.1 §D ("no photography of people") DELETED — replaced with: required real-work photos, banned stock-emotional photos, CC/press-kit/Unsplash sourcing chain
+- Compare page + ⌘K palette deleted from product (frontend will sweep)
+- Animals + Planet bucket seed list provided to Backend (5 + 5 charities); Greenpeace + WWF Russia branch excluded for Russia-law ambiguity
+- New tokens: `--overlay-photo-bottom` gradient, `--text-on-photo`, `--text-on-photo-muted`, `--text-on-photo-quiet`, `--color-verified-darker`
+- Cream paper + Source Serif 4 demoted to secondary surfaces only (methodology page, footer, methodology block in detail page)
+- Visual references captured via Playwright MCP: Charity:Water, NatGeo Society Programs, GiveWell (proof-of-trend), WWF UK
+- Files: `projects/trustgive/DESIGN.md` v3.0 prepended (524 new lines, total 2208); `projects/trustgive/design_references/v3-photo-immersive/` (7 jpegs)
+- KB lessons applied: KB-DESIGNER-INIT-001 (WCAG re-audit white-on-photo per overlay opacity), -002 (tap targets), -003 (semantic tokens only); KB-DESIGNER-TRUSTGIVE-001 (Cyrillic +20% width on bucket labels), -002 DEPRECATED for primary surfaces and rewritten in §H, -003 (contrast); AP-SHARED-009 (full v3.0 inline in case write blocks)
+- <reflection> below
+
+```xml
+<reflection>
+  <what_went_well>
+    - Visual research via Playwright MCP yielded exactly the right reference set on the first pass: NatGeo Society = direct pattern for the 3 bucket cards; GiveWell home = strong proof point that even research-rigor competitors have moved to photo-with-overlay in 2026, removing the risk that v3.0 is a niche aesthetic bet; Charity:Water = direct precedent for the detail-page full-bleed hero. The user did not have to defend the pivot from "internal taste" — there is competitor evidence.
+    - Keeping cream/Source Serif as a SECONDARY surface (methodology, footer, methodology block in detail) — instead of deleting it — preserved brand continuity with v2.0 and avoided "we threw away everything" feeling. Editorial mode for methodology = brand differentiator stays alive.
+    - WCAG audit on white-on-photo was done per-overlay-zone (top 30% transparent vs bottom 50% gradient at 0.85 alpha) instead of as a single number. This caught the bright-sky risk on the bucket overline label and produced a concrete photo-pick rule (top 20% of frame ≤0.4 luminance).
+    - Russia-law check was done at design-time on the bucket seed list, not deferred to backend. Greenpeace + WWF Russia branch flagged with concrete recommendations; backend agent can act without re-deciding.
+  </what_went_well>
+  <challenges>
+    - Photo sourcing is a real production risk, not a design risk. The design depends on ~17 charity-work photos that don't exist in the repo today. Wikimedia Commons + charity press kits cover ~80% of needs but the smaller orgs (Born Free, Earthjustice, Ocean Conservancy) have thinner press galleries. Mitigation: fallback to Wikimedia "wildlife rehabilitation" generic photos with credit, or one Unsplash editorial photo. Documented as 🟡 MEDIUM in §K + spelled out in the §L summary as a discrete photo-sourcing pass.
+    - The KB-DESIGNER-TRUSTGIVE-002 lesson from v1.1 ("ban all photography of people for trust products") was the strongest single brand differentiator from v1.1's reasoning, and v3.0 invalidates it. Risk: future trust-product designs will inherit a now-incorrect KB rule. Mitigation: §H rewrites the lesson — the differentiator is NOT presence/absence of people photos, it is *real-work documentary photography vs. stock-emotional photography*. The rewritten lesson is a stronger rule because it is testable: "could this photo be in a Shutterstock charity bundle?"
+    - GoFundMe + Patagonia URLs from the brief returned routing splash / 404 (Patagonia /activism/ hit a "Sit tight" Akamai bot wall; GoFundMe /c/medical-fundraiser is dead; /c/medical and /c/cause/medical also 404). Compensated by using GiveWell home (strong) and WWF UK (Animals reference). The 5-source brief reduced to 4 effective references — adequate.
+    - Cream/serif as a secondary surface creates visual rhythm changes inside the detail page (white photo hero → white identity → white about → white CTA → white money → white docs → CREAM methodology block → white press → cream footer). This could read as "messy" in implementation. Documented in §K as 🟢 LOW with the rationale that it's intentional editorial-mode signaling. Frontend agent should preview the rhythm and report back if it actually feels broken at implementation time.
+  </challenges>
+  <lessons_learned>
+    1. For trust-discovery products, the photography rule is "real-work documentary photos required, stock-emotional photos banned" — not "no people photos." This is testable via the Shutterstock-bundle test. Apply to any future charity, donation, or accountability product. Strong candidate for shared/common-pitfalls promotion if applied to a 2nd project.
+    2. WCAG audit on text-over-photo cannot be done as a single ratio — it must be done per-overlay-zone (gradient overlays produce different effective backgrounds at top vs bottom). Photo-pick rules ("top 20% of frame ≤0.4 luminance") are a more practical mitigation than fighting it in CSS.
+    3. When pivoting visual direction in a project mid-stream, audit competitor sites first via Playwright. If a competitor in the same category has independently moved to the new direction (GiveWell → photo-with-overlay), the pivot is a confirmed trend, not an internal taste call. Saves the "are we sure" debate cycle.
+    4. Bilingual design rule: uppercase Latin tracking-wide overlines do NOT translate to Cyrillic — render as Soviet-bureaucratic. Conditional `text-transform: uppercase` based on `lang` attribute is correct; same component, different rendering by language.
+  </lessons_learned>
+  <knowledge_to_store>YES — propose two KB writes (severity HIGH for #1):
+
+    KB_ENTRY 1 — UPDATE existing KB-DESIGNER-TRUSTGIVE-002:
+    ```yaml
+    ## KB-DESIGNER-TRUSTGIVE-002 | 🔴 HIGH (UPDATED 2026-05-07) | "Trust UI" Photography: Real-Work Required, Stock-Emotional Banned
+
+    Domain: brand, photography, trust UX
+    Last validated: 2026-05-07
+    Project: trustgive
+    Supersedes: original 2026-05-05 entry which banned ALL photography of people
+
+    Context: Designing a charity / trust / data-transparency product where competitors all use stock-emotional photography (sad-eyed children, smiling diverse hands, founder portraits, generic happy crowds).
+
+    Lesson (REVISED): Don't ban photography of people. Ban STOCK-EMOTIONAL photography. The differentiator is the kind of photo, not its presence/absence. Real-work documentary photos with explicit attribution + license = trust. Stock-emotional photos = manipulation.
+
+    Test: "Could this photo appear in a Shutterstock 'inspirational charity' bundle?" If yes → ban. If no (it's a Wikimedia Commons documentary photo, or a charity press-kit field shot with a clear license) → require.
+
+    Sourcing chain: Wikimedia Commons (CC-licensed) → charity's own press kit → Unsplash editorial fallback with credit → AI-generated images PROHIBITED.
+
+    Discovered when: v1.1 banned all people photos based on Charity Navigator / GiveWell / Effektiv-Spenden contrast. v3.0 reversal triggered when target user was clarified as "real EN-speaking donor" (not MBA reviewer / journalist) and a fresh competitor scan showed GiveWell home in 2026 had moved to photo-with-overlay-translucent-block — independent confirmation that the trend has shifted.
+
+    Cross-cutting: Flag for shared/common-pitfalls promotion. Applies to any trust/discovery/accountability product, not just charity.
+    ```
+
+    KB_ENTRY 2 — NEW:
+    ```yaml
+    ## KB-DESIGNER-TRUSTGIVE-004 | 🟡 MEDIUM | WCAG White-on-Photo Audit Must Be Per-Zone, Not Per-Image
+
+    Domain: accessibility, color, photography
+    Last validated: 2026-05-07
+    Project: trustgive
+
+    Context: Hero sections with full-bleed photo background + white text overlay + gradient overlay (transparent top → 0.85 alpha bottom).
+
+    Lesson: A single contrast ratio for "white on dark overlay" is misleading. The gradient produces different effective backgrounds in different vertical zones of the same component. Audit each text element against its overlay zone:
+      - Bottom 50% of overlay (gradient at 0.85 alpha) over a midtone photo → white = 18:1+ → AAA at any size
+      - Top 20% of overlay (near-transparent) → white text directly on photo → varies 1.6:1 (bright sky) to 12:1 (dark trees)
+
+    Mitigation (preferred order):
+      1. Photo-pick rule: only allow photos with the top 20% of the frame ≤0.4 luminance. Enforced at sourcing time by the designer.
+      2. Per-element fallback: wrap small overlines in a `bg-black/40 backdrop-blur-sm` pill so they pass independently of the photo.
+      3. Last resort: switch from gradient to uniform 0.45 alpha dim (loses the photo, but always passes).
+
+    Don't: rely on a single ratio claim like "white on dark overlay = AAA." Auditors will catch the bright-sky failure case.
+    ```
+  </knowledge_to_store>
+</reflection>
+```
+
+---
+
 ## [2026-05-05] [Project Lead] [Phase 0 — Intake]
 
 - Conducted intake interview (Block 1 + Block 2)

@@ -224,7 +224,7 @@ CACHE_CONTROL_MAP = {
     "charity-featured": "public, s-maxage=3600, stale-while-revalidate=86400",
     "charity-detail": "public, s-maxage=3600, stale-while-revalidate=86400",
     "charity-source-documents": "public, s-maxage=86400, stale-while-revalidate=86400",
-    "charity-compare": "public, s-maxage=3600",
+    # charity-compare removed in v3.0 (DESIGN.md §J — Compare page killed).
     "cause-list": "public, s-maxage=86400",
     "rss-feed": "public, s-maxage=3600",
     "seo-charity": "public, s-maxage=3600, stale-while-revalidate=86400",

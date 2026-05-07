@@ -5,7 +5,7 @@ import django_filters
 from django.contrib.postgres.search import SearchQuery, SearchRank, TrigramSimilarity
 from django.db.models import Q
 
-from apps.charities.models import Charity, Country, SizeBucket, VerificationStatus
+from apps.charities.models import Bucket, Charity, Country, SizeBucket, VerificationStatus
 
 
 class CharityFilter(django_filters.FilterSet):
@@ -15,10 +15,12 @@ class CharityFilter(django_filters.FilterSet):
     verification_status = django_filters.ChoiceFilter(choices=VerificationStatus.choices)
     badges = django_filters.CharFilter(method="filter_badges")
     q = django_filters.CharFilter(method="filter_search")
+    # v3.0 (DESIGN.md §A) — primary user-facing taxonomy.
+    bucket = django_filters.ChoiceFilter(choices=Bucket.choices)
 
     class Meta:
         model = Charity
-        fields = ["cause", "country", "size", "verification_status", "badges", "q"]
+        fields = ["cause", "country", "size", "verification_status", "badges", "q", "bucket"]
 
     def filter_badges(self, queryset, name, value: str):
         slugs = [s for s in value.split(",") if s]

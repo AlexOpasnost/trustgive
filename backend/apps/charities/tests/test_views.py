@@ -59,11 +59,30 @@ def test_filter_by_country(api_client, charity):
 
 
 @pytest.mark.django_db
-def test_compare_endpoint_requires_2_to_3_slugs(api_client, charity):
+def test_compare_endpoint_is_removed_in_v3(api_client, charity):
+    """v3.0 (DESIGN.md §J) killed the Compare page entirely."""
     res = api_client.get(f"/api/charities/compare/?slugs={charity.slug}")
-    assert res.status_code == 400  # only 1 slug
+    assert res.status_code == 404
+
+
+@pytest.mark.django_db
+def test_filter_by_bucket(api_client, charity):
+    """v3.0 catalog filter — bucket is the new primary user-facing taxonomy."""
+    res = api_client.get("/api/charities/?bucket=people")
+    assert res.status_code == 200
     body = res.json()
-    assert body["error"]["code"] == "VALIDATION_ERROR"
+    assert all(r["bucket"] == "people" for r in body["results"])
+
+
+@pytest.mark.django_db
+def test_featured_endpoint_accepts_bucket_param(api_client, charity):
+    """v3.0 §A — bucket-scoped featured for the bucket landing page."""
+    res = api_client.get("/api/charities/featured/?bucket=animals")
+    assert res.status_code == 200
+    body = res.json()
+    # Empty list is fine (no animals seeded in this fixture); the contract
+    # is just "200 + flat list, never 400".
+    assert isinstance(body, list)
 
 
 @pytest.mark.django_db

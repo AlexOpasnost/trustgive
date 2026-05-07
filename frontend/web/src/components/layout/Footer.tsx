@@ -1,3 +1,11 @@
+/**
+ * Footer — DESIGN.md v3.0 §J.
+ *
+ * v3.0 changes:
+ *   - Compare link REMOVED from Discover column.
+ *   - Open Data column REMOVED entirely (per Frontend agent task spec).
+ *   - 4-col → 3-col grid (Discover / Methodology / About).
+ */
 import { HugeiconsIcon } from "@hugeicons/react"
 import { Tick02Icon } from "@hugeicons/core-free-icons"
 import { useTranslation } from "react-i18next"
@@ -26,26 +34,19 @@ export function Footer() {
           </p>
         </div>
 
-        {/* 4-column nav */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-y-12 gap-x-8 mb-16">
+        {/* 3-column nav (v3.0: dropped Open Data column) */}
+        <div className="grid grid-cols-2 md:grid-cols-3 gap-y-12 gap-x-8 mb-16">
           <FooterCol title={t("footer.discover.title")}>
             <FooterLink to="/charities">{t("footer.discover.catalog")}</FooterLink>
             <FooterLink to="/charities?country=US">{t("footer.discover.us")}</FooterLink>
             <FooterLink to="/charities?country=GB">{t("footer.discover.uk")}</FooterLink>
             <FooterLink to="/charities?country=RU">{t("footer.discover.ru")}</FooterLink>
-            <FooterLink to="/compare">{t("footer.discover.compare")}</FooterLink>
           </FooterCol>
 
           <FooterCol title={t("footer.method.title")}>
             <FooterLink to="/methodology">{t("footer.method.howWeVerify")}</FooterLink>
             <FooterLink to="/methodology#sources">{t("footer.method.dataSources")}</FooterLink>
             <FooterLink to="/methodology#standards">{t("footer.method.standards")}</FooterLink>
-          </FooterCol>
-
-          <FooterCol title={t("footer.opendata.title")}>
-            <FooterExternalLink href="/api/docs/">{t("footer.opendata.api")}</FooterExternalLink>
-            <FooterExternalLink href="/api/feed.rss">{t("footer.opendata.rss")}</FooterExternalLink>
-            <FooterExternalLink href="/api/schema/">{t("footer.opendata.schema")}</FooterExternalLink>
           </FooterCol>
 
           <FooterCol title={t("footer.about.title")}>

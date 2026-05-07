@@ -3,63 +3,50 @@
     "catalog": "Catalog",
     "methodology": "Methodology",
     "about": "About",
-    "search": "Search",
     "switchLang": "Switch language to Russian"
   },
-  "search": {
-    "placeholder": "Search charities, sources, or pages…",
-    "noResults": "No charities match \"{{q}}\"",
-    "charities": "Charities",
-    "quickNav": "Quick navigation",
-    "allCharities": "Browse the full catalog",
-    "methodology": "How we verify",
-    "usCharities": "United States charities",
-    "ukCharities": "United Kingdom charities",
-    "ruCharities": "Russia charities (curated)",
-    "poweredBy": "TrustGive search"
-  },
   "home": {
-    "headline": "We don't grade charities. We show you the documents that grade them for us.",
-    "subhead": "A discovery layer for verified US, UK, and Russian charities — built from public registries. Every claim of “verified” links to the original IRS 990, Charity Commission filing, or Минюст registration. We never process donations.",
     "exploreCatalog": "Explore the catalog",
     "howWeVerify": "Read the methodology",
-    "stats": {
-      "eyebrow": "By the numbers",
-      "charities": "Verified charities, US + UK + curated RU",
-      "fee": "Platform fee. Always.",
-      "tips": "Hidden “tips”, ever",
-      "sources": "Government registries we cross-check"
-    },
     "editorial": {
       "eyebrow": "Why this exists",
       "title": "Star ratings get gamed. Source documents don't.",
-      "p1": "Charity Navigator dropped overhead-ratio scoring in 2023 because nonprofits learned to mis-categorise expenses. JustGiving's largest Trustpilot complaint is a default-on “tip” that pulls 17.5% out of every donation before the charity sees a cent. The dominant trust tools have visible weaknesses.",
-      "p2": "TrustGive takes a narrower stance. We aggregate public data — IRS Form 990, UK Charity Commission, Минюст СОНКО — and link directly to the source documents. We don't publish a single trust score. We don't process payments. The job of the platform is to take you to the original record in one click.",
-      "p3": "The result is a discovery surface that reads more like a research catalogue than a fundraising site. Filter by cause, country, and size. Click through. Read the filing. Decide for yourself.",
+      "p1": "TrustGive aggregates public registries — IRS Form 990, UK Charity Commission, Минюст СОНКО — and links directly to the source documents. We don't publish a trust score. We don't process payments. The job of the platform is to take you to the original record in one click.",
       "cta": "Read the full methodology"
-    },
-    "sources": {
-      "eyebrow": "Cross-verified against"
-    },
-    "causes": {
-      "eyebrow": "Browse",
-      "title": "Find a charity by cause"
-    },
-    "bottomCta": {
-      "title": "Start with a filing, not a feeling.",
-      "body": "1.2 million verified charities. Filter by cause, country, and size. Donate on the charity's own site — we never see your money."
     }
   },
   "homepage": {
-    "featured": {
-      "eyebrow": "Featured verified",
-      "title": "A sample of what we've verified",
-      "subtitle": "Six organisations across the United States, United Kingdom, and Russia — each with a public registry filing on file.",
-      "seeAll": "See all 1.2M+ charities"
+    "browseByCause": "BROWSE BY CAUSE",
+    "bucket": {
+      "people": {
+        "label": "People"
+      },
+      "animals": {
+        "label": "Animals"
+      },
+      "planet": {
+        "label": "Planet"
+      },
+      "subtitle": "{{count}} verified charities",
+      "subtitleOne": "1 verified charity",
+      "subtitleEmpty": "No charities yet"
+    }
+  },
+  "bucket": {
+    "people": {
+      "pageTitle": "Charities helping people",
+      "pageSubtitle": "Verified organisations focused on health, poverty, and humanitarian work."
+    },
+    "animals": {
+      "pageTitle": "Animal welfare charities",
+      "pageSubtitle": "Verified organisations focused on animal protection, rescue, and wildlife conservation."
+    },
+    "planet": {
+      "pageTitle": "Environmental charities",
+      "pageSubtitle": "Verified organisations focused on climate, conservation, and ecosystems."
     }
   },
   "card": {
-    "openProfile": "Open profile",
     "programs": "Programs",
     "annualRevenue": "Annual revenue",
     "regCountry": "Registered · {{country}}"
@@ -71,6 +58,9 @@
     "donate": {
       "cta": "Donate at {{hostname}}",
       "microcopy": "0% commission. We never touch your money."
+    },
+    "hero": {
+      "photoCredit": "Photo: {{credit}}"
     },
     "breakdown": {
       "unavailable": "Program-services breakdown not reported on this Form 990. Many charities outside the U.S. don't itemise these in their filings, and we don't infer what wasn't disclosed."
@@ -115,27 +105,6 @@
     "continueTo": "Continue to {{site}}",
     "cancel": "Cancel"
   },
-  "compare": {
-    "title": "Side-by-side comparison",
-    "back": "Back to catalog",
-    "emptyTitle": "Compare two or three charities, side by side",
-    "emptyBody": "Pass charity slugs in the URL — minimum 2, maximum 3. The same comparison page works as a shareable link.",
-    "browseCatalog": "Browse the catalog",
-    "donate": "Donate",
-    "footnote": "All figures pulled from the most recent IRS Form 990 / Charity Commission filing / Минюст registration. We do not normalise across reporting standards — interpret with care.",
-    "row": {
-      "verified": "Verified",
-      "country": "Country",
-      "registration": "Registration / EIN",
-      "revenue": "Total revenue",
-      "programs": "% to programs",
-      "admin": "% admin",
-      "fundraising": "% fundraising",
-      "topExec": "Top exec comp",
-      "lastFiled": "Last filed",
-      "source": "Primary source"
-    }
-  },
   "methodology": {
     "title": "How we verify",
     "lead": "We don't grade charities. We show you the documents that grade them for us — and link straight to those documents.",
@@ -175,20 +144,13 @@
       "catalog": "Full catalog",
       "us": "United States",
       "uk": "United Kingdom",
-      "ru": "Russia (curated)",
-      "compare": "Compare side-by-side"
+      "ru": "Russia (curated)"
     },
     "method": {
       "title": "Methodology",
       "howWeVerify": "How we verify",
       "dataSources": "Data sources",
       "standards": "What we don't verify"
-    },
-    "opendata": {
-      "title": "Open data",
-      "api": "API documentation",
-      "rss": "RSS feed",
-      "schema": "OpenAPI schema"
     },
     "about": {
       "title": "About",

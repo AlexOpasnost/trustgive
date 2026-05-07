@@ -72,6 +72,13 @@ export type NewsMention = {
   language: "en" | "ru"
 }
 
+/**
+ * v3.0 — emotional buckets (DESIGN.md v3.0 §A).
+ * Replace the v2.0 12-cause-tag taxonomy as the primary user-facing filter.
+ * cause_tags still exist as metadata.
+ */
+export type Bucket = "people" | "animals" | "planet"
+
 export type CharitySummary = {
   slug: string
   name: LocalizedString
@@ -87,6 +94,10 @@ export type CharitySummary = {
   total_revenue_usd: number | null
   program_expense_pct: number | null
   trust_badges: TrustBadge[]
+  /** v3.0 — bucket classification (DESIGN.md v3.0 §A). */
+  bucket: Bucket | null
+  /** v3.0 — full-bleed photo URL for catalog cards + hero (DESIGN.md v3.0 §D). */
+  hero_photo_url: string | null
 }
 
 export type Charity = CharitySummary & {
@@ -100,6 +111,10 @@ export type Charity = CharitySummary & {
   methodology_note: LocalizedString
   ingestion_source: "propublica" | "every_org" | "charitybase" | "manual_ru"
   data_freshness: { last_synced_at: string; source: string }
+  /** v3.0 — optional photo metadata, only on detail page (DESIGN.md v3.0 §D.6). */
+  hero_photo_caption: LocalizedString | null
+  hero_photo_credit: string | null
+  hero_photo_license: string | null
 }
 
 export type Cause = {

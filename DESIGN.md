@@ -1,14 +1,538 @@
 # Design System: TrustGive
 
-> **Status**: v2.0 — post-MVP refresh (supersedes v1.1)
-> **Created**: 2026-05-05 · **Updated**: 2026-05-07 · **Designer**: Designer agent
-> **Approval gates this satisfies**: Gate 2 (Design) — re-approval requested
-> **Read first**: `SPEC.md` v1.0, v1.1 below (full system), screenshots/portfolio-2026-05-06/
-> **v2.0 scope**: a *delta-document* that supersedes catalog card, detail-page header, homepage section order, logo policy, button hierarchy, and empty states. Everything not touched in v2.0 (palette, typography, spacing, motion, a11y, methodology page) stays as in v1.1.
+> **Status**: v3.0 — photo-first immersive redesign (supersedes v2.0 + v1.1 for primary surfaces)
+> **Created**: 2026-05-05 · **Updated v3.0**: 2026-05-07 · **Designer**: Designer agent
+> **Approval gates this satisfies**: Gate 2 (Design) — re-approval requested for v3.0
+> **Read first**: `SPEC.md` v1.0, this v3.0 section, then v2.0 + v1.1 below as historical reference (NOT the source of truth anymore).
+> **v3.0 scope**: big-bang redesign of homepage above-the-fold, catalog cards, detail page hero, photo policy, and color/type token additions for photo overlays. Methodology page + footer + source-document drawer pattern keep v2.0/v1.1 cream-serif treatment as a deliberate secondary surface.
 
 ---
 
-## v2.0 — 2026-05-07 — Catalog / Detail / Homepage refresh
+## v3.0 — 2026-05-07 — Photo-first immersive redesign
+
+### Why v3.0 exists
+
+After v2.0 shipped (catalog cards bordered, detail-page description-first, homepage 6-card featured strip + cause grid), the user did a Q&A round with the Project Lead and concluded the entire visual direction was wrong for the actual target user. v2.0 was Anthropic-blog editorial: cream paper, Source Serif headings, austere, text-dominant. That treatment reads "academic / methodology" and is well-tuned for an MBA-reviewer or journalist persona — but the **actual** target user is an English-speaking real donor in the US/UK who is disappointed in Charity Navigator and JustGiving and wants to *see what the work looks like* and *find the source documents* — not to admire typography.
+
+v3.0 pivots TrustGive to **photo-first immersive** — closer to GiveWell's 2026 home (which now uses a real-people-at-work hero with translucent dark overlay), Charity:Water (full-bleed photography of real recipients), and National Geographic Society (large hero photo with white text overlay). The cream-serif aesthetic is preserved as a *secondary surface* — methodology page, footer, sub-sections deeper in the detail page — to keep brand continuity and signal "we still take typography seriously when text matters." But the homepage hero, catalog grid, and detail-page hero are now photo-driven.
+
+### What changed from v2.0 → v3.0
+
+| Surface | v2.0 | v3.0 |
+|---|---|---|
+| Homepage above-the-fold | Manifesto + 6-card featured strip + cause grid (7 link rows) | **3 BIG hero bucket cards** — full-bleed photos with dark overlay, white text. Manifesto demoted below-the-fold. |
+| Filter taxonomy | 12 cause-tags from Every.org (granular) | **3 emotional buckets** — `People / Animals / Planet`. Cause-tags become metadata only (shown on cards as 1 tag), not the user-facing primary filter. |
+| Catalog card | Bordered cream card, left logo + right anchor figure (program %) | **Photo-on-top card** (3:2) with white pill verified chip overlaid; logo + name + 1-line tagline + meta below the photo. |
+| Detail page hero | Logo + name + tagline + verified chip on cream background | **Full-bleed work photo** (70vh) with bottom 30% gradient-darkening, white name + tagline + verified chip + photo credit overlaid. |
+| Detail page section order | hero → about → fold → money → docs → methodology → press | photo hero → identity strip → about → **Donate CTA** (above where money was) → money → docs → methodology → press |
+| ⌘K palette | Bottom-right floating button + dialog | **Deleted**. Filter buckets + browse-by-bucket are the discovery affordance. |
+| Compare page | Side-by-side compare table at `/compare` | **Deleted entirely**: nav link, footer link, page route, the small "Compare" CTA on detail page. |
+| Photo policy | "no photography of people" hard rule | **Inverted**: real photos of real charity work (people in field — recipients, volunteers, doctors) are *required* on detail pages and bucket heroes. CC-licensed sourcing only. |
+| Default language | EN by default with RU toggle | **No change** — already correct. RU stays as toggle. |
+| Cream + Source Serif | Primary surfaces | **Secondary surfaces only** (methodology, footer, "About" section body inside detail). Homepage and catalog use white surfaces with photo dominance. |
+
+### KB lessons applied (v3.0)
+
+- **KB-DESIGNER-INIT-001** — Every new white-on-photo pair WCAG-checked (see §E.4 contrast audit).
+- **KB-DESIGNER-INIT-002** — All hover/tap targets on bucket hero cards re-verified ≥44×44; bucket hero cards are 60–80vh tall so no risk.
+- **KB-DESIGNER-INIT-003** — New photo-overlay tokens (`--overlay-photo-bottom`, `--text-on-photo`) added to the semantic token table; no raw hex in components.
+- **KB-DESIGNER-TRUSTGIVE-001** — Bucket labels ("People / Animals / Planet") tested at +20% RU width: "Люди / Животные / Планета" — "Животные" is the longest at 9 chars, fits comfortably in 60vh hero card.
+- **KB-DESIGNER-TRUSTGIVE-002** — **DEPRECATED for primary surfaces**. The "no photography of people" rule from v1.1 §D is explicitly overridden for detail-page heroes and bucket heroes. The lesson is rewritten in §H below: it now applies only to *stock-emotional photography* (sad-eyed children, smiling diverse hands, generic happy crowds). Real photos of real work are not banned — they are required.
+- **KB-DESIGNER-TRUSTGIVE-003** — White-on-photo contrast re-audited per overlay opacity (see §E.4).
+- **AP-SHARED-009** — DESIGN.md write may be blocked by sandbox; full v3.0 section is also output inline in the assistant message in case the file write fails.
+
+---
+
+### §A. HeroBucketCard — homepage above-the-fold (×3)
+
+**Purpose**: replace v2.0's manifesto + 6-card featured strip + cause-grid with three full-bleed bucket cards. Donor lands → instantly picks intent (People / Animals / Planet) → goes to bucket-filtered catalog.
+
+#### A.1 Wireframe — desktop (≥1024px)
+
+```
+┌─────────────────────── nav (white, sticky) ───────────────────────┐
+│  TRUSTGIVE        Charities  Methodology  About    EN/RU    [≡]   │
+├───────────────────────────────────────────────────────────────────┤
+│┌──────────────┐┌──────────────┐┌──────────────┐                   │
+││ ░░░░░░░░░░░░ ││ ░░░░░░░░░░░░ ││ ░░░░░░░░░░░░ │                   │
+││ ░ photo: ░░░ ││ ░ photo: ░░░ ││ ░ photo: ░░░ │                   │
+││ ░ doctor + ░ ││ ░ wildlife ░ ││ ░ forest +  ░│                   │
+││ ░ patient  ░ ││ ░ rescue   ░ ││ ░ planters  ░│                   │
+││ ░░░░░░░░░░░░ ││ ░░░░░░░░░░░░ ││ ░░░░░░░░░░░░ │                   │
+││ ░ BROWSE BY ░ ││ ░ BROWSE BY ░ ││ ░ BROWSE BY ░│   ← top-left   │
+││ ░ CAUSE     ░ ││ ░ CAUSE     ░ ││ ░ CAUSE     ░│   12px label   │
+││ ░░░░░░░░░░░░ ││ ░░░░░░░░░░░░ ││ ░░░░░░░░░░░░ │                   │
+││ ▓▓▓▓▓▓▓▓▓▓▓▓ ││ ▓▓▓▓▓▓▓▓▓▓▓▓ ││ ▓▓▓▓▓▓▓▓▓▓▓▓ │   ← gradient    │
+││ ▓ People    ▓ ││ ▓ Animals   ▓ ││ ▓ Planet    ▓│   bottom 50%   │
+││ ▓ 8 verified▓ ││ ▓ 5 verified▓ ││ ▓ 6 verified▓│                │
+││ ▓ charities ▓ ││ ▓ charities ▓ ││ ▓ charities ▓│                │
+││ ▓▓▓▓▓▓▓▓▓▓▓▓ ││ ▓▓▓▓▓▓▓▓▓▓▓▓ ││ ▓▓▓▓▓▓▓▓▓▓▓▓ │                   │
+│└──────────────┘└──────────────┘└──────────────┘                   │
+│              photo credit small bottom-right white-65%            │
+└───────────────────────────────────────────────────────────────────┘
+
+(below fold)
+  Manifesto block (cream paper bg) — "We don't process donations.
+  We show you the documents." — 1 paragraph + link to Methodology.
+```
+
+#### A.2 Specifications
+
+| Property | Value |
+|---|---|
+| Container | 3 cards in a CSS grid (`grid-cols-3 gap-0` desktop, `grid-cols-1` mobile). Cards touch — no gap. |
+| Card height | `min-h-[80vh]` desktop (≥1024 + ≥720 vh) → 60vh on tablet (768–1023) → 50vh on mobile |
+| Card width | `flex-1` (equal width on desktop), full width on mobile |
+| Background | `<img>` absolutely positioned, `object-cover object-center`, `loading="eager"` (above-the-fold), `decoding="async"` |
+| Overlay | `var(--overlay-photo-bottom)` — see §E.4 |
+| Top-left label | `text-overline` (Inter 12px, weight 600, tracking-wide, uppercase), `text-white/85`, `pt-8 pl-8` |
+| Bottom-left bucket name | `text-display` (Source Serif 4 64/72 desktop, weight 700; mobile 48/56), `text-white`, `pl-8 pb-12` |
+| Subtitle | `text-body-lg` (Inter 18/28, weight 400), `text-white/85`, `pl-8 pb-8` — example "8 verified charities" |
+| Photo credit | `text-caption` (Inter 11/16), `text-white/65`, `pr-6 pb-4`, bottom-right |
+| Hover | Photo `transform: scale(1.03)` + overlay opacity +10%, 240ms `ease-out` (subtle) |
+| Focus-visible | 3px white inset ring + 1px black offset (works on any photo) |
+| Click target | Entire card is `<a href="/charities?bucket=people">` — full-card link |
+
+#### A.3 Mobile breakpoint behavior (<768)
+
+Cards stack vertically. Each card is 50vh (≈422px on iPhone 14 Pro). Bucket name drops to 48/56. Subtitle stays. Photo credit stays bottom-right. Tapping the card navigates to `/charities?bucket=animals`.
+
+A1Y: each card has `aria-label="Browse charities for People — 8 verified"` (RU equivalent in language toggle). The full-card link target is the underlying `<a>`; the visual label and number are decorative `<span>` inside the link.
+
+#### A.4 Photo selection per bucket (sourcing rules in §D)
+
+| Bucket | Photo concept | Suggested CC source |
+|---|---|---|
+| People | Doctor or community health worker mid-action with patient — NOT staged smiling. Field shot, daylight. | Wikimedia Commons "Médecins Sans Frontières" or "WHO field operations" categories |
+| Animals | Veterinarian with rescued animal, or wildlife biologist in field. NOT stock dog-in-shelter. | Wikimedia Commons "Wildlife rehabilitation" or WWF press kit |
+| Planet | Tree planters or coastal cleanup crew at work, wide shot, golden hour light. | Wikimedia Commons "Reforestation" or Cool Earth press kit |
+
+**Photo credit format**: `"WWF / CC-BY-4.0"` or `"MSF / used with permission"` — small bottom-right, `text-caption text-white/65`.
+
+---
+
+### §B. CharityCard v3 — catalog list
+
+**Purpose**: replace v2.0's bordered cream card (logo-left + anchor-right with program-% figure) with a **photo-on-top** card that scans visually before anyone reads. Photo communicates *what kind of work this is* in 200ms; meta lines confirm.
+
+#### B.1 Wireframe (desktop, 3-column grid)
+
+```
+┌────────────────────────────┐  ┌────────────────────────────┐
+│ ░░░░░░░░░░░░░░░░░░░░░░░░░░░│  │ ░░░░░░░░░░░░░░░░░░░░░░░░░░░│
+│ ░ photo of work ░░░░░░░░░░░│  │ ░ photo of work ░░░░░░░░░░░│
+│ ░ 3:2 aspect ░░░░░░░░░░░░░░│  │ ░ 3:2 aspect  ░░░░░░░░░░░░░│
+│ ░░░░░░░░░░░░░░░░░░░░░░░░░░░│  │ ░░░░░░░░░░░░░░░░░░░░░░░░░░░│
+│ ░░░░░░░░░░░ [✓ Verified] ░░│  │ ░░░░░░░░░░ [✓ Verified] ░░░│
+├────────────────────────────┤  ├────────────────────────────┤
+│  ╔═╗  GiveDirectly          │  │  ╔═╗  Cool Earth           │
+│  ╚═╝                         │  │  ╚═╝                        │
+│  Cash transfers to people   │  │  Indigenous-led rainforest │
+│  in extreme poverty.         │  │  protection.                │
+│                              │  │                              │
+│  US · Direct cash · $349M   │  │  UK · Climate · £8.4M       │
+└────────────────────────────┘  └────────────────────────────┘
+```
+
+#### B.2 Specifications
+
+| Property | Value |
+|---|---|
+| Container | `bg-white border border-rule rounded-md overflow-hidden` (rounded-md = 8px). Rule = `#E8E5DC`. |
+| Outer grid | `grid-cols-3 gap-6` desktop, `grid-cols-2 gap-4` tablet, `grid-cols-1 gap-4` mobile |
+| Photo zone | `aspect-[3/2]` top, `<img>` `object-cover`, `loading="lazy"` (below the fold) |
+| Verified chip overlay | Absolute top-right `top-3 right-3`, white pill `bg-white/95 backdrop-blur-sm rounded-full px-3 py-1`, `text-caption font-medium text-verified` (#0E7C5C). Icon Lucide `check-circle` 14px. |
+| Body padding | `p-5` (20px) |
+| Logo | 32×32, `object-contain`, inline-flex with name (`gap-3 items-center`). On `bg-surface-raised`/#FFFFFF. |
+| Name | `text-h4 font-semibold text-ink` (Inter 18/26, weight 600). `truncate` 1 line. |
+| Tagline | `text-body-sm text-ink-2` (Inter 14/22), `mt-2`, `line-clamp-2`. |
+| Meta line | `text-caption text-ink-3` (Inter 12/18), `mt-3`, middle-dot separated. Format: `Country · 1 cause-tag · $X.XM revenue`. Revenue is `font-mono`. |
+| Hover | Photo `scale(1.03)` 240ms ease-out, card shadow `shadow-md` (Tailwind default). |
+| Focus-visible | 2px ring `--color-verified` + 2px offset. |
+| Click | Entire card wrapped in `<a href="/charities/{slug}">`. |
+
+#### B.3 Empty / fallback states
+
+- **No photo available**: fall back to a neutral textured placeholder (warm gray gradient `from-stone-200 to-stone-300`) with a centered Lucide `image-off` icon at `text-stone-400 size-12`. Card still scans. Not common — sourcing rules in §D should produce a photo for >90% of charities.
+- **No revenue**: drop the revenue token from the meta line. `Country · cause-tag` only.
+
+#### B.4 Accessibility
+
+- `<img alt="">` decorative — name follows immediately and conveys identity.
+- Verified chip has `aria-label="Verified charity"` (RU: "Проверено").
+- All text on white passes WCAG AA: `text-ink #1A1815` on white = 16.8:1 (AAA), `text-ink-2 #4A4640` on white = 8.5:1, `text-ink-3 #6B645B` on white = 5.4:1.
+
+---
+
+### §C. Detail page v3
+
+**Purpose**: per user spec — section order is **photo → name+logo → description → Donate CTA → expense breakdown → source documents**. The Donate CTA moves *above* the money breakdown so a donor who already trusts the photo + verified chip can act without scrolling past charts.
+
+#### C.1 Wireframe
+
+```
+[ TopNav (white, sticky) ]
+─────────────────────────────────────────────────────────────────
+░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░  ← 70vh full-bleed
+░░ HERO PHOTO of charity work — wide, daylight, real recipients ░░
+░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░
+▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓  ← gradient bottom 35%
+▓                                                               ▓
+▓   GiveDirectly                              [✓ Verified]      ▓
+▓   Cash transfers to people in extreme poverty.                ▓
+▓                                                               ▓
+▓                          MSF press / CC-BY-4.0   ←credit bot-R ▓
+▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓
+─────────────────────────────────────────────────────────────────
+[white surface]
+  ┌──┐
+  │L │  GiveDirectly Inc.
+  │ogo│ EIN 27-1661997 · United States · Founded 2008
+  └──┘                                                Last filed Mar 2025
+─────────────────────────────────────────────────────────────────
+  About                                                      [serif h2]
+  GiveDirectly transfers cash directly to people living in extreme
+  poverty. Founded 2009. Operating Kenya, Uganda, Liberia, Rwanda,
+  and the U.S. Funds are sent via mobile money with no strings.
+  [Inter body, max-w 65ch]
+─────────────────────────────────────────────────────────────────
+                  ┌────────────────────────────────────┐
+                  │  Donate at givedirectly.org   →   │   [primary CTA]
+                  └────────────────────────────────────┘
+                  0% commission. We never touch your money.
+─────────────────────────────────────────────────────────────────
+  Where the money goes                                       [serif h2]
+  Fiscal year 2024
+  ████████████████████████  91.0%   Programs            $317.4M
+  ███  6.2%                         Administration      $21.6M
+  ██   2.8%                         Fundraising         $9.8M
+  Source: IRS Form 990 (2024) [link → drawer]
+─────────────────────────────────────────────────────────────────
+  Source documents                                           [serif h2]
+  → IRS Form 990 (2024)              [PDF]
+  → State registration (NY)          [HTML]
+  → Audited financials 2024          [PDF]
+─────────────────────────────────────────────────────────────────
+[cream/serif surface — secondary]
+  Methodology
+  This charity is verified because: it is registered with the IRS
+  as a 501(c)(3), has filed Form 990 in the last 24 months, and we
+  link directly to that filing. We do not assess effectiveness.
+  → How we verify
+─────────────────────────────────────────────────────────────────
+  Press mentions                                             [serif h2]
+  · NYT — "The end of charity?" — June 2024
+  · Vox Future Perfect — Mar 2025
+─────────────────────────────────────────────────────────────────
+[cream/serif footer]
+  Trustgive · 0% commission · We never touch your money
+  Methodology · About · EN/RU
+```
+
+#### C.2 Specifications
+
+**Hero photo**:
+- Height: `h-[70vh]` desktop (with min-h-[480px] safety), `h-[55vh]` mobile (min-h-[360px]).
+- `<img>` `object-cover object-center`, `loading="eager"` (above the fold), `decoding="sync"`, `fetchpriority="high"`.
+- Overlay: `var(--overlay-photo-bottom)` covers the bottom 50% (gradient).
+- Name: `text-display` (Source Serif 4 56/64 desktop, 40/48 mobile), `text-white`, `pl-8 pb-8`.
+- Tagline: `text-body-lg` (Inter 18/28), `text-white/85`, `pl-8 pb-12`.
+- Verified chip: top-right of photo at `top-6 right-6`, same white pill as catalog card but slightly larger (`px-4 py-1.5`).
+- Photo credit: bottom-right `bottom-4 right-6`, `text-caption text-white/65`.
+
+**Identity strip** (below hero, white surface):
+- `py-6 border-b border-rule` separator after.
+- Logo 56×56 (real or branded letter avatar, fallback chain unchanged from v2.0).
+- Org name (smaller — hero already said it big): `text-h3 font-semibold` (Inter 22/30, weight 600).
+- Reg line: `text-body-sm text-ink-2`, format `EIN 27-1661997 · United States · Founded 2008`. Numeric IDs in `font-mono`.
+- Last filed: right-aligned (desktop), wraps below on mobile.
+
+**About**:
+- Heading: `text-h2 font-serif` (Source Serif 4 28/36, weight 600). `mb-4`.
+- Body: `text-body` (Inter 16/26), `text-ink-2`, `max-w-[65ch]`.
+
+**Donate CTA** (NEW POSITION — above money breakdown):
+- Centered, max-width `max-w-[560px] mx-auto`, `my-12`.
+- Button: `bg-verified text-white rounded-md px-8 py-4 text-h4 font-semibold` (Inter 18/26, weight 600). Hover: bg darkens to `#0A6249` (KB-DESIGNER-INIT-001 contrast: white on `#0A6249` = 5.7:1, AA pass).
+- Label: `Donate at {hostname} →` (e.g. "Donate at givedirectly.org →"). Hostname dynamic from `donation_url`.
+- Microcopy below: `text-caption text-ink-3 text-center mt-3`, "0% commission. We never touch your money." / "0% комиссии. Мы не касаемся ваших денег."
+- Click handler: opens `donation_url` in new tab (`target="_blank" rel="noopener noreferrer"`), logs PostHog event `donation_redirect`.
+
+**Where the money goes**:
+- Heading: `text-h2 font-serif`.
+- Bars: as v2.0 (works fine, do not redesign). `font-mono` for figures.
+
+**Source documents**:
+- Heading: `text-h2 font-serif`.
+- List: same drawer pattern from v2.0 — kept.
+
+**Methodology block**:
+- This is the deliberate cream/serif secondary surface — visually breaks rhythm to signal "we're back in editorial mode for this part."
+- `bg-paper #F5F1E8`, `py-12`, full-bleed within the content column.
+- Heading: `text-h2 font-serif`. Body: Source Serif 4 18/28 italic for the inline body text — a tiny stylistic flourish that *only* appears here.
+
+**Press mentions** (kept from v2.0): heading `font-serif`, list `text-body text-ink-2`.
+
+---
+
+### §D. Photo policy v3
+
+**The "no photography of people" rule from v1.1 §D is DELETED.** Replaced with:
+
+#### D.1 What's required
+
+- Detail-page hero: **required** real photo of the charity's actual work (people in field, recipients, volunteers, doctors, vets, planters — whatever the work is). NOT stock photography. NOT founder portraits. NOT a smiling-team-in-an-office.
+- Catalog card photo: **required**. Same source as detail-page hero, can be cropped 3:2 from the same image.
+- Bucket hero photo: **required**. One photo per bucket — chosen by Designer at seed time, not per-charity.
+
+#### D.2 Sourcing chain (in priority order)
+
+1. **Wikimedia Commons** — search by org name + topic. Filter by license: CC-BY, CC-BY-SA, CC0, public domain. Attribution required where the license demands it.
+2. **Charity's own press kit / media library** — most major charities (WWF, MSF, Cool Earth, Best Friends) have a `/press` or `/media` page with downloadable photos under "media use" terms. Email if unsure; for v1 portfolio scope, downloading + crediting from the publicly-published press page is the practical default.
+3. **Unsplash** (fallback only) — search for the org's actual region or work type, NOT generic emotional photography. Credit format: `"Photo: First Last / Unsplash"`.
+4. **AI-generated photography** — **prohibited**. Trust product, real work, real people.
+
+#### D.3 What's banned (still)
+
+- Stock-emotional photography from Shutterstock / Getty: sad-eyed children with one tear, smiling diverse hands meeting in a circle, well-lit founder portraits in front of a window, "happy volunteers cheering" — all banned.
+- Watermarked or low-resolution photos.
+- Photos of identifiable minors without explicit press-release context.
+- AI-generated humans (per above).
+
+#### D.4 Aspect ratios + sizes
+
+| Surface | Aspect | Min display size | Source minimum |
+|---|---|---|---|
+| Bucket hero | 4:5 portrait OR 16:9 landscape (designer choice per bucket) | 100vw × 80vh | 2400×1500 minimum, no upscaling |
+| Detail hero | 16:9 or 3:2 landscape | 100vw × 70vh | 2400×1600 minimum |
+| Catalog card | 3:2 landscape | 360×240 desktop, 720×480 retina | 1080×720 minimum |
+
+Same source can be re-cropped across all three (one 2400×1600 master photo per charity → catalog card 3:2 + detail hero 16:9 + bucket hero on rotation).
+
+#### D.5 Optimization
+
+- Every photo served as **WebP** via Cloudflare image optimization (`/cdn-cgi/image/format=webp,quality=85,width=1200/...`).
+- Fallback JPEG ≤200 KB at desktop hero size.
+- Catalog card photos lazy-loaded (`loading="lazy"`); hero + bucket photos eager (`loading="eager"`).
+- `alt=""` for decorative hero photos (charity name in adjacent overlay text); meaningful `alt` for catalog cards if the photo isn't visually paired with the name (rare).
+
+#### D.6 Caption + credit pattern
+
+- Caption (optional): one short sentence on what's in the photo. Only on detail page hero, only if needed for clarity. Format: `Community health workers visit a household in rural Kenya, 2024.`
+- Credit (always): bottom-right small text. Format: `Photographer/Org / License`. Examples:
+  - `WWF / CC-BY-4.0`
+  - `MSF Press`
+  - `Photo: Jane Doe / Unsplash`
+
+---
+
+### §E. Color tokens v3
+
+Existing v2.0 tokens (cream paper, ink, ink-2, ink-3, rule, verified green) are KEPT. v3.0 adds photo-overlay tokens and re-confirms text-on-photo color. The full token table below shows the v3.0 superset.
+
+#### E.1 v3.0 token table
+
+| Token | Hex | Usage | Where defined |
+|---|---|---|---|
+| `--color-paper` | `#F5F1E8` | Methodology page, footer, methodology block in detail page | inherited v1.1 |
+| `--color-surface` | `#FAF7EE` | Cards (where cream surface still in play) | inherited v2.0 |
+| `--color-surface-white` | `#FFFFFF` | **NEW v3.0** — homepage card body, catalog card body, detail page (post-hero) | new |
+| `--color-ink` | `#1A1815` | Primary text on white/cream | inherited |
+| `--color-ink-2` | `#4A4640` | Body text | inherited |
+| `--color-ink-3` | `#6B645B` | Captions, meta | inherited |
+| `--color-rule` | `#E8E5DC` | Borders, hairlines | inherited |
+| `--color-verified` | `#0E7C5C` | Donate CTA, verified chip text, focus rings | inherited |
+| `--color-verified-darker` | `#0A6249` | Donate CTA hover state | **NEW v3.0** |
+| `--text-on-photo` | `#FFFFFF` | All text overlaid on photos | **NEW v3.0** |
+| `--text-on-photo-muted` | `rgba(255,255,255,0.85)` | Subtitles, photo credits, captions overlaid on photos | **NEW v3.0** |
+| `--text-on-photo-quiet` | `rgba(255,255,255,0.65)` | Photo credit specifically | **NEW v3.0** |
+| `--overlay-photo-bottom` | `linear-gradient(to top, rgba(10,12,11,0.85) 0%, rgba(10,12,11,0.4) 50%, transparent 80%)` | Bottom-fade overlay on photo heroes (bucket cards + detail hero) | **NEW v3.0** |
+| `--overlay-photo-uniform` | `rgba(10,12,11,0.45)` | Optional uniform dim for very bright photos (use when text legibility fails the gradient version) | **NEW v3.0** |
+| `--ring-on-photo` | `rgba(255,255,255,1)` | Focus ring on photo backgrounds (inset 3px white + 1px black offset) | **NEW v3.0** |
+
+#### E.2 What's deleted from v2.0
+
+- Nothing is deleted. `--color-paper`, `--color-surface`, all type/serif tokens stay.
+
+#### E.3 Where each surface uses what
+
+| Surface | Background | Primary text |
+|---|---|---|
+| Homepage hero (3 bucket cards) | photo + `--overlay-photo-bottom` | `--text-on-photo` |
+| Homepage manifesto (below fold) | `--color-paper` | `--color-ink` |
+| Catalog page (filters + cards) | `--color-surface-white` (white) | `--color-ink` |
+| Catalog card | `--color-surface-white` body, photo on top | `--color-ink` body, `--text-on-photo` for chip overlay |
+| Detail page hero | photo + `--overlay-photo-bottom` | `--text-on-photo` |
+| Detail page identity strip + about + money + docs | `--color-surface-white` | `--color-ink` |
+| Detail page methodology block | `--color-paper` | `--color-ink` |
+| Detail page press mentions | `--color-surface-white` | `--color-ink` |
+| Footer | `--color-paper` | `--color-ink-2` |
+| Methodology page (full page) | `--color-paper` | `--color-ink` |
+
+#### E.4 WCAG audit — text-on-photo
+
+The `--overlay-photo-bottom` gradient has 0.85 alpha at the bottom edge. Effective background luminance under the bottom 30% of overlay (where bucket name + tagline live) ≈ 0.06–0.10 (computed against an "average" charity-work photo at 60% midtone luminance under a 0.85-alpha #0A0C0B overlay). White (#FFFFFF, luminance 1.0) on that effective bg = ratio ≥18:1 → AAA pass at any text size.
+
+For the top 30% of the overlay (where the "BROWSE BY CAUSE" small label sits) the gradient is closer to transparent. To guarantee AA at small text size:
+- Label is `text-overline` (12px) — small text WCAG AA threshold = 4.5:1.
+- Worst case: bright sky photo, 0% overlay top, label luminance test → 1.6:1 (FAIL).
+- **Mitigation**: every bucket photo is pre-vetted for "top 20% of frame ≤0.4 luminance" — i.e. pick photos where the top of the frame has dark trees / shadow / building, not bright sky. Designer enforces at photo-pick time. Backup: add `bg-black/40 backdrop-blur-sm rounded-full px-3 py-1` pill to the overline label as a fallback if a photo doesn't pass — visual noise but a11y-safe.
+
+For the detail hero (where overlay-bottom is 50% of height, overlay applies under all text), name + tagline + chip are always in the dark zone. Pass.
+
+For the photo credit (always bottom-right of overlay-bottom), `text-white/65` → effective ratio against `rgba(10,12,11,0.85)` overlay = 7.2:1 → AA pass for small text.
+
+---
+
+### §F. Typography v3
+
+**Source Serif 4** (serif) — DEMOTED. Used for:
+- Bucket name on homepage hero (Source Serif 4 64/72 desktop)
+- Charity name on detail-page hero (Source Serif 4 56/64 desktop)
+- Section headings on detail page below the hero (`text-h2 font-serif`, 28/36)
+- Methodology page headings + body
+- "About" heading on detail page
+
+**Inter** (sans) — PROMOTED. Used for:
+- All UI chrome (nav, buttons, filter chips, search input)
+- All body copy (charity descriptions, meta lines, captions)
+- Catalog card name + tagline + meta
+- Bucket label overline ("BROWSE BY CAUSE")
+- Button labels (Donate CTA included)
+
+**Geist Mono** (mono) — UNCHANGED from v1.1/v2.0:
+- All numeric figures: revenue, percentages, EIN, registration IDs, dates in `YYYY-MM` format
+
+#### F.1 Type scale (v3.0)
+
+| Token | Font | Size / line-height | Weight | Usage |
+|---|---|---|---|---|
+| `text-display` | Source Serif 4 | 64/72 desktop, 48/56 mobile | 700 | Bucket hero name, detail hero name |
+| `text-h1` | Source Serif 4 | 40/48 | 700 | Methodology page H1, About-page H1 |
+| `text-h2` | Source Serif 4 | 28/36 | 600 | Detail page section headings |
+| `text-h3` | Inter | 22/30 | 600 | Detail page identity strip name |
+| `text-h4` | Inter | 18/26 | 600 | Catalog card name, donate CTA button |
+| `text-body-lg` | Inter | 18/28 | 400 | Hero subtitle, lead paragraphs |
+| `text-body` | Inter | 16/26 | 400 | Charity description, methodology body |
+| `text-body-sm` | Inter | 14/22 | 400 | Catalog card tagline, identity strip meta |
+| `text-caption` | Inter | 12/18 | 400 | Photo credit, meta, microcopy |
+| `text-overline` | Inter | 12/16 | 600 | "BROWSE BY CAUSE" overline (uppercase, tracking-wide) |
+| `mono-figure` | Geist Mono | 16/22 (default) | 500 | Revenue, %, EIN |
+
+KB-DESIGNER-TRUSTGIVE-001 reminder: bucket overline is uppercase ONLY in EN. In RU, the overline reads `Выберите по теме` in title case (NOT all-caps Cyrillic — it reads Soviet-bureaucratic). i18n component conditionally applies `uppercase tracking-wider` for `lang === "en"` only.
+
+---
+
+### §G. Bucket charity seeding (suggestions for Backend)
+
+Backend agent will seed catalogs. Designer recommends 5–6 well-known orgs per bucket so each bucket has at least 4–5 cards on the catalog page after the hero card click-through.
+
+#### G.1 People (already mostly seeded from v2.0)
+
+Existing: GiveDirectly + 7 others from v2.0 seed (per MARKET_ANALYSIS).
+
+#### G.2 Animals (NEW — to seed)
+
+| Org | Country | Why include | Russia-law check |
+|---|---|---|---|
+| WWF International | Switzerland (HQ) | International parent — strongest brand in conservation | OK — international parent. **Do NOT seed WWF Russia branch** (foreign-agent designation). |
+| ASPCA | US | Top US animal welfare brand, strong IRS 990 record | OK |
+| Best Friends Animal Society | US | "No-kill" movement leader, strong financial transparency | OK |
+| Born Free Foundation | UK | Wildlife protection with rigorous filings (Charity Commission) | OK |
+| The Humane Society of the United States | US | Largest US animal-protection org by revenue | OK |
+
+#### G.3 Planet (NEW — to seed)
+
+| Org | Country | Why include | Russia-law check |
+|---|---|---|---|
+| Cool Earth | UK | Indigenous-led rainforest model, Charity Commission filings | OK |
+| The Nature Conservancy | US | One of the largest US environmental orgs, strong 990s | OK |
+| Ocean Conservancy | US | Oceans-specialised, focused mission | OK |
+| Earthjustice | US | Environmental law non-profit | OK |
+| 350.org | US | Climate movement org, strong Form 990 record | OK |
+| ~~Greenpeace International~~ | NL | Strong brand BUT Russia foreign-agent designation creates legal ambiguity for RU users. **EXCLUDE from seed.** | **BLOCKED** |
+
+The Greenpeace exclusion is a deliberate v3.0 decision, communicated to Backend agent. WWF Russia (the Russian branch) is also blocked separately — Backend should seed WWF International only.
+
+---
+
+### §H. KB lesson rewrite — "no photography of people" → revised
+
+The original v1.1 KB-DESIGNER-TRUSTGIVE-002 entry stated that for trust products, banning all photography of people is the strongest brand differentiator. v3.0 evidence shows this is **wrong for the user-facing donation surfaces** when the target user is a real donor (not an MBA reviewer). Banning photos was correct for "we are an audit-trail / data-cite / methodology product." It is wrong for "we are a discovery product that helps real donors choose."
+
+**Revised lesson** (proposed for KB write-back at task end):
+
+> For trust-discovery products, **ban stock-emotional photography (sad-eyed children, smiling diverse hands, generic happy crowds, founder portraits)** but **require real-work photography** (people doing actual charity work — recipients in the field, volunteers mid-task, documented work scenes). The differentiator is the *kind* of photo, not its presence/absence. Real-work photos with explicit attribution + license = trust. Stock-emotional photos = manipulation.
+>
+> Apply rule: "If the photo could be in a Shutterstock 'inspirational charity' bundle, ban it. If it could be a Wikimedia Commons documentary photo with a license tag, allow it."
+
+---
+
+### §I. What v2.0 spec is preserved
+
+The following v2.0 specs are **unchanged** in v3.0:
+
+- Money breakdown bars on detail page (works fine)
+- Source documents drawer pattern
+- Logo policy (real logo → branded letter avatar fallback chain)
+- Methodology page (full-page cream/serif treatment)
+- TopNav structure (just remove the Compare link and ⌘K floating button)
+- "0% commission" microcopy on outbound modal
+- Hugeicons icon pack for nav + filter UI (Lucide for the verified check, kept)
+- Forest green `#0E7C5C` as the verified + donate-CTA accent color
+- All EN+RU bilingual strings — i18n is unchanged
+
+### §J. What v2.0 components/pages are deleted
+
+- **Compare page** (`/compare`) — delete route, delete `<CompareTable>` component, delete the small "Compare" CTA on detail page, delete the nav link, delete the footer link, delete the `useCompareSelection()` hook.
+- **⌘K command palette** — delete the floating button, delete the `<CommandPalette>` component, delete keyboard shortcut binding, delete the search index for it (PostgreSQL FTS for the catalog page is unchanged).
+- **Featured 6-card strip** on homepage — delete the component; replaced by 3 bucket hero cards.
+- **Cause grid (7 link rows)** on homepage — delete the component; replaced by 3 bucket hero cards. Cause-tag info still shown as a single chip on each catalog card.
+- **CharityCard v2 bordered cream layout** — delete the v2 layout; replaced by photo-on-top layout.
+
+### §K. Migration risk register (for Frontend agent + Project Lead)
+
+| Risk | Severity | Mitigation |
+|---|---|---|
+| Photo sourcing — we have 0 charity photos in repo right now; need ~17 (8 People + 5 Animals + 6 Planet, minus existing) before ship | 🔴 HIGH | See §L summary. Designer commits to providing a sourcing checklist with WikiCommons URLs for top-3 per bucket; remaining sourced from charity press kits during Frontend implementation week. |
+| Hero photo bandwidth — 3 bucket photos at 80vh + detail hero 70vh add ~600KB to homepage | 🟡 MEDIUM | Cloudflare WebP @ q=75 reduces by ~60%; lazy-load below-the-fold; LCP target stays ≤2.5s. Verify in Phase 4.5 PERFORMANCE_REPORT. |
+| White-on-photo contrast on a bright sky bucket photo | 🟡 MEDIUM | Photo-pick rule in §E.4 + fallback dark pill on overline. Designer reviews each bucket photo before shipping. |
+| WWF Russia / Greenpeace law risk | 🟡 MEDIUM | §G excludes both. Backend agent must enforce on seed. |
+| RU bucket label "Животные" doesn't fit at small breakpoints | 🟢 LOW | Tested at 360×640 / 12px overline + 48/56 display — fits comfortably. KB-DESIGNER-TRUSTGIVE-001 verified. |
+| Cream/serif still used in methodology + footer creates visual whiplash with white/photo-first homepage | 🟢 LOW | Intentional. Editorial mode for methodology = brand continuity. Methodology surface is a deliberate "calm room." Acceptable. |
+
+### §L. Summary
+
+**Top 3 changes**:
+1. **Homepage above-the-fold = 3 photo bucket cards** (People / Animals / Planet) replacing the v2.0 manifesto + featured strip + cause grid. Donor picks intent in 2 seconds.
+2. **Catalog cards become photo-on-top** with a verified chip overlay; the program-% anchor figure is removed. Photo carries the "what kind of work" signal, then meta-line confirms.
+3. **Detail page is full-bleed photo hero → identity → about → Donate CTA → money breakdown → docs**. Donate CTA moves *above* the money breakdown so a donor who already trusts the photo can act without scrolling past charts. Methodology block keeps cream/serif as a deliberate secondary surface.
+
+**Visual references used** (saved to `projects/trustgive/design_references/v3-photo-immersive/`):
+- `02-charitywater-home-hero.jpeg` — Charity:Water (full-bleed photo + bottom-anchored white text + yellow CTA, exactly the pattern for our detail-page hero)
+- `04-natgeo-programs.jpeg` — National Geographic Society Programs (large hero photo with white serif title centered + bottom dark gradient — exactly the pattern for our 3 bucket cards)
+- `05-givewell-antipattern.jpeg` — GiveWell home (proof point: even the "research-rigor" competitor moved to photo-overlay-with-translucent-dark-block in 2026; we are not making this up)
+- `06-wwf-uk-hero.jpeg` — WWF UK (real-conservation-photography reference for Animals + Planet bucket photo style)
+
+**Estimated frontend implementation effort per change** (Frontend Developer agent rough-est):
+- HeroBucketCard ×3 + homepage layout: ~6h (component + responsive + photo wiring)
+- CharityCard v3 (photo-on-top + chip overlay): ~3h (refactor existing component + lazy-load)
+- Detail page hero with overlay + reordered sections + Donate CTA bump: ~4h
+- Token additions (overlay gradient, photo-text colors, verified-darker): ~30min
+- Compare page + ⌘K palette deletion: ~1h (delete + sweep references)
+- Photo policy implementation (alt patterns, credit slot, Cloudflare image transforms): ~2h
+- WCAG audit on bucket photos + a11y review: ~2h
+- **Total**: ~18.5 frontend-hours = 2.5 working days for one developer.
+
+**Photo-sourcing risk assessment**:
+- We need approximately **17 photos** for v3.0: 3 bucket heroes + ~14 catalog/detail photos for the seeded charities (8 existing People + 5 Animals + 6 Planet ≈ 19, minus ~2 that already have logos but no work-photo, so realistically ~14 new fetches).
+- **Realistic timeline before ship**: 4–6 hours of designer-time to source from Wikimedia Commons + charity press kits. WWF, MSF, Charity:Water, Cool Earth, Nature Conservancy, Best Friends, ASPCA all have public press galleries with downloadable hi-res photos under "media use" terms. The risk is that ~3–4 of the smaller charities (Born Free, Earthjustice, Ocean Conservancy) may not have rich photo galleries — for these, fall back to Wikimedia Commons or one tasteful Unsplash editorial photo with credit.
+- **Risk verdict: 🟡 MEDIUM**. Achievable in one designer-day with a focused photo-sourcing pass. Not 🔴 because the sources exist; not 🟢 because we have to actually do the work and CC licenses must be tracked per photo.
+- **Recommendation**: Project Lead approves the design, then Designer agent gets a *photo-sourcing pass* as a separate task with a short shopping-list deliverable (one CSV: `charity_slug, photo_url, photographer, license, alt_text`) before Frontend agent starts implementation.
+
+---
+
+
 
 ### Why v2.0 exists
 

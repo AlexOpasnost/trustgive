@@ -6,9 +6,14 @@
  *   npm run gen-api
  * Then refactor to use `openapi-fetch`'s typed client against `paths` from
  * `src/api/schema.d.ts`.
+ *
+ * v3.0 changes:
+ *   - `bucket` filter added to listCharities + featuredCharities
+ *   - compareCharities endpoint REMOVED (backend returns 404)
  */
 
 import type {
+  Bucket,
   Cause,
   Charity,
   CharitySummary,
@@ -51,6 +56,7 @@ export type CharityListParams = {
   size?: "small" | "medium" | "large"
   verification_status?: "verified" | "listed" | "stale"
   badges?: string[]
+  bucket?: Bucket
   q?: string
   lang?: "en" | "ru"
   sort?: "most_recent_filing" | "largest_revenue" | "highest_program_pct" | "alphabetical"
@@ -58,7 +64,11 @@ export type CharityListParams = {
   page_size?: number
 }
 
-function toQuery(params: CharityListParams): string {
+export type FeaturedParams = {
+  bucket?: Bucket
+}
+
+function toQuery(params: Record<string, unknown>): string {
   const search = new URLSearchParams()
   for (const [key, value] of Object.entries(params)) {
     if (value == null) continue
@@ -81,24 +91,19 @@ export const api = {
     return apiFetch<PaginatedCharitySummary>(`/api/charities/${toQuery(params)}`, opts)
   },
   /**
-   * Featured charities for the homepage strip (DESIGN.md v2.0 §C / §G).
+   * Featured charities for homepage bucket cards (DESIGN.md v3.0 §A).
    * Backend returns a flat array (no pagination wrapper) of ≤6 CharitySummary items.
+   * If `bucket` is provided, results are filtered to that bucket.
    * Cache aligned with backend `s-maxage=3600`: TanStack staleTime = 1h.
    */
-  featuredCharities(opts?: FetchOptions) {
-    return apiFetch<CharitySummary[]>(`/api/charities/featured/`, opts)
+  featuredCharities(params: FeaturedParams = {}, opts?: FetchOptions) {
+    return apiFetch<CharitySummary[]>(`/api/charities/featured/${toQuery(params)}`, opts)
   },
   getCharity(slug: string, opts?: FetchOptions) {
     return apiFetch<Charity>(`/api/charities/${slug}/`, opts)
   },
   listSourceDocuments(slug: string, opts?: FetchOptions) {
     return apiFetch<SourceDocument[]>(`/api/charities/${slug}/source-documents/`, opts)
-  },
-  compareCharities(slugs: string[], opts?: FetchOptions) {
-    return apiFetch<{ charities: CharitySummary[] }>(
-      `/api/charities/compare/?slugs=${encodeURIComponent(slugs.join(","))}`,
-      opts
-    )
   },
   listCauses(opts?: FetchOptions) {
     return apiFetch<Cause[]>(`/api/causes/`, opts)

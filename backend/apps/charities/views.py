@@ -1,4 +1,8 @@
-"""ViewSets for charity catalog, detail, source-documents, comparison, causes, RSS feed."""
+"""ViewSets for charity catalog, detail, source-documents, causes, RSS feed.
+
+v3.0 (DESIGN.md §J) removed the Compare endpoint. Featured endpoint gained
+an optional `?bucket=` parameter for the People/Animals/Planet landing pages.
+"""
 from __future__ import annotations
 
 import logging
@@ -11,7 +15,7 @@ from drf_spectacular.types import OpenApiTypes
 from drf_spectacular.utils import OpenApiParameter, extend_schema
 from rest_framework import status, viewsets
 from rest_framework.decorators import action
-from rest_framework.exceptions import NotFound, ValidationError
+from rest_framework.exceptions import NotFound
 from rest_framework.request import Request
 from rest_framework.response import Response
 
@@ -19,7 +23,6 @@ from apps.charities.filters import CharityFilter
 from apps.charities.models import Cause, Charity, CharitySlugAlias
 from apps.charities.serializers import (
     CauseSerializer,
-    CharityComparisonSerializer,
     CharityDetailSerializer,
     CharitySummarySerializer,
     SourceDocumentSerializer,
@@ -50,14 +53,24 @@ def _resolve_slug(slug: str) -> Charity:
         raise
 
 
-def _select_featured(target_size: int = 6) -> list[Charity]:
+def _select_featured(target_size: int = 6, bucket: str | None = None) -> list[Charity]:
     """Select up to `target_size` charities for the homepage Featured section.
 
-    Implements DESIGN.md v2.0 §G algorithm:
+    v3.0 (DESIGN.md §A) introduces an optional `bucket` parameter — when set,
+    the entire selection is constrained to charities in that bucket
+    ("people" / "animals" / "planet"). The frontend's bucket landing page at
+    `/charities?bucket=animals` calls `/api/charities/featured/?bucket=animals`
+    to get its 3–6 hero picks for that bucket.
+
+    When `bucket` is None, behaviour matches v2.0 §G:
         S1–S3: top 3 US by total_revenue desc
         S4:    top 1 GB by total_revenue desc
         S5:    top 1 RU by total_revenue desc
         S6:    smallest verified (wildcard) by total_revenue asc
+
+    When `bucket` is set, the country-quota slots are dropped (we don't have
+    enough seeded animals/planet rows to enforce US+UK+RU + small wildcard),
+    so we just take top-N by revenue desc within that bucket.
 
     Eligibility: verification_status='verified', is_stale=False,
     total_revenue_usd IS NOT NULL. logo_url is NOT required (per DESIGN.md
@@ -76,6 +89,13 @@ def _select_featured(target_size: int = 6) -> list[Charity]:
         is_stale=False,
         total_revenue_usd__isnull=False,
     ).prefetch_related("charity_badges__badge")
+
+    if bucket:
+        # v3.0 bucket-scoped: just top-N by revenue desc, no country quota.
+        return list(
+            base_qs.filter(bucket=bucket)
+            .order_by("-total_revenue_usd", "slug")[:target_size]
+        )
 
     selected: list[Charity] = []
     seen: set[str] = set()
@@ -122,6 +142,9 @@ def _select_featured(target_size: int = 6) -> list[Charity]:
     return selected[:target_size]
 
 
+_VALID_BUCKETS = frozenset({"people", "animals", "planet"})
+
+
 class CharityViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = Charity.objects.all().prefetch_related("charity_badges__badge")
     serializer_class = CharitySummarySerializer
@@ -153,6 +176,13 @@ class CharityViewSet(viewsets.ReadOnlyModelViewSet):
             OpenApiParameter("q", OpenApiTypes.STR, OpenApiParameter.QUERY, description="Free-text search"),
             OpenApiParameter("lang", OpenApiTypes.STR, OpenApiParameter.QUERY, enum=["en", "ru"]),
             OpenApiParameter("sort", OpenApiTypes.STR, OpenApiParameter.QUERY, enum=list(SORT_MAP.keys())),
+            OpenApiParameter(
+                "bucket",
+                OpenApiTypes.STR,
+                OpenApiParameter.QUERY,
+                enum=["people", "animals", "planet"],
+                description="v3.0 emotional taxonomy filter (DESIGN.md v3.0 §A)",
+            ),
         ],
     )
     def list(self, request: Request, *args: Any, **kwargs: Any) -> Response:
@@ -190,15 +220,26 @@ class CharityViewSet(viewsets.ReadOnlyModelViewSet):
     @extend_schema(
         operation_id="getFeaturedCharities",
         tags=["catalog"],
-        summary="Featured charities for homepage (DESIGN.md v2.0 §G)",
+        summary="Featured charities for homepage / bucket landing pages (DESIGN.md v3.0 §A, §G)",
         description=(
-            "Returns up to 6 verified, non-stale charities for the homepage "
-            "Featured section. Selection follows DESIGN.md v2.0 §G: top-3 US "
-            "by total_revenue, plus 1 each from UK + Russia, plus 1 wildcard "
-            "small-org. Deduplicated. If fewer than 6 eligible charities exist "
-            "the response shrinks gracefully — frontend hides the section "
-            "below 3 items per §C.3. Flat array; not paginated."
+            "Returns up to 6 verified, non-stale charities. Without `bucket`, "
+            "selection follows the v2.0 §G algorithm (top-3 US + 1 UK + 1 RU "
+            "+ 1 wildcard small-org). With `bucket=people|animals|planet`, "
+            "returns the top-N revenue-ordered charities in that bucket — "
+            "the v3.0 bucket landing page (`/charities?bucket=animals`) calls "
+            "this with the bucket param. Flat array; not paginated. "
+            "Frontend hides the section below 3 items per §C.3."
         ),
+        parameters=[
+            OpenApiParameter(
+                "bucket",
+                OpenApiTypes.STR,
+                OpenApiParameter.QUERY,
+                enum=["people", "animals", "planet"],
+                required=False,
+                description="v3.0 emotional taxonomy filter — limits picks to one bucket.",
+            ),
+        ],
         responses={200: CharitySummarySerializer(many=True)},
     )
     @action(
@@ -208,53 +249,30 @@ class CharityViewSet(viewsets.ReadOnlyModelViewSet):
         url_name="charity-featured",
     )
     def featured(self, request: Request) -> Response:
-        """Per DESIGN.md v2.0 §G algorithm. See _select_featured for details.
+        """Per DESIGN.md v3.0 §A + v2.0 §G. See _select_featured for details.
 
         Returns a flat array (not paginated) — the homepage section is
         capped at 6 cards by design, so DRF pagination would just add
         envelope noise. We don't call self.paginate_queryset() here.
+
+        Query params:
+            ?bucket=people|animals|planet  → restrict to that v3.0 bucket
         """
-        charities = _select_featured()
+        bucket = (request.query_params.get("bucket") or "").strip().lower() or None
+        if bucket is not None and bucket not in _VALID_BUCKETS:
+            # Silently ignore unknown bucket — return the full unfiltered set
+            # (don't 400, since frontend may pass through an empty string from
+            # a typo'd URL and we'd rather degrade gracefully).
+            bucket = None
+        charities = _select_featured(bucket=bucket)
         # Reuse the catalog summary shape so frontend has a single CharityCard
         # contract (§A — single source of truth for the card).
         return Response(CharitySummarySerializer(charities, many=True).data)
 
-    @extend_schema(
-        operation_id="compareCharities",
-        tags=["catalog"],
-        summary="Side-by-side comparison (max 3)",
-        parameters=[
-            OpenApiParameter(
-                "slugs",
-                OpenApiTypes.STR,
-                OpenApiParameter.QUERY,
-                required=True,
-                description="Comma-separated, 2–3 charity slugs",
-            )
-        ],
-    )
-    @action(detail=False, methods=["get"], url_path="compare", url_name="charity-compare")
-    def compare(self, request: Request) -> Response:
-        slugs_param = (request.query_params.get("slugs") or "").strip()
-        if not slugs_param:
-            raise ValidationError({"slugs": "Required"})
-        slugs = [s for s in slugs_param.split(",") if s]
-        if not (2 <= len(slugs) <= 3):
-            raise ValidationError({"slugs": "Must be 2 or 3 slugs"})
-
-        charities = list(
-            Charity.objects.filter(slug__in=slugs).prefetch_related(
-                "financial_history", "source_documents", "charity_badges__badge"
-            )
-        )
-        found_slugs = {c.slug for c in charities}
-        missing = [s for s in slugs if s not in found_slugs]
-        if missing:
-            raise NotFound({"missing_slugs": missing})
-
-        # Preserve user-supplied order
-        ordered = sorted(charities, key=lambda c: slugs.index(c.slug))
-        return Response({"charities": CharityComparisonSerializer(ordered, many=True).data})
+    # NOTE: the `/api/charities/compare/` endpoint was removed in v3.0
+    # (DESIGN.md v3.0 §J). The Compare page is killed — buckets are the new
+    # discovery affordance. Frontend simultaneously drops <CompareTable>,
+    # the nav link, the footer link, and the useCompareSelection hook.
 
 
 class CauseListView(viewsets.ReadOnlyModelViewSet):
