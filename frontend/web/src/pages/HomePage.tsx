@@ -33,14 +33,21 @@ const STATS: { figure: string; labelKey: string }[] = [
   { figure: "5", labelKey: "home.stats.sources" },
 ]
 
-const CAUSES: { slug: string; nameKey: string }[] = [
-  { slug: "animals", nameKey: "Animals welfare" },
-  { slug: "children", nameKey: "Children + youth" },
-  { slug: "climate", nameKey: "Climate + environment" },
-  { slug: "education", nameKey: "Education" },
-  { slug: "health", nameKey: "Health + medicine" },
-  { slug: "refugees", nameKey: "Refugees + humanitarian" },
-  { slug: "russia", nameKey: "Russia (curated)" },
+// Cause links — only show causes that actually have ≥1 charity in our seed.
+// As we ingest more, expand this list (or load it dynamically from
+// /api/causes/?has_charities=true).
+type CauseLink =
+  | { kind: "cause"; slug: string; nameEn: string; nameRu: string }
+  | { kind: "country"; code: string; nameEn: string; nameRu: string }
+
+const CAUSES: CauseLink[] = [
+  { kind: "cause", slug: "global-health", nameEn: "Global health", nameRu: "Глобальное здравоохранение" },
+  { kind: "cause", slug: "poverty-reduction", nameEn: "Poverty reduction", nameRu: "Борьба с бедностью" },
+  { kind: "cause", slug: "homelessness", nameEn: "Homelessness", nameRu: "Помощь бездомным" },
+  { kind: "cause", slug: "disaster-relief", nameEn: "Disaster relief", nameRu: "Помощь при катастрофах" },
+  { kind: "cause", slug: "child-nutrition", nameEn: "Child nutrition", nameRu: "Детское питание" },
+  { kind: "cause", slug: "neglected-tropical-diseases", nameEn: "Tropical diseases", nameRu: "Тропические болезни" },
+  { kind: "country", code: "RU", nameEn: "Russia (curated)", nameRu: "Россия (кураторская подборка)" },
 ]
 
 const REGISTRIES: string[] = [
@@ -159,7 +166,8 @@ function FeaturedSection() {
 }
 
 export function HomePage() {
-  const { t } = useTranslation()
+  const { t, i18n } = useTranslation()
+  const lang: "en" | "ru" = i18n.language?.startsWith("ru") ? "ru" : "en"
 
   return (
     <>
@@ -318,21 +326,29 @@ export function HomePage() {
             </h2>
           </Reveal>
           <div className="divide-y divide-rule border-y border-rule">
-            {CAUSES.map((c, i) => (
-              <Reveal key={c.slug} delay={i * 0.05}>
+            {CAUSES.map((c, i) => {
+              const key = c.kind === "cause" ? c.slug : c.code
+              const href =
+                c.kind === "cause"
+                  ? `/charities?cause=${encodeURIComponent(c.slug)}`
+                  : `/charities?country=${encodeURIComponent(c.code)}`
+              const label = lang === "ru" ? c.nameRu : c.nameEn
+              return (
+              <Reveal key={key} delay={i * 0.05}>
                 <Link
-                  to={`/charities?cause=${encodeURIComponent(c.slug)}`}
+                  to={href}
                   className="flex items-center justify-between py-5 group hover:px-2 transition-all"
                 >
                   <span className="font-serif text-h2 text-ink" style={{ fontWeight: 400 }}>
-                    {c.nameKey}
+                    {label}
                   </span>
                   <span className="text-ink-3 group-hover:text-ink transition-colors">
                     <HugeiconsIcon icon={ArrowRight01Icon} size={20} />
                   </span>
                 </Link>
               </Reveal>
-            ))}
+              )
+            })}
           </div>
         </div>
       </section>
