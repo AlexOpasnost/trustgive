@@ -139,7 +139,7 @@ function FeaturedSection() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {charities.map((charity, i) => (
             <Reveal key={charity.slug} delay={i * 0.05}>
-              <CharityCard charity={charity} />
+              <CharityCard charity={charity} variant="compact" />
             </Reveal>
           ))}
         </div>
