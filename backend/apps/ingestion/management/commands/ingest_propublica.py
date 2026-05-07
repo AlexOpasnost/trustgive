@@ -281,6 +281,21 @@ class Command(BaseCommand):
         charity.save()
 
     def _upsert_filings(self, charity: Charity, filings: list[dict[str, Any]]) -> None:
+        # TODO H-002: ProPublica's filings_with_data JSON only reliably exposes
+        # totrevenue and totfuncexpns at the line-item level. The Form 990 Part
+        # IX 3-way split (program / admin / fundraising) requires either:
+        #   (a) parsing Schedule O / the Part IX line items from the actual PDF
+        #   (b) hitting IRS BMF e-file XML feeds and parsing line 25 columns
+        #       (B) Program services, (C) Management & general, (D) Fundraising
+        # Both are out of scope for the ProPublica-only ingest command.
+        # CURATED charities populate the 3-way split MANUALLY via migration
+        # 0008_seed_curated_charities.py — see also REVIEW H-002.
+        # Previously this method mapped totasstend → admin and totliabend →
+        # fundraising. totasstend is total ASSETS-end-of-year and totliabend is
+        # total LIABILITIES-end-of-year — both balance-sheet figures, not Part
+        # IX expense-statement figures. That bug shipped to prod (REVIEW H-002)
+        # and was the cause of GiveDirectly's 56.8% "fundraising" red flag in
+        # screenshots. Cleanup of bad rows handled by migration 0007 + 0008.
         if not filings:
             return
         latest = _filing_for_charity(filings)
@@ -291,19 +306,29 @@ class Command(BaseCommand):
         if year == 0:
             return
 
+        # Reliable from ProPublica filings_with_data:
         revenue = latest.get("totrevenue") or latest.get("totrev2")
-        program = latest.get("totfuncexpns") or latest.get("totprgmrevnue")
-        admin = latest.get("totasstend")  # placeholder — exact mapping varies; refined in Phase 4.5
-        fundraising = latest.get("totliabend")  # ditto
+        # Total functional expenses (program + admin + fundraising combined).
+        # Useful for sanity-check and program_expense_pct denominator
+        # alternative, but does NOT give us the 3-way split.
+        total_expenses = latest.get("totfuncexpns")
+        # Executive compensation — ProPublica exposes the Part VII total of
+        # current officer/director/key-employee compensation directly:
+        exec_comp = latest.get("compnsatncurrofcr")
 
         Financial.objects.update_or_create(
             charity=charity,
             year=year,
             defaults={
                 "total_revenue_usd": Decimal(str(revenue)) if revenue is not None else None,
-                "program_expenses_usd": Decimal(str(program)) if program is not None else None,
-                "admin_expenses_usd": Decimal(str(admin)) if admin is not None else None,
-                "fundraising_expenses_usd": Decimal(str(fundraising)) if fundraising is not None else None,
+                # 3-way Part IX split intentionally NULL — see H-002 TODO above.
+                # Curated charities (migration 0008) populate these manually.
+                "program_expenses_usd": None,
+                "admin_expenses_usd": None,
+                "fundraising_expenses_usd": None,
+                "top_executive_comp_usd": (
+                    Decimal(str(exec_comp)) if exec_comp is not None else None
+                ),
                 "source_url": f"https://projects.propublica.org/nonprofits/organizations/{charity.registration_id}",
                 "source_label": f"IRS Form 990, FY {year} (ProPublica)",
             },
@@ -312,8 +337,12 @@ class Command(BaseCommand):
         if revenue is not None:
             charity.total_revenue_usd = Decimal(str(revenue))
             charity.size_bucket = _bucket_for(float(revenue))
-        if program is not None and revenue:
-            charity.program_expense_pct = round(Decimal(str(program)) / Decimal(str(revenue)) * 100, 2)
+        # program_expense_pct cannot be derived from ProPublica alone (we'd
+        # need the Part IX program-services line, not totfuncexpns). Leave
+        # NULL on auto-ingest; curated rows set it explicitly. The frontend
+        # CharityCard v2 right-anchor falls back to total_revenue_usd when
+        # program_expense_pct is NULL (DESIGN.md v2.0 §A.2 / §F.4).
+        charity.program_expense_pct = None
 
         # Approximate filing date as Jan 1 of year+1 if no specific date present
         try:

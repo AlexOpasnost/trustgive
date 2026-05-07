@@ -50,6 +50,78 @@ def _resolve_slug(slug: str) -> Charity:
         raise
 
 
+def _select_featured(target_size: int = 6) -> list[Charity]:
+    """Select up to `target_size` charities for the homepage Featured section.
+
+    Implements DESIGN.md v2.0 §G algorithm:
+        S1–S3: top 3 US by total_revenue desc
+        S4:    top 1 GB by total_revenue desc
+        S5:    top 1 RU by total_revenue desc
+        S6:    smallest verified (wildcard) by total_revenue asc
+
+    Eligibility: verification_status='verified', is_stale=False,
+    total_revenue_usd IS NOT NULL. logo_url is NOT required (per DESIGN.md
+    §D the frontend BrandedAvatar fallback is acceptable; requiring a logo
+    would empty the section while we curate only ~12 orgs).
+
+    Deduplication: if a slot's pick already appears in earlier slots, take
+    the next eligible. If no eligible row exists for a slot, skip it.
+
+    Determinism: pure DB-order tiebreak by slug, no per-week shuffling yet
+    (G.1 weekly rotation deferred — needs hash(slug + ISO-week) %
+    pool_size; safe to add later without API contract change).
+    """
+    base_qs = Charity.objects.filter(
+        verification_status="verified",
+        is_stale=False,
+        total_revenue_usd__isnull=False,
+    ).prefetch_related("charity_badges__badge")
+
+    selected: list[Charity] = []
+    seen: set[str] = set()
+
+    def _pick(qs, n: int = 1) -> None:
+        for charity in qs:
+            if charity.slug in seen:
+                continue
+            selected.append(charity)
+            seen.add(charity.slug)
+            n -= 1
+            if n <= 0:
+                return
+
+    # S1–S3: 3 largest US (revenue desc, slug tiebreak)
+    _pick(
+        base_qs.filter(country="US").order_by("-total_revenue_usd", "slug")[:10],
+        n=3,
+    )
+    # S4: largest UK
+    _pick(
+        base_qs.filter(country="GB").order_by("-total_revenue_usd", "slug")[:5],
+        n=1,
+    )
+    # S5: largest RU
+    _pick(
+        base_qs.filter(country="RU").order_by("-total_revenue_usd", "slug")[:5],
+        n=1,
+    )
+    # S6: smallest-revenue verified (any country) — long-tail wildcard
+    _pick(
+        base_qs.order_by("total_revenue_usd", "slug")[:10],
+        n=1,
+    )
+
+    # Backfill if any slot collapsed (e.g. cold-start: only US data seeded).
+    # We pad up to target_size from the base pool by revenue desc, dedup'd.
+    if len(selected) < target_size:
+        _pick(
+            base_qs.order_by("-total_revenue_usd", "slug")[: target_size * 2],
+            n=target_size - len(selected),
+        )
+
+    return selected[:target_size]
+
+
 class CharityViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = Charity.objects.all().prefetch_related("charity_badges__badge")
     serializer_class = CharitySummarySerializer
@@ -114,6 +186,38 @@ class CharityViewSet(viewsets.ReadOnlyModelViewSet):
         set_charity_slug(slug or "")
         docs = instance.source_documents.all().order_by("-filed_date")
         return Response(SourceDocumentSerializer(docs, many=True).data)
+
+    @extend_schema(
+        operation_id="getFeaturedCharities",
+        tags=["catalog"],
+        summary="Featured charities for homepage (DESIGN.md v2.0 §G)",
+        description=(
+            "Returns up to 6 verified, non-stale charities for the homepage "
+            "Featured section. Selection follows DESIGN.md v2.0 §G: top-3 US "
+            "by total_revenue, plus 1 each from UK + Russia, plus 1 wildcard "
+            "small-org. Deduplicated. If fewer than 6 eligible charities exist "
+            "the response shrinks gracefully — frontend hides the section "
+            "below 3 items per §C.3. Flat array; not paginated."
+        ),
+        responses={200: CharitySummarySerializer(many=True)},
+    )
+    @action(
+        detail=False,
+        methods=["get"],
+        url_path="featured",
+        url_name="charity-featured",
+    )
+    def featured(self, request: Request) -> Response:
+        """Per DESIGN.md v2.0 §G algorithm. See _select_featured for details.
+
+        Returns a flat array (not paginated) — the homepage section is
+        capped at 6 cards by design, so DRF pagination would just add
+        envelope noise. We don't call self.paginate_queryset() here.
+        """
+        charities = _select_featured()
+        # Reuse the catalog summary shape so frontend has a single CharityCard
+        # contract (§A — single source of truth for the card).
+        return Response(CharitySummarySerializer(charities, many=True).data)
 
     @extend_schema(
         operation_id="compareCharities",

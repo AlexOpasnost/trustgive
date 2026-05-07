@@ -139,7 +139,7 @@ export function CatalogPage() {
           )}
 
           {data && data.results.length > 0 && (
-            <div className="bg-surface border-t border-rule">
+            <div className="space-y-3">
               {data.results.map((charity) => (
                 <CharityCard key={charity.slug} charity={charity} />
               ))}

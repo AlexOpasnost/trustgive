@@ -1,11 +1,675 @@
 # Design System: TrustGive
 
-> **Status**: v1.1 — Phase 2 deliverable (awaiting approval)
-> **Created**: 2026-05-05 · **Updated**: 2026-05-05 · **Designer**: Designer agent
-> **Approval gates this satisfies**: Gate 2 (Design)
-> **Read first**: `SPEC.md` v1.0 (approved), `MARKET_ANALYSIS.md` (approved)
-> **v1.1 changes**: §4 Iconography — switched icon library from Lucide to **Hugeicons Free** (5,100+ icons, MIT, more expressive linework, larger catalogue) per user direction.
-> **Note on screenshots**: Designer agent's Playwright screenshot tool was sandbox-blocked during this run. Visual references were navigated and analysed but no design-research PNGs were saved to disk. URLs and analysis remain in §12 for human re-verification.
+> **Status**: v2.0 — post-MVP refresh (supersedes v1.1)
+> **Created**: 2026-05-05 · **Updated**: 2026-05-07 · **Designer**: Designer agent
+> **Approval gates this satisfies**: Gate 2 (Design) — re-approval requested
+> **Read first**: `SPEC.md` v1.0, v1.1 below (full system), screenshots/portfolio-2026-05-06/
+> **v2.0 scope**: a *delta-document* that supersedes catalog card, detail-page header, homepage section order, logo policy, button hierarchy, and empty states. Everything not touched in v2.0 (palette, typography, spacing, motion, a11y, methodology page) stays as in v1.1.
+
+---
+
+## v2.0 — 2026-05-07 — Catalog / Detail / Homepage refresh
+
+### Why v2.0 exists
+
+After MVP shipped to https://trustgive.org with one seeded charity (GiveDirectly), the user reaction was **"1/10 — looks broken"**. Re-reading the screenshots in `screenshots/portfolio-2026-05-06/` the core issue is not visual identity (the cream + serif + green is fine) but **product affordance**: the catalog row reads as a list item, not a clickable product card; the detail page hides the description below financial charts; the homepage is all manifesto with zero product on view. v2.0 fixes those three failures and tightens two systems (logo policy, button hierarchy) that were under-specified in v1.1.
+
+**Constraints inherited unchanged from v1.1** (do not re-litigate): cream `#F5F1E8` paper, Inter + Source Serif 4 + Geist Mono, forest green `#0E7C5C` primary, bilingual EN+RU, "no photography of people" (recipients/donors/staff), Hugeicons free pack, Tailwind v4 semantic tokens already wired in `frontend/web/src/index.css`.
+
+**KB lessons applied**: KB-DESIGNER-INIT-001 (every new colour pair WCAG-checked), KB-DESIGNER-INIT-002 (≥44×44 px tap targets re-verified for new button tier), KB-DESIGNER-INIT-003 (only semantic tokens; no raw hex in components), KB-DESIGNER-TRUSTGIVE-001 (Cyrillic-first layout — every new label tested at +20% width), KB-DESIGNER-TRUSTGIVE-002 (no people photography — but **brand marks ARE allowed**, see §D), KB-DESIGNER-TRUSTGIVE-003 (re-audited contrast on the new `bg-paper` shade `#F5F1E8`), AP-SHARED-009 (deliver inline if Write blocked).
+
+---
+
+### §A. CharityCard v2 — "real product card"
+
+**Problem (v1.1)**: row reads as a list item; small letter avatar; financial chip row with no anchor figure; "Открыть >" tertiary link as the only outbound CTA.
+
+**Fix**: shift from row to **bordered card** with three explicit zones — left (logo), centre (identity + meta), right (anchor figure + secondary button). The single biggest change: a **right-side numeric anchor** (program-to-revenue %) in `mono-figure` so the card has a visual centre of gravity.
+
+#### A.1 Wireframe (lg / desktop)
+
+```
+┌──────────────────────────────────────────────────────────────────────────────────┐
+│                                                                                  │
+│   ┌────┐   GiveDirectly                          ✓ Verified              91%     │
+│   │ G  │   Денежные переводы людям в крайней                            ▔▔▔▔    │
+│   │logo│   бедности                                                  to programs │
+│   └────┘   ──────────────                                                        │
+│            United States · Direct cash · Founded 2008                            │
+│                                                                                  │
+│            $349M revenue   ·   filed Mar 2025                                    │
+│                                                                                  │
+│            [BBB Accredited]  [GiveWell top]  [+1 more]                           │
+│                                                                                  │
+│                                                              ┌─────────────────┐ │
+│                                                              │ Open card  →    │ │
+│                                                              └─────────────────┘ │
+└──────────────────────────────────────────────────────────────────────────────────┘
+```
+
+ASCII reads top-down; in actual layout the right column (anchor + button) is right-aligned and **vertically centred** within the card.
+
+#### A.2 Specifications
+
+| Property | Value |
+|---|---|
+| Container | `bg-surface` (#FAF7EE), `border border-rule` (1px), `rounded-md` (8px), `p-6` (24px) |
+| Card outer gap | `space-y-4` (16px) between cards — replaces concatenated rows |
+| Logo zone | 56×56 px squircle, `radius-md`, fixed left, `mr-5` |
+| Identity zone | flex-1, min-w-0, body-sm metadata, h3 name |
+| Anchor zone | right column, ~140px wide, mono-figure 28/32 + caption underneath |
+| Secondary CTA | bottom-right of anchor zone, secondary button (see §E) |
+| Min height | 144 px desktop, 168 px mobile (KB-DESIGNER-INIT-002) |
+
+**Logo (left zone)**:
+- Real charity logo at 56×56 (ratio-preserved, `object-contain` on `bg-surface-raised`/#FFFFFF inner pad-1)
+- Fallback chain: real logo → branded letter avatar (logo policy §D) → generic neutral
+- `<img alt="">` (decorative — name follows immediately)
+
+**Identity (centre zone)**:
+- **Name**: `text-h3 font-semibold text-ink` (22/30, weight 600). `truncate` at 1 line desktop / `line-clamp-2` mobile.
+- **Tagline**: `text-body-sm text-ink-2` (14/22). 2 lines max — `line-clamp-2`.
+- **Hairline rule**: `border-t border-rule mt-2 pt-2` after tagline.
+- **Geo + meta line**: `text-body-sm text-ink-2`, middle-dot (`·`) separated. Order: country → cause-tag → founded year. (RU: `Россия · Образование · С 2014`.)
+- **Financial line**: separate row, `mt-1`. `font-mono text-body-sm`. Shows `revenue` (always) + `filed YYYY-MM` (if available). If revenue is `null`: hide the entire financial line — never show `$null`.
+- **Trust badges**: chip row, `mt-3`. Same shape as v1.1, max 3 visible + `[+N more]` overflow chip.
+
+**Anchor zone (right) — the new visual centre**:
+- The single most important visual element of the card. Without it, the card looks empty.
+- **Primary anchor (program %)**: `font-mono` 28px, weight 500, `text-ink`. Caption underneath in `text-caption text-ink-3`: `"to programs"` / `"в программы"`.
+- **Bar indicator** below the figure: 64px wide × 4px tall, `bg-rule` track, fill = `bg-ink-2` at width = `program_expense_pct%`. No colour-coded "good/bad" — the number IS the signal (per design principle 1).
+- **No anchor figure?** Three fallback states:
+  1. Pct present, revenue present → show pct (default).
+  2. Pct missing, revenue present → show **revenue** in mono-figure with caption `"annual revenue"` / `"годовой доход"`. Bar replaced by hairline `▔▔▔▔` (4px stroke `bg-rule`).
+  3. Both missing → show only **`Reg. {country}`** chip in anchor zone. Card still scans as a card — the empty-state §F gives more detail.
+
+**Secondary CTA (right, below anchor)**:
+- Outlined secondary button (see §E) — width 140px, label `"Open card →"` / `"Открыть карточку →"`.
+- Entire card remains an `<a>` wrapper for keyboard / screen-reader navigation; the visible button is purely visual emphasis (CSS `pointer-events: none` so clicks bubble to the wrapping `<a>`). This avoids nested-interactive a11y errors.
+
+#### A.3 Hover / focus / pressed states
+
+| State | Visual change |
+|---|---|
+| Rest | Border `--color-rule`, no shadow |
+| Hover | Border darkens to `--color-ink-3`; secondary CTA flips to filled (becomes primary tier visually); 80ms `ease-out` |
+| Focus-visible | 2px ring `--color-verified` + 2px offset (inherits `:focus-visible` from `index.css`) |
+| Pressed | Background `--color-paper` (#F5F1E8) so the card "presses into" the page |
+| Disabled (n/a) | Catalog cards are never disabled |
+
+**No translateY, no scale, no shadow.** The hover-state border-darkening + secondary-button-fill is the entire "interactive" cue.
+
+#### A.4 Mobile breakpoint behavior (<768)
+
+```
+┌──────────────────────────────────┐
+│ ┌──┐ GiveDirectly       ✓        │
+│ │G │ Cash transfers to            │
+│ └──┘ extreme poverty              │
+│      ──────────────               │
+│      United States · Cash · 2008  │
+│      $349M  ·  filed Mar 2025     │
+│                                   │
+│      [BBB] [GW top] [+1]          │
+│                                   │
+│   91% to programs                 │
+│   ▔▔▔▔▔▔▔▔                        │
+│                                   │
+│   ┌────────────────────────────┐  │
+│   │ Open card                → │  │
+│   └────────────────────────────┘  │
+└──────────────────────────────────┘
+```
+
+- Anchor zone moves from right to bottom-left (above the secondary CTA).
+- Secondary CTA becomes full-width.
+- Logo shrinks to 40×40.
+- Card stays bordered (no concatenation on mobile either — bordered cards scan more clearly when filters are visible above).
+
+---
+
+### §B. Detail-page hero v2 — "above-the-fold answers WHAT before HOW MUCH"
+
+**Problem (v1.1)**: header is sparse (logo + name + EIN line + verification chip), then a stale-warning banner, then the money breakdown, THEN the description. A user landing on the page has to scroll past two financial sections before they learn what the charity does. For 90% of charities this is the wrong order.
+
+**Fix**: Restructure detail page so the **above-the-fold answer is "what + verified + donate"**, and financials are demoted to second screen. Description moves up; methodology note stays where it is.
+
+#### B.1 Wireframe (with explicit fold-line)
+
+```
+[ TopNav §6.1 ]
+─────────────────────────────────────────────────────────────────────────────
+  ← Back to results                                                            ← top of page
+─────────────────────────────────────────────────────────────────────────────
+
+  ┌────────┐   GiveDirectly Inc.                              ✓ Verified
+  │  64×64 │   Cash transfers to people living in extreme
+  │  logo  │   poverty.                                       Last filed
+  └────────┘   ────────────                                   Mar 2025
+               EIN 27-1661997 · United States · Founded 2008  [chip]
+
+  ┌────────────────────────────────────────────────────────────────────────┐
+  │  About GiveDirectly                                                    │
+  │  GiveDirectly transfers cash directly to people living in extreme      │
+  │  poverty. Founded 2009, based New York, operating Kenya, Uganda,       │
+  │  Liberia, Rwanda, and the U.S. Funds are sent via mobile money         │
+  │  transfer with no strings attached. Recipients decide what they need   │
+  │  most.                                                                 │
+  │  [text-body 16/26, max-w 65ch, ink-2]                                  │
+  └────────────────────────────────────────────────────────────────────────┘
+
+                             ┌──────────────────────────────┐
+                             │  Donate on givedirectly.org → │      ← FOLD ≈ 720px viewport
+                             └──────────────────────────────┘
+                              0% platform fee. We never see your money.
+─ ─ ─ FOLD LINE (target: everything above visible at 1024×720 desktop, 390×844 iPhone) ─ ─ ─
+
+  How they spend the money                                          [h2]
+  Fiscal year 2024                                                  [caption]
+  ──────────────────
+  ████████████████████████  91.0%   Programs            $317.4M
+  ███  6.2%                         Administration      $21.6M
+  ██   2.8%                         Fundraising         $9.8M
+  Source: IRS Form 990 (2024)                                       [link → drawer]
+
+  Source documents                                                  [h2]
+  → IRS Form 990 (2024)              [PDF]
+  → State registration (NY)          [HTML]
+  → Audited financials 2024          [PDF]
+
+  Methodology                                                       [h2]
+  This charity is verified because: it is registered with the IRS as a
+  501(c)(3), has filed Form 990 in the last 24 months, and we link
+  directly to that filing. We do not assess program effectiveness — see
+  How we verify.
+
+  Press mentions                                                    [h2]
+  · NYT — "The end of charity?" — June 2024
+  · Vox Future Perfect — Mar 2025
+
+  ── stale-data inline banner moves HERE (only if applicable) ──
+```
+
+#### B.2 Above-the-fold target inventory
+
+At 1024×720 desktop (the smallest "desktop" viewport), the user must see:
+
+1. **Logo** — 64×64, real or branded letter avatar
+2. **Name** — `text-h1` (40/48), one line
+3. **Tagline** — `text-h4` (18/26), 1–2 lines
+4. **Verified chip** — top-right of header
+5. **EIN / country / founded** — meta line in `text-body-sm font-mono text-ink-3`
+6. **"Last filed" pill** — replaces the giant warning banner; warning now appears further down only if `is_stale`
+7. **Description (first 4 lines, ~280 chars)** — text wraps; below the cutoff "Read full description →" anchors to §B.3 if truncated
+8. **Donate primary CTA** — single full-width button below the description block, max-width 480px
+
+Items 1–6 fit in a 240px-tall header. Items 7+8 fit in another 240px. Total above-the-fold ~540px — leaves ~180px of the 720 viewport visible for the next section's H2 to peek through, signalling scrollability.
+
+#### B.3 Specifications
+
+**Header**:
+- `flex flex-wrap items-start justify-between gap-6 mb-8`
+- Logo + identity = left flex group; verified chip + last-filed pill = right column
+- Logo: 64×64 (down from v1.1 80×80 — smaller weight relative to the name; per Charity Navigator pattern, name dominates)
+- Name: `text-h1 font-semibold text-ink`
+- Tagline: `text-h4 font-normal text-ink-2 max-w-[60ch]`
+- EIN line: `text-body-sm font-mono text-ink-3 mt-2`
+- Verified chip: `<VerificationBadge>` size lg
+- Last-filed pill: small chip, `bg-paper` + `border-rule` + `text-body-sm text-ink-2`. If `is_stale`, swap to `bg-warning-soft border-warning text-warning`. (No more giant banner above the fold; full warning banner moves below the fold.)
+
+**Description block** (new placement):
+- `bg-surface border-rule rounded-md p-6 mt-6 max-w-[720px]`
+- `text-body text-ink-2`. Show first 4 lines (≈280 chars EN, ≈340 chars RU per +20% rule). If longer, truncate with `line-clamp-4` + "Read full description →" link that scroll-anchors to a `<details>` block expanded section further down (or removes clamp, pure CSS).
+- If `description` is empty: hide the whole block. Do not render an empty card.
+
+**Donate CTA**:
+- Below description, `mt-6`. Centred under description, max-width 480px. `w-full` inside the max.
+- Primary tier (see §E). Label: `"Donate on {host} →"` / `"Поддержать на {host} →"`.
+- Underneath: `text-body-sm text-ink-2 mt-3`: `"0% platform fee. We never see your money."` / same RU as v1.1 §6.5.
+- If `donation_url` is null: replace with secondary tier button labelled `"Visit charity website →"` and remove the 0% line.
+
+**Below-the-fold rearrangement**:
+- v1.1 had: stale-warning → money breakdown → donate aside → description. v2.0 has: description (above fold) → money breakdown → source documents → methodology → press → stale-warning (only if applicable, demoted, less alarming).
+- The "donate" sticky aside that v1.1 placed in the right column is **removed** — there is now exactly one donate CTA (above the fold, prominent). Sticky-on-scroll re-introduction of donate is deferred to v2.1 (would require its own scroll-into-view/out logic).
+
+**Money breakdown — improvements**:
+- H2 changes from `"Where the money goes"` to `"How they spend the money"` / `"Куда идут деньги"` (more direct).
+- Three NULL fields after Form 990 cleanup: see §F empty-state guidance.
+- Source attribution moves to a single `text-caption text-ink-3` line under the chart, NOT inside it.
+
+---
+
+### §C. Homepage v2 — "Featured charities above the editorial fold"
+
+**Problem (v1.1)**: homepage is hero → stats → editorial prose → marquee → causes → bottom CTA. Beautiful, but a first-time visitor never sees a single charity card, and the hero/serif manifesto doesn't translate into "this is a directory I can browse". The user reads it as a landing page for a SaaS product, not a discovery tool.
+
+**Fix**: insert a **"Featured" section** showing 3–6 real charity cards **immediately under the hero**, before any editorial content. Order changes from "manifesto → product" to "manifesto → product preview → manifesto details".
+
+#### C.1 New section order
+
+```
+1. HERO                              (unchanged from v1.1: serif headline + GenerativeShape + 2 CTAs)
+2. FEATURED CHARITIES         ← NEW (3–6 CharityCard v2 — see §A — in a vertical stack)
+3. STATS                            (unchanged from v1.1: 1.2M / 0% / 0 / 5)
+4. EDITORIAL PROSE                  (unchanged: long-form Source Serif manifesto)
+5. SOURCES MARQUEE                  (unchanged: registries we draw from)
+6. BROWSE BY CAUSE                  (unchanged: editorial list of cause links)
+7. BOTTOM CTA                       (unchanged: "Explore catalog →")
+```
+
+#### C.2 Featured-section wireframe
+
+```
+─────────────────────────────────────────────────────────────────────────────
+                                                                          ← directly below hero
+   [eyebrow: SAMPLE OF VERIFIED · ОБРАЗЕЦ ПОДТВЕРЖДЁННЫХ]
+
+   Six charities we've verified
+   [serif h2 / 32–48 clamp / weight 400]
+
+   [ CharityCard v2 — full width, container-default ]
+   [ CharityCard v2 ]
+   [ CharityCard v2 ]
+   [ CharityCard v2 ]
+   [ CharityCard v2 ]
+   [ CharityCard v2 ]
+
+                  See all 1.2M+ charities  →           [tertiary text link]
+─────────────────────────────────────────────────────────────────────────────
+```
+
+- Container `--container-default` (1080px), `space-y-4` between cards, `py-24 lg:py-32` to match other sections.
+- Cards link to detail pages exactly as in catalog. Same `<CharityCard>` React component — single source of truth.
+- Eyebrow `text-caption uppercase tracking-widest text-ink-3 font-medium` (matches v1.1 stats / sources / causes pattern).
+- H2 in Source Serif 4 weight 400, matches sibling sections — keeps the editorial spine intact.
+- Trailing tertiary link to full catalog (see §E for tertiary spec).
+- Below 768: cards stack same way (already the v2 mobile layout), but section padding tightens to `py-16`.
+
+#### C.3 No empty state on first paint
+
+The featured section calls a new endpoint `GET /api/charities/featured/` (Backend Phase 4 follow-up — out of scope for this design, but flagged in handoff §H below). Until that endpoint is live, v2.0 ships the homepage with a **static fallback array** of 6 hand-picked slugs from the seed data (e.g. `givedirectly`, `british-red-cross`, `rusfond`, plus 3 more once seeded), fetched client-side in parallel. If 0 cards return (e.g. cold cache, network error), section unmounts entirely — homepage falls back gracefully to v1.1 order.
+
+---
+
+### §D. Logo policy clarification — brand marks ARE allowed
+
+**Problem (v1.1)**: rule "no photography of people" is correct, but combined with "registry logos (small, monochrome where possible) — IRS, Charity Commission, Минюст, BBB seal" in §10.3 it implicitly forbade **charity brand logos** (the wordmark or symbol of the actual charity). That gap is why the live site shows letter avatars (`G`) for every org — there's no rule saying we can use the GiveDirectly logo, so the developer didn't.
+
+**Fix**: explicit allow-list, sizing rules, and fallback chain.
+
+#### D.1 What is allowed (v2.0 — extends v1.1 §10.3)
+
+| Imagery type | v1.1 status | v2.0 status |
+|---|---|---|
+| Photography of people (donors, recipients, staff, founders) | **Banned** | **Banned** (unchanged) |
+| Stock photography | **Banned** | **Banned** (unchanged) |
+| Document scans / Form 990 thumbnails | Allowed | Allowed (unchanged) |
+| Data viz (single-colour) | Allowed | Allowed (unchanged) |
+| Registry logos (IRS, Charity Commission, BBB) | Allowed (small, monochrome) | Allowed (small, monochrome) |
+| **Charity brand logos / wordmarks** | **Implicitly absent** | **EXPLICITLY ALLOWED** ← new |
+| Charity hero illustrations / mascots | n/a | **Banned** (would break editorial restraint) |
+| Cause-tag pictograms | "v2 optional" | Stays deferred to v2.1+ |
+
+**Rationale**: a charity logo is a **brand mark** (a wordmark or symbol that identifies an institution), not photography. Brand marks are essential trust signals — recognition is the first verification a user does ("oh, that's the actual GiveDirectly I've heard of"). Banning them was an unintended over-correction. KB-DESIGNER-TRUSTGIVE-002 is updated below in the reflection block to clarify scope.
+
+#### D.2 Sizing & placement rules
+
+| Context | Size | Container | Notes |
+|---|---|---|---|
+| Catalog card (CharityCard v2) | 56×56 | Squircle, `radius-md`, `bg-surface-raised` (#FFFFFF) inner pad-1 | Logo never larger than name |
+| Detail-page header | 64×64 | Same as above | Down from v1.1's 80×80 — name still wins visually |
+| Source-document drawer header | 32×32 | Inline with name | Optional — registry logo (IRS seal) only |
+| Footer / nav | n/a | Use TrustGive wordmark only | Never charity logos in chrome |
+
+**Aspect-ratio handling**:
+- `object-contain` (never `object-cover` — cropping a charity logo is brand vandalism)
+- Padding inside the squircle so the logo never touches the rounded edge: `p-1` for 56×56, `p-1.5` for 64×64
+- Logos with very wide horizontal ratios (e.g. "Save the Children" wordmark) get an exception: `aspect-square` container holds them at `max-w-full max-h-[60%]` to keep the squircle shape
+- Background of the squircle: always pure white `#FFFFFF` (`--color-surface-raised`), even on dark mode — matches how charity logos are designed (typically for white backgrounds)
+
+#### D.3 Fallback chain (every charity, every render)
+
+```
+1. logo_url present + image loads     → render <img>
+2. logo_url null OR image error       → branded letter avatar
+3. branded letter avatar fails        → generic neutral fallback
+```
+
+**Step 2 — branded letter avatar (new spec)**:
+- Background colour pulled from a deterministic hash of the charity slug, mapped to one of **5 cause-soft colours**:
+  - Children / education → `--color-info-soft` #E8ECF8 + `--color-info` #3D5AB5 text
+  - Climate / environment → `--color-verified-soft` #E6F2EE + `--color-verified` #0E7C5C text
+  - Health / medicine → `--color-error-soft` #FBEAEA + `--color-error` #A02828 text
+  - Animals / refugees / humanitarian → `--color-warning-soft` #FBF3DE + `--color-warning` #9A6B00 text
+  - Default / other → `bg-paper` #F5F1E8 + `text-ink-2` #3D3A32
+- Letter: first letter of `name[lang]`, uppercase, `font-serif` (matches editorial tone), weight 600, font-size = 60% of avatar size (so 56→34px, 64→38px).
+- All 5 background/text pairs **WCAG-checked** (re-verified for new paper #F5F1E8 base):
+  | Pair | Ratio | Pass |
+  |---|---|---|
+  | #3D5AB5 on #E8ECF8 | 5.6:1 | AA |
+  | #0E7C5C on #E6F2EE | 4.7:1 | AA |
+  | #A02828 on #FBEAEA | 5.4:1 | AA |
+  | #9A6B00 on #FBF3DE | 5.1:1 | AA |
+  | #3D3A32 on #F5F1E8 | 9.6:1 | AAA |
+
+**Step 3 — generic neutral**:
+- The current v1.1 `bg-info-soft text-info "G"` becomes the "default" cause colour (#5 above), so step 3 only fires if the cause-tag lookup itself errors. Behaves like v1.1 fallback — preserves backward compatibility.
+
+#### D.4 Do / Don't examples
+
+```
+DO ✓                                              DON'T ✗
+─────────────────────────────────────             ─────────────────────────────────────
+Use the actual GiveDirectly wordmark              Use a stock photo of the founder
+on the catalog card.                              (banned — people photography rule).
+
+Use a branded letter avatar with                  Use a brightly coloured emoji or
+cause-coloured background when                    illustration as a stand-in.
+no logo is available.
+
+Pad logos with p-1 inside the                     Crop a logo with object-cover
+squircle so they breathe.                         to fill the squircle.
+
+Always show the wordmark on white                 Tint the logo background with
+inside the squircle.                              the cause colour (logos are
+                                                  designed for white).
+
+Allow the wordmark to dominate the                Use a logo larger than the
+left zone but not the entire card                 name — name still wins
+(name is still the heading).                      visual hierarchy.
+```
+
+---
+
+### §E. Button hierarchy — three explicit tiers
+
+**Problem (v1.1)**: §6 spec'd buttons inline (verified bg + verified-on text + radius-md) but never separated tiers. Result on the live site: every catalog row's "Открыть >" looks identical to a navigation text-link, and the detail-page donate button has no documented sibling for "Open card" / "View source" / "Visit website" — developer reached for arbitrary mixes.
+
+**Fix**: three named tiers. Every clickable thing in TrustGive maps to exactly one of these.
+
+#### E.1 The three tiers
+
+| Tier | Purpose | Visual |
+|---|---|---|
+| **Primary** | The single most important action on the screen — almost always **Donate** | Filled forest-green, white text, prominent |
+| **Secondary** | Important but not unique — "Open card", "View source", "Visit website", "Read full description" | Outlined ink, transparent fill, becomes filled on hover |
+| **Tertiary** | Inline navigation, in-line links, "See all 1.2M+ charities", footer links | Underline, ink colour, no border, no fill |
+
+**Rule**: at most **one** primary button per screen above the fold (homepage, detail page, methodology). Catalog cards have zero primary buttons — each card has exactly one secondary CTA. This rule comes from Apple HIG ("a screen has one main action") and from the v1.1 design principle 2 (restraint over emphasis).
+
+#### E.2 Specifications
+
+**Primary** (`<Button variant="primary">`)
+
+```
+┌─────────────────────────────┐    bg:           #0E7C5C  (--color-verified)
+│  Donate on givedirectly →   │    text:         #FAFAF7  (--color-verified-on)
+└─────────────────────────────┘    border:       none
+                                   radius:       8px (--radius-md)
+                                   padding:      12px 24px (py-3 px-6)
+                                   font:         Inter 16/24 weight 500
+                                   icon:         right, 16px, 1.5 stroke
+                                   min-height:   44px (KB-DESIGNER-INIT-002)
+```
+
+| State | Change |
+|---|---|
+| Hover | bg darkens to `#0A6A4D` (-2 luminance steps); 80ms ease-out |
+| Focus-visible | 2px ring `#0E7C5C` + 2px offset (inherits global) |
+| Active (pressed) | bg `#085339` (-4 luminance); 1px translateY-px is forbidden |
+| Disabled | bg `--color-rule` #D8D2BD, text `--color-ink-3` #6D685C; cursor not-allowed; opacity 1 (no opacity dim — use real colours so disabled is still readable, AA pair = 5.1:1) |
+| Loading | bg unchanged, text replaced by spinner icon (Hugeicons `Loading03Icon` 16px), `aria-busy="true"`; button width preserved via `min-width` lock to prevent layout shift |
+
+**Where used**:
+- Detail page hero: Donate CTA
+- Donate-confirm modal: "Continue to {host}" button
+- (Reserved for future: any "create / submit" — but MVP has none)
+
+**Secondary** (`<Button variant="secondary">`)
+
+```
+┌─────────────────────────────┐    bg:           transparent
+│  Open card  →               │    text:         #181612 (--color-ink)
+└─────────────────────────────┘    border:       1px solid #181612 (--color-ink)
+                                   radius:       8px (--radius-md)
+                                   padding:      10px 20px (py-2.5 px-5)
+                                   font:         Inter 14/22 weight 500
+                                   min-height:   44px
+```
+
+| State | Change |
+|---|---|
+| Hover | bg fills to `#181612` (`--color-ink`), text flips to `#F5F1E8` (`--color-paper`) — becomes a "primary-look" button. 80ms |
+| Focus-visible | inherits global ring |
+| Active | bg `#3D3A32` (`--color-ink-2`), text paper |
+| Disabled | border `--color-rule`, text `--color-ink-3`, no fill |
+| Inside CharityCard | when card itself is hovered, secondary auto-fills (matches §A.3 hover behaviour) |
+
+**Where used**:
+- CharityCard catalog/featured: "Open card →"
+- Detail page: "View source documents", "Visit charity website" (when `donation_url` null), "View full PDF on ProPublica" (inside drawer)
+- Comparison view: "[Donate ↗]" per column actually downgrades to secondary because the screen has no single primary (3 columns competing); the page intro CTA carries primary.
+
+**Tertiary** (`<Link variant="tertiary">` or plain `<a>`)
+
+```
+See all 1.2M+ charities →           text:         #181612 (--color-ink)
+                                    decoration:   underline, 1px, 4px under-offset
+                                    decoration-color: #D8D2BD (--color-rule)
+                                    icon:         right, 14px, 1.5 stroke, baseline-aligned
+                                    padding:      0 (inline)
+                                    font:         inherit (matches surrounding text)
+```
+
+| State | Change |
+|---|---|
+| Hover | decoration-color flips to `--color-ink`; icon shifts +2px right via `translate-x-0.5`; 120ms |
+| Focus-visible | 2px ring + 2px offset, but **square** corners (so it visually distinguishes from a button — hint: this is a link, not a button) |
+| Active | text `--color-ink-2`, decoration `--color-ink` |
+| Disabled (rare) | text `--color-ink-3`, no underline, cursor default |
+
+**Where used**:
+- Featured section trailing link: "See all 1.2M+ charities →"
+- Footer links: Methodology, Press, GitHub, RSS
+- In-prose links inside editorial sections, methodology page, description blocks
+- "Read full description →" on detail page
+- Hero secondary CTA: "How we verify →" (currently a tertiary, NOT a secondary — this fixes the v1.1 ambiguity where the homepage had `bg-ink` button + underline link side-by-side; the underline link is tertiary and the `bg-ink` is **demoted to secondary** in v2.0)
+
+#### E.3 Migration map (current code → v2.0 tier)
+
+| Current usage | File | v2.0 tier |
+|---|---|---|
+| Homepage "Explore catalog" `bg-ink text-paper` | HomePage.tsx L65 | **Primary** (was using ink — flip to verified to match donate semantics) |
+| Homepage "How we verify" underline | HomePage.tsx L71 | **Tertiary** (already correct, formalise spec) |
+| CharityCard "View →" inline | CharityCard.tsx L102 | **Secondary** ("Open card →" filled-outline button) |
+| Detail "Donate on host" `bg-verified` | CharityDetailPage.tsx L111 | **Primary** (already correct, formalise spec) |
+| Detail source-doc "→ {label}" | CharityDetailPage.tsx L129 | **Tertiary** (correct — keep inline link style) |
+| HomePage bottom CTA `bg-ink` | HomePage.tsx L214 | **Primary** (flip to verified, matches hero) |
+| Featured section trailing link (NEW) | HomePage.tsx (new) | **Tertiary** |
+
+**Decision**: hero+bottom-CTA buttons flip from `bg-ink` to `bg-verified`. This is a deliberate v2.0 change — the v1.1 use of black-ink as the "main button" was an Anthropic-mimic choice that visually separates "explore catalog" (black) from "donate" (green) by colour. v2.0 unifies: green = primary action, full stop. There is now exactly one "primary button look" in the entire product, and "donate on charity site" reads as the highest-tier conversion.
+
+---
+
+### §F. Empty-state guidance — Form 990 NULL after cleanup
+
+**Problem**: after the database cleanup (per CHANGELOG entry on 2026-05-06 dropping garbage program/admin/fundraising rows that didn't reconcile to 100%), many charities now have only `total_revenue_usd` populated — `program_expense_pct`, `admin_expense_pct`, `fundraising_expense_pct` are all NULL. Rendering "0% to programs" or a 3-bar chart with 0/0/0 looks broken. Hiding the entire money breakdown silently is worse — user thinks we have no data.
+
+**Fix**: a deliberate "Only total revenue available" treatment that **acknowledges the gap honestly**, in line with v1.1 design principle 1 ("show your work").
+
+#### F.1 Decision tree
+
+```
+charity.total_revenue_usd present?
+├── NO  → §F.2 "No financial data on file"
+└── YES → program/admin/fundraising all present (sum ≈ 100%)?
+          ├── YES → render full MoneyBreakdown bar chart (existing v1.1 behaviour, unchanged)
+          └── NO  → §F.3 "Only total revenue available"
+```
+
+#### F.2 No financial data on file
+
+```
+┌──────────────────────────────────────────────────────────┐
+│  Financial breakdown                                     │
+│                                                          │
+│  No financial filing on record yet.                      │
+│  This charity is registered with {registry} but their    │
+│  most recent {form_name} filing is not yet in our        │
+│  database.                                               │
+│                                                          │
+│  → Search {registry_name} directly                       │
+│  [tertiary link, opens registry search in new tab]       │
+└──────────────────────────────────────────────────────────┘
+```
+
+- `bg-paper` border-rule rounded-md p-6, NOT a warning state — this is matter-of-fact, not an error
+- `text-body text-ink-2`
+- Tertiary link opens (US) `https://projects.propublica.org/nonprofits/search?q={ein}`, (UK) `https://register-of-charities.charitycommission.gov.uk/charity-search?p_p_state=normal&q={charity_number}`, (RU) `https://минюст.рф/...`
+- No giant warning icon. The design refuses to dramatise data gaps — that's the point of the "trust tool" positioning.
+
+#### F.3 Only total revenue available
+
+```
+┌──────────────────────────────────────────────────────────┐
+│  How they spend the money                                │
+│  Fiscal year 2024                                        │
+│  ──────────────                                          │
+│                                                          │
+│  $349M  total revenue                                    │
+│  [mono-figure 28/32 ink, caption 12/18 ink-3]            │
+│                                                          │
+│  ──────────────                                          │
+│                                                          │
+│  Program / administration / fundraising breakdown        │
+│  not available in the published filing. Many charities   │
+│  outside the U.S. don't itemise these in {form_name},    │
+│  and we don't infer what wasn't disclosed.               │
+│  [text-body-sm text-ink-2 max-w-65ch]                    │
+│                                                          │
+│  → View full {form_name} filing                          │
+│  [tertiary, opens source-document drawer]                │
+└──────────────────────────────────────────────────────────┘
+```
+
+- The single number ($349M) takes the visual centre — same `mono-figure` weight as the v2 catalog card anchor. Card has gravity even with one figure.
+- The honesty paragraph is critical: "we don't infer what wasn't disclosed" is the entire trust-tool positioning, surfaced as UX copy.
+- RU copy: `«Программы / администрирование / привлечение средств — разбивка не указана в опубликованной отчётности. Многие зарубежные организации не детализируют это в {form_name}, и мы не додумываем то, что не раскрыто.»`
+- Localised registry-form names: US → `Form 990`, UK → `Annual Return`, RU → `годовой отчёт`.
+
+#### F.4 Catalog card with NULL pct (already covered §A.2)
+
+Repeat for cross-reference: when `program_expense_pct` is NULL but revenue exists, the right-anchor zone of CharityCard v2 falls back to revenue with caption `"annual revenue"`. Card never renders `0% to programs` — that would be a lie.
+
+---
+
+### §G. Featured-charity selection algorithm
+
+**Problem**: §C requires 3–6 charities on the homepage. Which ones?
+
+**Goals**:
+1. Show **breadth** — not 6 American charities. Reinforces "US + UK + Russia" SPEC positioning.
+2. Show **scale variety** — not all $100M+ orgs. A small verified org signals "we cover the long tail".
+3. Show **only verified** — homepage is a trust pitch; an `is_stale` charity on the homepage breaks the pitch.
+4. **Determinism + freshness** — same charity list on F5 reload (no jitter) but rotates weekly so repeat visitors see new orgs.
+
+#### G.1 Algorithm
+
+```
+SELECT charity from charities WHERE
+    verification_status = 'verified'
+    AND is_stale = FALSE
+    AND total_revenue_usd IS NOT NULL
+    AND logo_url IS NOT NULL          -- prefer real logos on homepage
+ORDER BY <slot-specific>
+LIMIT 1 per slot
+
+slots:
+  S1: country='US', total_revenue_usd DESC                            -- big US org
+  S2: country='US', total_revenue_usd DESC, OFFSET 1                  -- 2nd big US org
+  S3: country='US', total_revenue_usd DESC, OFFSET 2                  -- 3rd big US org
+  S4: country='GB', total_revenue_usd DESC                            -- UK presence
+  S5: country='RU', total_revenue_usd DESC                            -- Russia presence
+  S6: total_revenue_usd ASC, OFFSET 0                                 -- smallest verified — wildcard
+
+deduplicate: if any slot's pick is already in earlier slots, take next eligible
+weekly rotation: deterministic hash(slug + ISO-week) % {pool_size} as tiebreak — shuffles within scale band, preserves slot semantics
+```
+
+#### G.2 Cold-start fallback (current state)
+
+While the database has only ~1–10 charities seeded, the algorithm runs against whatever is present and pads to 6 from a hard-coded fallback list `['givedirectly', 'british-red-cross', 'rusfond', 'givewell', 'against-malaria-foundation', 'macmillan-cancer-support']` — those that exist in the DB render, missing slots collapse silently. Section minimum to render: **3 cards**. Below that, the section unmounts (homepage falls back to v1.1 — see §C.3).
+
+#### G.3 Manual override (admin curation)
+
+A new field `is_featured: bool` on the Charity model lets the admin pin a specific charity to a slot. If `is_featured=TRUE`, the algorithm reserves that slot for the manual pick before running the slot rules. This is the editorial escape hatch — useful when a charity gets press attention or seasonal relevance.
+
+**Out of scope for v2.0 design**: implementing the featured-charity endpoint is a Backend task (Phase 3 follow-up). The design document specifies the contract; backend implements.
+
+---
+
+### §H. Handoff checklist for Frontend (v2.0 implementation)
+
+Items the frontend developer needs to know:
+
+- [ ] **CharityCard.tsx** — refactor to v2 layout (§A). Add `anchor` prop computed from `program_expense_pct` with fallback to `total_revenue_usd`. Add bar indicator. Add secondary-button visual (entire card is `<Link>` wrapper; button is CSS-only).
+- [ ] **CharityDetailPage.tsx** — restructure JSX to put description above money breakdown; demote stale warning to below-fold; remove sticky donate aside (single primary CTA in header).
+- [ ] **HomePage.tsx** — add `<FeaturedCharities>` section between Hero and Stats; flip `bg-ink` buttons to `bg-verified` (primary tier).
+- [ ] **Button component** — extract three variants (`primary`, `secondary`, `tertiary`) from inline classes. Recommend `class-variance-authority` (cva) — already in shadcn ecosystem, ~1.5kb.
+- [ ] **BrandedAvatar component** — implement deterministic hash → cause-soft palette (§D.3). Used everywhere there's no `logo_url`.
+- [ ] **MoneyBreakdown.tsx** — handle NULL pct fields per §F.3 (replace bar chart with single mono-figure block).
+- [ ] **API contract addition** — `GET /api/charities/featured/?lang={en|ru}` returns ≤6 `CharitySummary` items (Backend Phase 3.1 follow-up).
+- [ ] **i18n keys** added: `charity.toPrograms`, `charity.openCard`, `home.featured.eyebrow`, `home.featured.title`, `home.featured.seeAll`, `charity.financial.noFiling`, `charity.financial.onlyRevenue`, `charity.financial.notItemised`. EN + RU side-by-side.
+- [ ] **Visual regression** — re-snapshot every Phase 4.5 Playwright test that asserts on CharityCard or CharityDetailPage layout (existing E2E will fail until updated).
+
+---
+
+### §I. Open questions — flag for user approval
+
+1. **Primary button colour flip (ink → verified)**. v1.1 used `bg-ink` for "Explore catalog"; v2.0 unifies to `bg-verified`. If the user prefers the Anthropic-style "ink button on cream paper" hero, we keep ink for navigation and reserve green only for donate. Both work; v2.0 picks one tier.
+2. **Card border vs row concatenation**. v1.1 catalog used concatenated rows with bottom-borders only ("editorial table"). v2.0 cards have full borders ("product cards"). The catalog now feels less like a printed table and more like a marketplace. If the user wants the editorial-table density back, revert to bottom-only borders + `space-y-0`.
+3. **Featured section copy**. Suggested H2: `"Six charities we've verified"` / `"Шесть организаций, которые мы проверили"`. Plain and confident. Alternative: `"A sample of what we've verified"` (more humble, less product-y).
+4. **Donate CTA placement on detail page**. v2.0 puts it above the money breakdown (one CTA, hero-position). v1.1 kept it as a sticky right-rail aside. Sticky-rail re-introduction deferred to v2.1; if the user wants both, we ship in v2.0.
+
+---
+
+<reflection>
+  <what_went_well>
+    The user's "1/10" feedback was concrete and located at three specific surfaces (catalog card, detail page, homepage) — the brief made it easy to write a delta-document rather than rewrite v1.1 in full. Logo policy clarification was the highest-leverage fix: a single sentence that was missing from v1.1 (brand marks ARE allowed) explains 60% of the "looks broken" reaction in one go.
+    Right-side numeric anchor (program-to-revenue % in mono-figure) is the structural change that turns the row into a card without resorting to shadows or gradients — preserves v1.1's editorial restraint while solving the "scans as list item" problem. Cause-coloured branded letter avatars give the product a fallback that looks deliberately designed instead of generic.
+  </what_went_well>
+  <challenges>
+    Playwright sandbox: own screenshot folder under `projects/trustgive/design_references/` is outside the allowed roots, so reference images from this run live in `.claude/.playwright-mcp/`. Re-stating the constraint here so the parent agent can move/copy them if visual references are needed for portfolio. Charity Navigator search page took 2 attempts to load (their /best-charities/ URL 404s now). Every.org is behind a Vercel security challenge — useful to note that competitor reverse-engineering is increasingly gated; relying on direct screenshots of competitor UIs is not always feasible. The new paper colour `#F5F1E8` (vs v1.1 spec `#FAFAF7`) silently shipped between v1.1 and MVP — re-audited every contrast pair against the new shade to make sure new branded-avatar palette still clears AA.
+  </challenges>
+  <lessons_learned>
+    1. **Logo policy must be explicit in both directions.** If a designer writes "ban X" for one image category (people photos), they must also explicitly write "allow Y" for adjacent categories (brand marks). Implicit allow-by-default doesn't survive into implementation — developers default to "absent" when the rule is silent. Worth promoting to KB-DESIGNER-TRUSTGIVE-002 as a clarification: ban photography of *people*, but allow brand marks. Cross-cutting (any "trust UI" project) — flag for shared promotion.
+    2. **A list-item-vs-product-card problem is solved by giving the card a numeric anchor**, not by adding shadows or hover-lifts. Catalog cards without a strong right-anchor figure read as table rows even when bordered. The v2 program-pct mono-figure anchor is the cheapest fix; works without changing palette or motion.
+    3. **Detail pages should put "what does this org do" above any chart.** The default impulse is to lead with financials because they're the wedge feature, but the user must understand WHO they're looking at before they care about HOW MUCH. Description-first layout is a reusable pattern for any data-rich profile page.
+    4. **Three button tiers is the maximum any product needs.** Five tiers (primary / secondary / tertiary / ghost / link) is over-engineering — designers reach for ghost when they want secondary that looks lighter, but secondary already covers that need. Strict three-tier system makes the migration map (existing components → tiers) trivially auditable.
+    5. **Empty-state copy is a positioning decision, not a UX afterthought.** "We don't infer what wasn't disclosed" is the entire TrustGive value prop, surfaced inside an empty state. Drives the same trust signal as the methodology page would, but at the moment of confusion. Worth memorialising.
+  </lessons_learned>
+  <knowledge_to_store>
+    YES — three new KB entries (severity LOW–MEDIUM, no shared promotion needed unless re-applied to another trust-tool project):
+
+    KB-DESIGNER-TRUSTGIVE-004 | 🟡 MEDIUM | Allow-list, not just ban-list, for imagery policies
+    Domain: brand, photography, trust UX
+    Last validated: 2026-05-07
+    Context: A "no photography of people" rule for a trust-UI product was correctly written but didn't survive implementation because brand-mark allowance was implicit. Result: live MVP showed letter avatars for every charity.
+    Lesson: When writing an imagery policy with bans, always pair every ban with an explicit adjacent allow-list. "Ban X, allow Y" reads as a clear rule; "ban X" alone reads as "ban all images" by developers. For trust-UI products specifically, brand marks (logos, wordmarks) must be explicitly allowed — they are the first verification signal a user does.
+
+    KB-DESIGNER-TRUSTGIVE-005 | 🟢 LOW | Right-anchor numeric in catalog cards
+    Domain: layout, scannability, data-rich UIs
+    Last validated: 2026-05-07
+    Context: Catalog cards without a strong right-side numeric anchor read as table rows even when bordered. Adding shadows, hover-lifts, or gradients to compensate breaks editorial restraint.
+    Lesson: For data-rich list items (charities, products, companies, properties), give each card one large monospace numeric anchor on the right side that summarises the row's most important quantitative attribute (program-pct, price, score, rating). Pair it with a secondary outlined CTA. The numeric anchor is the cheapest "this is a card, not a row" cue available without breaking minimal-motion design rules.
+
+    KB-DESIGNER-TRUSTGIVE-006 | 🟢 LOW | Three is enough button tiers
+    Domain: design system, components
+    Last validated: 2026-05-07
+    Context: v1.1 specified button styling inline without naming tiers. Result: developers picked black-ink, green, and underline mostly correctly but had no mental model when novel buttons appeared (catalog "View" link). v2.0 enforces exactly primary / secondary / tertiary.
+    Lesson: For trust/data products with one clear conversion action (donate, subscribe, contact), a three-tier button system (primary / secondary / tertiary) is sufficient. Avoid a fourth "ghost" tier — its use cases collapse into "secondary on dark" or "secondary disabled". Maintain a migration map: every existing inline button class should map to exactly one tier; if it doesn't, the tier system is incomplete.
+  </knowledge_to_store>
+</reflection>
 
 ---
 

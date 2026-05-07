@@ -80,6 +80,14 @@ export const api = {
   listCharities(params: CharityListParams = {}, opts?: FetchOptions) {
     return apiFetch<PaginatedCharitySummary>(`/api/charities/${toQuery(params)}`, opts)
   },
+  /**
+   * Featured charities for the homepage strip (DESIGN.md v2.0 §C / §G).
+   * Backend returns a flat array (no pagination wrapper) of ≤6 CharitySummary items.
+   * Cache aligned with backend `s-maxage=3600`: TanStack staleTime = 1h.
+   */
+  featuredCharities(opts?: FetchOptions) {
+    return apiFetch<CharitySummary[]>(`/api/charities/featured/`, opts)
+  },
   getCharity(slug: string, opts?: FetchOptions) {
     return apiFetch<Charity>(`/api/charities/${slug}/`, opts)
   },

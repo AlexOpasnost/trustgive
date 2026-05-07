@@ -50,6 +50,32 @@
       "body": "1.2 million verified charities. Filter by cause, country, and size. Donate on the charity's own site — we never see your money."
     }
   },
+  "homepage": {
+    "featured": {
+      "eyebrow": "Featured verified",
+      "title": "A sample of what we've verified",
+      "subtitle": "Six organisations across the United States, United Kingdom, and Russia — each with a public registry filing on file.",
+      "seeAll": "See all 1.2M+ charities"
+    }
+  },
+  "card": {
+    "openProfile": "Open profile",
+    "programs": "Programs",
+    "annualRevenue": "Annual revenue",
+    "regCountry": "Registered · {{country}}"
+  },
+  "detail": {
+    "about": "About",
+    "methodology": "Methodology",
+    "moneyBreakdown": "How they spend the money",
+    "donate": {
+      "cta": "Donate at {{hostname}}",
+      "microcopy": "0% commission. We never touch your money."
+    },
+    "breakdown": {
+      "unavailable": "Program-services breakdown not reported on this Form 990. Many charities outside the U.S. don't itemise these in their filings, and we don't infer what wasn't disclosed."
+    }
+  },
   "catalog": {
     "title": "Charities",
     "showing": "Showing {{from}}–{{to}} of {{count}}",

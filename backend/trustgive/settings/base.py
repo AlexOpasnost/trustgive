@@ -221,6 +221,7 @@ CACHALOT_UNCACHABLE_TABLES = (
 CACHE_CONTROL_MAP = {
     "health": "no-store",
     "charity-list": "public, s-maxage=3600, stale-while-revalidate=86400",
+    "charity-featured": "public, s-maxage=3600, stale-while-revalidate=86400",
     "charity-detail": "public, s-maxage=3600, stale-while-revalidate=86400",
     "charity-source-documents": "public, s-maxage=86400, stale-while-revalidate=86400",
     "charity-compare": "public, s-maxage=3600",
