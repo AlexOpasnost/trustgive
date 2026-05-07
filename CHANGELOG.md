@@ -540,3 +540,138 @@ Viewport 1440×900:
 - **Token rotation**: User's Cloudflare API token was pasted in chat. **Roll the token** in dashboard (API Tokens → Roll) once we're done with this session.
 
 **Cost**: ~$30 of agent calls (Designer 24K tokens, Backend 97K tokens, Frontend 124K tokens) + Project Lead overhead. Project total now ~$55 of $200 budget. Site reaction goes from "1/10" to portfolio-grade.
+
+---
+
+## [2026-05-07] [Project Lead] [v2.0.1 + v2.0.2 — drive-through QA fixes]
+
+User asked Playwright to actually drive the live site (scroll, click, navigate)
+instead of just snapping screenshots. Five bugs found in real-time on
+trustgive.org and fixed in this same session:
+
+### 1. Featured-strip layout broken in 3-col grid (RU especially)
+
+**Bug**: At 1440px viewport in 3-col Featured grid (~430px cards), the
+side-by-side desktop layout activated (`sm:` breakpoint) but identity
+zone collapsed to ~140px. Result with RU strings:
+- "Подтверждено" verified chip overlapped the right-side anchor "92.8%"
+- Tagline truncated to 2-4 chars: "Ден пе...", "Мас до...", "Бор с..."
+- "Открыть карточку" button overlapped cause-tags
+
+**Cause**: CharityCard's responsive layout switches based on **viewport**
+(via Tailwind `sm:` prefix), not card width. In Featured 3-col, cards
+are too narrow for the side-by-side layout that desktop activates.
+
+**Fix v2.0.1** (commit `b3d91e5`): added `variant: "list" | "compact"`
+prop. `compact` always uses stacked layout regardless of viewport:
+- Verified chip drops below name (own row) — frees identity zone
+- Tagline gets `line-clamp-3` budget instead of 2
+- Single cause-tag instead of two
+- Trust badges hidden
+- **Icon-only arrow chip** (Hugeicon ArrowRight01 in 36×36 bordered
+  square) replaces "Open profile" button text — saves ~150px of width
+  for the program-pct anchor figure to render properly. The whole card
+  is already `<Link>`-wrapped, so the arrow chip is decorative
+  affordance only.
+
+**Fix v2.0.2** (commit `b3d91e5`): anchor block CSS resilience
+- `flex-1 min-w-0` on anchor div (was `min-w-0` only — anchor collapsed
+  to 16px width, bar `w-24` overflowed parent and visually overlapped
+  button)
+- bar `w-full max-w-24` (was fixed `w-24` — overflowed when parent
+  narrow)
+
+`HomePage.tsx`: Featured grid now passes `variant="compact"`.
+`CatalogPage.tsx`: kept default `variant="list"` (full-width works
+correctly there).
+
+### 2. Cause-grid linked to causes that 404'd
+
+**Bug**: Homepage "Найти организацию по теме" listed Animals welfare /
+Children + youth / Climate / Education / Health / Refugees / Russia.
+Clicking any of them produced empty results because seed data uses
+different cause-tags (`global-health`, `poverty-reduction`,
+`homelessness`, `disaster-relief`, `child-nutrition`,
+`neglected-tropical-diseases`, `cash-transfers`).
+
+**Fix v2.0.2** (commit `ca29c74`): replaced static cause list with the
+6 cause-tags that actually have ≥1 charity in the seed, plus a special
+Russia entry that filters by `country=RU` instead of `cause`. Each
+entry has bilingual EN/RU labels via `i18n.language` lookup.
+
+Side issue caught: my first edit referenced an undefined `lang`
+variable, which threw `ReferenceError: lang is not defined` at runtime
+and prevented the homepage from hydrating. Caught immediately by
+Playwright pulling 0 H2 elements from the rendered DOM, fixed by
+pulling `lang` out of `useTranslation()` (`i18n.language?.startsWith("ru")
+? "ru" : "en"`).
+
+### 3. Duplicate SourceDocument rows on detail page
+
+**Bug**: GiveDirectly detail page showed "Налоговая форма IRS 990 (2023)"
+twice in the source-documents drawer (same label, same URL).
+
+**Cause**: migration 0008 used `update_or_create` for Charity but plain
+`.create()` for SourceDocument. For GiveDirectly (already in DB before
+0008 from earlier ProPublica ingest), this produced two source-doc rows
+with the same `(kind, url)`.
+
+**Fix migration 0009** (commits `ae9830e` then `5e12a0b`):
+- First attempt used `Min("id")` annotation. Failed on Railway with
+  `psycopg.errors.UndefinedFunction: function min(uuid) does not exist`
+  because SourceDocument.id is a UUID and Postgres has no built-in
+  MIN(uuid) aggregate.
+- Second attempt: pull all rows into Python, group by
+  `(charity_id, kind, url)` in a dict, sort each group by `created_at`,
+  keep oldest, delete rest. Worked. Verified live: GiveDirectly now
+  shows 1 source-doc instead of 2.
+- **Production didn't go down** during the failed migration — Railway
+  kept the previous healthy deploy active and didn't promote the failed
+  build. Good Railway behavior.
+
+### 4. Cmdk palette doesn't search charities
+
+**Bug noted, not fixed**: ⌘K palette searched for "noch" returned
+"Ничего не найдено по запросу «noch»" but Nochlezhka is in the catalog.
+
+**Cause**: cmdk in v1.0 was navigation-only — preset suggestions like
+"Open catalog", "How we verify", country links. Never wired to the
+search API.
+
+**Status**: pre-v2.0 limitation, not regression. Deferred to v2.1.
+Fix path: wire `Charity.objects.filter(...)` via
+`/api/charities/?search=` and render result rows with avatar + name.
+
+### Full suite of v2.x deploys
+
+| | Commit | Lands |
+|---|---|---|
+| v2.0 | `e746da2` | Designer + Backend + Frontend agents (DESIGN.md v2.0, migration 0008, new components) |
+| v2.0 + screenshots | `025f972` | CHANGELOG entry + 7 portfolio screenshots |
+| wrangler.jsonc realign | `6561496` | name → trustgive-web; SPA fallback fix as side-effect |
+| v2.0.1 (Featured layout) | `b3d91e5` | CharityCard compact variant + anchor flex-1 |
+| Migration 0009 attempt 1 | `ae9830e` | dedupe (FAILED on UUID) |
+| Migration 0009 attempt 2 | `5e12a0b` | Python-side dedupe (succeeded) |
+| v2.0.2 (cause-grid fix) | `ca29c74` | bilingual labels + real cause-tags |
+
+### Drive-through QA verified
+
+Playwright drove through:
+- **Homepage**: hero (EN+RU), Featured 6-card strip (no overlap, taglines visible), editorial section, cause-grid (7 real categories), bottom CTA
+- **Catalog**: 11 charities listed (`/charities`); filtering by `cause=global-health` correctly returns 8 charities
+- **Detail page** (GiveDirectly): hero with 96px logo, description above-the-fold, primary green Donate CTA, methodology, money breakdown (real Form 990: 80.4% Programs / 4.0% Admin / 2.5% Fundraising), 1 source document (de-duped)
+- **Compare page** (`/compare?slugs=givedirectly,helen-keller-international,evidence-action`): 3-column side-by-side with REAL Form 990 numbers across all rows (revenue, expenses %, exec comp, source links), donate buttons, honest disclaimer about cross-jurisdiction comparison
+- **⌘K palette**: opens, ESC closes, but doesn't search charity names (known v2.1 work)
+- **Language switch**: EN ↔ RU works site-wide, both languages render every section correctly
+
+### Open items for v2.1
+
+- Wire ⌘K palette to `/api/charities/?search=` so users can find by name
+- Migration 0010 to make 0008's SourceDocument.create idempotent (`update_or_create`) so re-runs don't re-create duplicates that 0009 has to clean up
+- More charity logos: 8 of 11 still use BrandedAvatar fallback. Wikipedia commons URLs available for most.
+- "United Kingdom · poverty-reduction" line wraps to 3 lines on narrow Oxfam card. Minor — consider abbreviating to "UK" in compact variant.
+- Donate buttons on Compare page render as black filled (visual context). Consider switching to Primary green for consistency with detail page hero.
+
+**14 QA screenshots saved** to `screenshots/qa-2026-05-07/` documenting the bug-find-and-fix progression.
+
+**Live deployment**: 2026-05-07 13:40 Moscow / 10:40 UTC. Railway: `5e12a0b`. Cloudflare Worker `trustgive-web`: bundle `index-CFl25q0E.js` (now superseded by lang-fix bundle on commit `ca29c74`).
