@@ -14,24 +14,37 @@ Idempotent — safe on environments with no duplicates (no-op).
 """
 from __future__ import annotations
 
+from collections import defaultdict
+
 from django.db import migrations
-from django.db.models import Min
 
 
 def forwards(apps, schema_editor):
     SourceDocument = apps.get_model("charities", "SourceDocument")
 
-    # Group by (charity_id, kind, url), keep the row with smallest id (oldest),
-    # delete the rest.
-    keepers = (
-        SourceDocument.objects.values("charity_id", "kind", "url")
-        .annotate(keep_id=Min("id"))
-        .values_list("keep_id", flat=True)
+    # SourceDocument.id is a UUID — Postgres MIN() doesn't accept UUID, so
+    # group in Python instead. Within each (charity_id, kind, url) group,
+    # keep the row with the earliest created_at and delete the rest.
+    rows = list(
+        SourceDocument.objects.values_list("id", "charity_id", "kind", "url", "created_at")
     )
-    keepers_set = set(keepers)
+    groups: dict[tuple, list[tuple]] = defaultdict(list)
+    for row_id, charity_id, kind, url, created_at in rows:
+        groups[(charity_id, kind, url)].append((created_at, row_id))
 
-    duplicates = SourceDocument.objects.exclude(id__in=keepers_set)
-    deleted_count, _ = duplicates.delete()
+    ids_to_delete: list = []
+    for _key, members in groups.items():
+        if len(members) <= 1:
+            continue
+        # Sort by created_at ascending, keep first (oldest), delete the rest
+        members.sort(key=lambda m: m[0])
+        for _created_at, row_id in members[1:]:
+            ids_to_delete.append(row_id)
+
+    if ids_to_delete:
+        deleted_count, _ = SourceDocument.objects.filter(id__in=ids_to_delete).delete()
+    else:
+        deleted_count = 0
 
     print(f"[migration 0009] deleted {deleted_count} duplicate SourceDocument rows")
 
