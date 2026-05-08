@@ -29,6 +29,7 @@ import { MoneyBreakdown } from "@/components/charity/MoneyBreakdown"
 import { SourceDocumentDrawer } from "@/components/charity/SourceDocumentDrawer"
 import { Button } from "@/components/ui/Button"
 import { api } from "@/lib/api"
+import { PHOTO_WIDTHS, wikimediaThumb } from "@/lib/image"
 import { usePreferences } from "@/store/preferences"
 import type { Charity, SourceDocument } from "@/types/api"
 
@@ -310,7 +311,7 @@ function DetailHero({
 }) {
   const { t } = useTranslation()
   const lang = usePreferences((s) => s.lang)
-  const photoUrl = charity.hero_photo_url
+  const photoUrl = wikimediaThumb(charity.hero_photo_url, PHOTO_WIDTHS.detailHero)
   const credit = charity.hero_photo_credit ?? ""
   const license = charity.hero_photo_license ?? ""
   const photoCredit = credit

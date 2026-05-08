@@ -21,6 +21,7 @@ import { useTranslation } from "react-i18next"
 import { Link } from "react-router-dom"
 
 import { CharityLogo } from "@/components/charity/CharityLogo"
+import { PHOTO_WIDTHS, wikimediaThumb } from "@/lib/image"
 import { formatUsd } from "@/lib/utils"
 import { usePreferences } from "@/store/preferences"
 import type { CharitySummary } from "@/types/api"
@@ -50,7 +51,7 @@ export function CharityCard({ charity }: Props) {
   const country =
     (lang === "ru" ? COUNTRY_LABEL_RU : COUNTRY_LABEL_EN)[charity.country] ?? charity.country
   const isVerified = charity.verification_status === "verified"
-  const photoUrl = charity.hero_photo_url
+  const photoUrl = wikimediaThumb(charity.hero_photo_url, PHOTO_WIDTHS.card)
   const showPhoto = photoUrl && !photoErrored
 
   const causeTag = charity.cause_tags.length > 0 ? charity.cause_tags[0] : null
