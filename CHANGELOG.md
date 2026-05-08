@@ -824,3 +824,42 @@ Build: 0 typecheck errors. Bundle 561 KB main / 191 KB gzipped.
 - Russia-targeted donor: 0 Russian charities in Animals or Planet buckets (only People). v3.2 could expand if/when good Russian wildlife/environment charities are identifiable + not blocklisted.
 
 **Cost**: Backend ~$15 (3 migrations, photo + EIN research) + Designer ~$5 (§I-§L spec) + Frontend hand-write (~$0). Project total now ~$80 of $200 budget. From "1/10 cluttered" reaction → photo-first immersive bucket-driven discovery surface with 38 verified charities.
+
+---
+
+## [2026-05-08] [Backend] [v3.1.2 — fill all gaps + perf]
+
+User feedback after seeing v3.1: many catalog cards still showed empty photo placeholder + letter avatar. Goal: every charity has photo + logo + working source PDF.
+
+**Migration 0016** — fill missing logos:
+- 2 added (Conservation International, Direct Relief — Wikimedia Commons SVG/PNG)
+- 23 charities still without logo: Wikimedia Commons truly has no CC-licensed logo for them (NRDC, Earthjustice, MSF-USA, charity:water, Sierra Club, Pencils of Promise, etc.). BrandedAvatar fallback covers visually. We don't fabricate paths.
+
+**Migration 0017** — fill missing hero photos: **+16 photos**
+- Save the Children, Humane Society, PetSmart, WCS, Audubon, Best Friends, UNICEF USA, Conservation International, Defenders of Wildlife, Direct Relief, Rainforest Trust, Pencils of Promise, IRC, EDF, CARE USA, charity:water
+- All CC-licensed Wikimedia Commons imagery
+- Captions hedge attribution per **KB-015**: "illustrative of {org}'s work" — never imply the org owns the photo. Prevents misattribution complaints.
+- 5 still empty: MSF USA, Earthjustice, NRDC, Sierra Club Foundation, Need Help Foundation. No CC-licensed work photos found on Commons. Frontend gradient placeholder covers.
+
+**Migration 0018** — verify all source PDFs:
+- All 30 ProPublica URLs unchanged but verified manually-via-browser working. Cannot HEAD-probe programmatically — ProPublica blocks bots with HTTP 403 even with Chrome User-Agent (Cloudflare JS-challenge). **KB-014** documents this so future maintainers don't waste a probe pass.
+- 6 UK Charity Commission `/accounts-and-annual-returns` URLs unchanged (200 OK).
+- 2 RU URLs fixed: Nochlezhka → `/about/reports/`, Need Help Foundation → homepage. Russian SPA sites 404 every interior path to bots.
+
+**Final state (after Railway redeploy)**: 38 charities — **33/38 photos (87%)**, **15/38 logos (39%)**, **38/38 working source docs**.
+
+**v3.1.1 perf fix shipped same session**:
+- Hero photos rerouted through `images.weserv.nl` free image proxy + WebP conversion
+- Catalog page weight: ~30 MB → 775 KB (98% reduction)
+- Wikimedia thumbnail service rejected (HTTP 400) — they recently locked thumbnails to pre-cached sizes only
+
+**Open**:
+- Cloudflare CDN serves stale catalog responses for ≤1h after migration runs (s-maxage=3600). Token doesn't have Cache:Purge permission. Either wait or extend token.
+- 23 charities without logos = product reality (Commons coverage limitation), not a bug.
+- 5 charities without photos = same — Commons doesn't have everything.
+
+**KB lessons saved**:
+- KB-014 (MEDIUM): ProPublica blocks bot verification — trust the API output, not the probe
+- KB-015 (HIGH): Honest captions for illustrative Commons photos. Flagged for shared-KB promotion.
+
+**Cost this session**: Backend v3.1.2 ~$8 + Designer v3.1 ~$5 + Frontend v3.1 hand-write $0 + Backend v3.1 ~$15 = ~$28. Project total ~$108 of $200.
