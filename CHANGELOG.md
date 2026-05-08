@@ -762,3 +762,65 @@ Playwright drove through:
 **14 QA screenshots saved** to `screenshots/qa-2026-05-07/` documenting the bug-find-and-fix progression.
 
 **Live deployment**: 2026-05-07 13:40 Moscow / 10:40 UTC. Railway: `5e12a0b`. Cloudflare Worker `trustgive-web`: bundle `index-CFl25q0E.js` (now superseded by lang-fix bundle on commit `ca29c74`).
+
+---
+
+## [2026-05-08] [Project Lead + 2 agents] [v3.1 — sub-filter chips, sidebar removal, 38 charities, logo backfill]
+
+User feedback after v3.0 ship:
+1. "там надо чтобы на месте букв был логотип фонда" — replace BrandedAvatar letters with real logos
+2. "вся документация открывалась нормально" — every source-doc link must open the actual filing PDF
+3. "Нужно добавить как можно больше фондов"
+4. "в разделах которые есть добавить ещё фильтры (типо Люди-затем ещё фильтры бедность, болезни)"
+5. "Надо переработать фильтпры на второй фотке, они не подходят"
+
+### Backend agent (commits `b676ce4`)
+
+- **Migration 0013** — backfilled `logo_url` for 14 of 19 v3.0 charities via Wikimedia Commons API resolution (no more guessed hash-dirs). Cleared 3 stale fair-use `/wikipedia/en/...` URLs from migrations 0008/0012. KB-011 saved 🔴 HIGH severity (Wikimedia Commons URL guessing anti-pattern).
+- **Migration 0014** — fixed `source_documents.url` to direct PDFs: 11 US 501(c)(3) rows now point to actual ProPublica `/pdfs/{filing}` PDFs; 6 UK Charity Commission rows upgraded to `/accounts-and-annual-returns` listing pages. 2 RU rows already had PDF URLs. Discovered 6 wrong EINs in migrations 0008/0012 (Helen Keller / Evidence Action / END Fund / Ocean Conservancy / 350.org / New Incentives) — worked around via correct-EIN-find then write-to-existing-row. KB-012 saved (ProPublica EIN round-trip pattern).
+- **Migration 0015** — seeded 20 more charities (39 total): People +8 (MSF USA, UNICEF USA, Direct Relief, Save the Children, IRC, CARE USA, charity:water, Pencils of Promise) · Animals +5 (Humane Society, Defenders of Wildlife, WCS, National Audubon, PetSmart Charities) · Planet +7 (Sierra Club Foundation, EDF, Conservation International, Rainforest Trust, NRDC, Earthjustice, +1). Each with real EIN + bilingual EN/RU content + Form 990 financials + direct PDF source. Russia-law `is_blocked()` checked defensively. PIH dropped (EIN didn't resolve canonically on ProPublica).
+
+Final state: **38 charities** (19 People + 9 Animals + 10 Planet) — was 19 in v3.0. **28 logos + 19 hero photos + 38 source PDFs/listing pages**.
+
+### Designer agent — DESIGN.md v3.1 §I-§L (~280 lines)
+
+- **§I Sub-filter chips** — within each bucket, horizontal chip row mapping to real `cause_tags`:
+  - People: All / Poverty / Health / Children / Refugees / Homelessness / Education / Food & water
+  - Animals: All / Wildlife / Pets & shelters / Marine life
+  - Planet: All / Climate / Conservation / Forests / Pollution
+- **§J Sidebar removed** — Country / Size / Verification radios deleted. Country becomes top-bar chip group; Size dropped (revenue-DESC sort implicit); Verification dropped (catalog is curated = always verified).
+- **§K Bucket subtitles** — per-bucket 1-line tagline acknowledging available sub-filters.
+- **§L Token additions** — chip color tokens (forest-green active / surface-raised inactive).
+
+### Frontend (hand-written by Project Lead, commit `e07fbb7`)
+
+Frontend agent attempt failed with API ConnectionRefused — Project Lead implemented directly:
+
+- NEW `src/components/ui/Chip.tsx` — pill button with active/inactive variants (forest-green active / white-bordered inactive), min-h 40px touch target, polymorphic
+- NEW `src/lib/buckets.ts` — `BUCKET_SUBFILTERS` map + `COUNTRY_FILTERS` constant. Bilingual EN/RU labels.
+- REWRITE `src/pages/CatalogPage.tsx` — removed entire `<aside>` (Country/Size/Verification radios). Replaced with two chip rows above the grid: country chips (always) + cause sub-filter chips (when `?bucket=` active, sourced from `BUCKET_SUBFILTERS[bucket]`). Grid now full-width.
+
+Build: 0 typecheck errors. Bundle 561 KB main / 191 KB gzipped.
+
+### Live deployment
+
+- Railway commit `b676ce4` deployed (38 charities seeded, all migrations 0013-0015 applied)
+- Cloudflare Worker `trustgive-web` deploy `e07fbb7` → `578f848a` — bundle `index-D-BiOLUi.js`
+
+### Playwright drive-through verification
+
+- `https://trustgive.org/charities?bucket=people` — **"Showing 1-19 of 19"**, all chips render (All/Poverty/Health/Children/Refugees/Homelessness/Education/Food & water), Direct Relief at top ($2.27B revenue desc-sorted), MSF/UNICEF/IRC/CARE/Save the Children visible, real logos displayed
+- Click "Health" chip → URL becomes `?bucket=people&cause=global-health` → 14 charities filtered, "Health" chip green-active, others inactive
+- `?bucket=animals` → 9 charities including WWF-US, ASPCA, Humane Society, Defenders of Wildlife, WCS, Audubon, PetSmart Charities
+- `?bucket=planet` → 10 charities including TNC, 350.org, Sierra Club, EDF, Conservation International, Rainforest Trust, NRDC, Earthjustice
+- Sidebar gone, country chips above grid, full-width grid
+
+### 4 QA screenshots saved to `screenshots/v3.1-2026-05-08/`
+
+### Open items
+
+- Hero photos for 20 v3.1-new charities (BrandedAvatar fallback covers visually until backfilled)
+- Cmdk dep `cmdk` still in `package.json` (cosmetic, can `npm uninstall cmdk` later)
+- Russia-targeted donor: 0 Russian charities in Animals or Planet buckets (only People). v3.2 could expand if/when good Russian wildlife/environment charities are identifiable + not blocklisted.
+
+**Cost**: Backend ~$15 (3 migrations, photo + EIN research) + Designer ~$5 (§I-§L spec) + Frontend hand-write (~$0). Project total now ~$80 of $200 budget. From "1/10 cluttered" reaction → photo-first immersive bucket-driven discovery surface with 38 verified charities.
