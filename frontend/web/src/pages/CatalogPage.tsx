@@ -1,15 +1,15 @@
 /**
- * CatalogPage — DESIGN.md v3.0 §A (bucket entry-point) + §B (photo-top cards).
+ * CatalogPage — DESIGN.md v3.1 §I (sub-filter chips) + §J (sidebar removed).
  *
- * v3.0 changes:
- *   - Reads `?bucket=people|animals|planet` from query string and threads it
- *     into the API call.
- *   - When `bucket` is present, page header swaps to bucket-specific title +
- *     subtitle.
- *   - Default sort changes to `largest_revenue` for bucket views (well-known
- *     orgs first), matching the donor's expectation when they click "People".
- *   - Catalog grid: 3-col desktop / 2-col tablet / 1-col mobile (CharityCard v3
- *     is photo-top, so wider cards work).
+ * v3.1 changes from v3.0:
+ *   - Removed entire <aside> sidebar (Country / Size / Verification radios)
+ *   - Country becomes a top-bar Chip group
+ *   - Cause becomes a top-bar Chip group, populated from BUCKET_SUBFILTERS
+ *     when `?bucket=` is active
+ *   - Grid is now full-width (no 260px sidebar reservation)
+ *   - Implicit defaults: revenue-DESC sort for bucket views, all charities
+ *     in the catalog are `verified` by curation so the verification filter
+ *     was meaningless to expose
  */
 
 import { useQuery } from "@tanstack/react-query"
@@ -17,7 +17,10 @@ import { useTranslation } from "react-i18next"
 import { useSearchParams } from "react-router-dom"
 
 import { CharityCard } from "@/components/charity/CharityCard"
+import { Chip } from "@/components/ui/Chip"
 import { api, type CharityListParams } from "@/lib/api"
+import { BUCKET_SUBFILTERS, COUNTRY_FILTERS } from "@/lib/buckets"
+import { usePreferences } from "@/store/preferences"
 import type { Bucket } from "@/types/api"
 
 const VALID_BUCKETS: Bucket[] = ["people", "animals", "planet"]
@@ -28,21 +31,19 @@ function isBucket(value: string | null): value is Bucket {
 
 export function CatalogPage() {
   const { t } = useTranslation()
+  const lang = usePreferences((s) => s.lang)
   const [searchParams, setSearchParams] = useSearchParams()
 
   const bucketParam = searchParams.get("bucket")
   const bucket: Bucket | undefined = isBucket(bucketParam) ? bucketParam : undefined
+  const activeCause = searchParams.get("cause")
+  const activeCountry = searchParams.get("country")
 
   const params: CharityListParams = {
-    cause: searchParams.getAll("cause"),
-    country: (searchParams.get("country") as CharityListParams["country"]) || undefined,
-    size: (searchParams.get("size") as CharityListParams["size"]) || undefined,
-    verification_status: (searchParams.get("verification_status") as CharityListParams["verification_status"]) || undefined,
+    cause: activeCause ? [activeCause] : [],
+    country: (activeCountry as CharityListParams["country"]) || undefined,
     bucket,
-    q: searchParams.get("q") || undefined,
-    sort:
-      (searchParams.get("sort") as CharityListParams["sort"]) ||
-      (bucket ? "largest_revenue" : "most_recent_filing"),
+    sort: bucket ? "largest_revenue" : "most_recent_filing",
     page: Number(searchParams.get("page") || 1),
   }
 
@@ -59,11 +60,10 @@ export function CatalogPage() {
     setSearchParams(next, { replace: true })
   }
 
-  // Header content depends on whether a bucket filter is active.
-  const headerTitle = bucket
-    ? t(`bucket.${bucket}.pageTitle`)
-    : t("catalog.title")
+  const headerTitle = bucket ? t(`bucket.${bucket}.pageTitle`) : t("catalog.title")
   const headerSubtitle = bucket ? t(`bucket.${bucket}.pageSubtitle`) : null
+
+  const subfilters = bucket ? BUCKET_SUBFILTERS[bucket] : null
 
   return (
     <div className="max-w-(--container-default) mx-auto px-6 lg:px-12 py-12">
@@ -85,126 +85,90 @@ export function CatalogPage() {
         )}
       </header>
 
-      <div className="grid grid-cols-1 lg:grid-cols-[260px_1fr] gap-8">
-        <aside className="lg:sticky lg:top-20 lg:self-start">
-          <div className="bg-surface border border-rule rounded-md p-5 space-y-5">
-            <div className="flex items-center justify-between">
-              <h2 className="text-h4 font-semibold text-ink">{t("catalog.filters")}</h2>
-              <button
-                type="button"
-                onClick={() => {
-                  // Reset preserves the bucket filter (bucket is a *page mode*, not a filter).
-                  const next = new URLSearchParams()
-                  if (bucket) next.set("bucket", bucket)
-                  setSearchParams(next, { replace: true })
-                }}
-                className="text-body-sm text-ink-3 hover:text-ink underline"
-              >
-                {t("catalog.reset")}
-              </button>
-            </div>
-
-            <FilterGroup label={t("catalog.country")}>
-              {(["US", "GB", "RU"] as const).map((c) => (
-                <label key={c} className="flex items-center gap-2 text-body-sm text-ink py-1 cursor-pointer">
-                  <input
-                    type="radio"
-                    name="country"
-                    value={c}
-                    checked={searchParams.get("country") === c}
-                    onChange={(e) => setFilter("country", e.target.value)}
-                    className="accent-verified"
-                  />
-                  {c === "US" ? "United States" : c === "GB" ? "United Kingdom" : "Russia"}
-                </label>
-              ))}
-            </FilterGroup>
-
-            <FilterGroup label={t("catalog.size")}>
-              {(["small", "medium", "large"] as const).map((s) => (
-                <label key={s} className="flex items-center gap-2 text-body-sm text-ink py-1 cursor-pointer">
-                  <input
-                    type="radio"
-                    name="size"
-                    value={s}
-                    checked={searchParams.get("size") === s}
-                    onChange={(e) => setFilter("size", e.target.value)}
-                    className="accent-verified"
-                  />
-                  {s === "small" ? "<$100K" : s === "medium" ? "$100K–$1M" : ">$1M"}
-                </label>
-              ))}
-            </FilterGroup>
-
-            <FilterGroup label={t("catalog.verification")}>
-              {(["verified", "listed", "stale"] as const).map((v) => (
-                <label key={v} className="flex items-center gap-2 text-body-sm text-ink py-1 cursor-pointer">
-                  <input
-                    type="radio"
-                    name="verification_status"
-                    value={v}
-                    checked={searchParams.get("verification_status") === v}
-                    onChange={(e) => setFilter("verification_status", e.target.value)}
-                    className="accent-verified"
-                  />
-                  {t(`charity.${v}`)}
-                </label>
-              ))}
-            </FilterGroup>
-          </div>
-        </aside>
-
-        <main>
-          {isLoading && (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-              {[0, 1, 2, 3, 4, 5].map((i) => (
-                <div
-                  key={i}
-                  className="bg-surface-raised border border-rule rounded-md overflow-hidden"
-                >
-                  <div className="aspect-[3/2] skeleton" />
-                  <div className="p-5">
-                    <div className="skeleton h-5 w-2/3 mb-2" />
-                    <div className="skeleton h-4 w-1/2 mb-3" />
-                    <div className="skeleton h-3 w-3/4" />
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
-
-          {isError && (
-            <div className="border border-rule rounded-md p-12 text-center">
-              <h2 className="text-h3 font-semibold text-ink mb-2">{t("common.error")}</h2>
-              <p className="text-body text-ink-2">{t("common.errorBody")}</p>
-            </div>
-          )}
-
-          {data && data.results.length === 0 && (
-            <div className="border border-rule rounded-md p-12 text-center">
-              <h2 className="text-h3 font-semibold text-ink mb-2">{t("catalog.noResults")}</h2>
-              <p className="text-body text-ink-2">{t("catalog.tryRemoving")}</p>
-            </div>
-          )}
-
-          {data && data.results.length > 0 && (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-              {data.results.map((charity) => (
-                <CharityCard key={charity.slug} charity={charity} />
-              ))}
-            </div>
-          )}
-        </main>
+      {/* === Country chips === */}
+      <div className="flex flex-wrap gap-2 mb-3" role="group" aria-label={t("catalog.country")}>
+        {COUNTRY_FILTERS.map((c) => {
+          const active = (activeCountry ?? null) === c.code
+          return (
+            <Chip
+              key={c.code ?? "all"}
+              active={active}
+              onClick={() => setFilter("country", c.code)}
+            >
+              {lang === "ru" ? c.labelRu : c.labelEn}
+            </Chip>
+          )
+        })}
       </div>
-    </div>
-  )
-}
 
-function FilterGroup({ label, children }: { label: string; children: React.ReactNode }) {
-  return (
-    <div>
-      <h3 className="text-body-sm font-semibold text-ink mb-2">{label}</h3>
-      <div>{children}</div>
+      {/* === Sub-cause chips (only when bucket is active) === */}
+      {subfilters && (
+        <div
+          className="flex flex-wrap gap-2 mb-8"
+          role="group"
+          aria-label={t("catalog.cause")}
+        >
+          {subfilters.map((f) => {
+            const active = (activeCause ?? null) === f.slug
+            return (
+              <Chip
+                key={f.slug ?? "all"}
+                active={active}
+                onClick={() => setFilter("cause", f.slug)}
+              >
+                {lang === "ru" ? f.labelRu : f.labelEn}
+              </Chip>
+            )
+          })}
+        </div>
+      )}
+
+      {!subfilters && <div className="mb-8" />}
+
+      {/* === Grid === */}
+      <main>
+        {isLoading && (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            {[0, 1, 2, 3, 4, 5].map((i) => (
+              <div
+                key={i}
+                className="bg-surface-raised border border-rule rounded-md overflow-hidden"
+              >
+                <div className="aspect-[3/2] skeleton" />
+                <div className="p-5">
+                  <div className="skeleton h-5 w-2/3 mb-2" />
+                  <div className="skeleton h-4 w-1/2 mb-3" />
+                  <div className="skeleton h-3 w-3/4" />
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+
+        {isError && (
+          <div className="border border-rule rounded-md p-12 text-center">
+            <h2 className="text-h3 font-semibold text-ink mb-2">{t("common.error")}</h2>
+            <p className="text-body text-ink-2">{t("common.errorBody")}</p>
+          </div>
+        )}
+
+        {data && data.results.length === 0 && (
+          <div className="border border-rule rounded-md p-12 text-center">
+            <h2 className="text-h3 font-semibold text-ink mb-2">
+              {t("catalog.noResults")}
+            </h2>
+            <p className="text-body text-ink-2">{t("catalog.tryRemoving")}</p>
+          </div>
+        )}
+
+        {data && data.results.length > 0 && (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            {data.results.map((charity) => (
+              <CharityCard key={charity.slug} charity={charity} />
+            ))}
+          </div>
+        )}
+      </main>
     </div>
   )
 }

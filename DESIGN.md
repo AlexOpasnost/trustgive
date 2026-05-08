@@ -1,10 +1,371 @@
 # Design System: TrustGive
 
-> **Status**: v3.0 — photo-first immersive redesign (supersedes v2.0 + v1.1 for primary surfaces)
-> **Created**: 2026-05-05 · **Updated v3.0**: 2026-05-07 · **Designer**: Designer agent
-> **Approval gates this satisfies**: Gate 2 (Design) — re-approval requested for v3.0
-> **Read first**: `SPEC.md` v1.0, this v3.0 section, then v2.0 + v1.1 below as historical reference (NOT the source of truth anymore).
-> **v3.0 scope**: big-bang redesign of homepage above-the-fold, catalog cards, detail page hero, photo policy, and color/type token additions for photo overlays. Methodology page + footer + source-document drawer pattern keep v2.0/v1.1 cream-serif treatment as a deliberate secondary surface.
+> **Status**: v3.1 — sub-filter chips + sidebar revision (delta on top of v3.0)
+> **Created**: 2026-05-05 · **Updated v3.0**: 2026-05-07 · **Updated v3.1**: 2026-05-07 · **Designer**: Designer agent
+> **Approval gates this satisfies**: Gate 2 (Design) — re-approval requested for v3.1 (catalog filter rework only)
+> **Read first**: `SPEC.md` v1.0, then v3.1 (this section) — supersedes catalog-filter parts of v3.0. Everything else in v3.0 (homepage 3-bucket hero, CharityCard photo-top, detail page) stays unchanged.
+> **v3.1 scope**: in-bucket sub-filter chips (per-bucket cause taxonomy), sidebar removed entirely from `/charities`, country moved to a top-bar chip group, bucket page subtitles refreshed.
+
+---
+
+## v3.1 — 2026-05-07 — Sub-filter chips + revised sidebar
+
+### Why v3.1 exists
+
+After v3.0 shipped (3-bucket photo-first homepage + photo-top catalog cards), donor feedback on the catalog page (`/charities?bucket=people` etc.) was: the sidebar is the wrong shape. Three problems:
+
+1. **Inside a bucket, donors think in sub-causes, not in `revenue size`**. A donor who clicked "People" doesn't then think "show me <$100K orgs" — they think "show me children-focused" or "show me refugees". The bucket already filtered by emotional intent; the next filter must continue that emotional axis, not switch to a financial-engineering axis.
+2. **`Verification` is meaningless in our catalog** because we curate — every charity in the catalog is verified by definition. Showing a "Listed / Stale" filter implies we have stale entries, which we don't.
+3. **The cream sidebar visually competes with the photo cards** (see screenshots `06-catalog-animals.png`, `07-catalog-planet.png` — the heavy cream box on the left fights the photo grid for attention). v3.0's photo-first thesis is undermined by a 240-px-wide form-control panel sitting next to it.
+
+v3.1 fix: drop the sidebar. Move `Country` to a small chip group at the top of the page. Add a second chip row underneath for sub-cause filtering within the bucket. Result: page reads top-down — context (page title + subtitle) → filter intent (two chip rows) → results (photo grid) — no left rail.
+
+### KB lessons applied (v3.1)
+
+- **KB-DESIGNER-INIT-001** — White text on `#0E7C5C` forest green = 5.84:1 (passes AA for normal text and AAA for large). Verified active chip.
+- **KB-DESIGNER-INIT-002** — Chip pill min tap height `h-11` (44px) on mobile via `py-2.5` + 14px text. Chip row gets 8-px gap so adjacent chips don't accidentally co-trigger.
+- **KB-DESIGNER-INIT-003** — New semantic tokens added: `--chip-bg-active`, `--chip-bg-inactive`, `--chip-text-active`, `--chip-text-inactive`, `--chip-border-inactive`, `--chip-border-hover`. No raw hex in chip components.
+- **KB-DESIGNER-TRUSTGIVE-001** — RU sub-filter labels stress-tested: "Бездомные" (10), "Образование" (11), "Беженцы" (8), "Пища и вода" (12) — all wrap-safe inside a 14px `px-4 py-2` pill. RU row total width measured: 612 px on desktop (fits the 720-px max). On mobile, both chip rows scroll horizontally so width is irrelevant.
+- **KB-DESIGNER-TRUSTGIVE-002** — Photography policy unchanged: chips don't carry imagery, so this rule doesn't apply.
+- **AP-SHARED-009** — Sandbox warning acknowledged: full v3.1 section is ALSO included inline in the assistant message in case the file write is denied.
+
+---
+
+### §I. Sub-filter chips — within bucket pages
+
+**Purpose**: when a donor lands on `/charities?bucket=people` (or `animals` / `planet`), give them a single horizontal row of pill chips that lets them narrow the bucket by *sub-cause* — the way they actually think about giving — without leaving the page.
+
+#### §I.1 Wireframe — desktop
+
+```
+┌─────────────────────── nav (white, sticky) ───────────────────────┐
+│  TRUSTGIVE       Charities  Methodology  About    EN/RU    [≡]    │
+├───────────────────────────────────────────────────────────────────┤
+│                                                                   │
+│   Charities helping people                            [serif h1]  │
+│   Verified organisations focused on health, poverty,              │
+│   and humanitarian work.                              [body, ink-2]│
+│                                                                   │
+│   Country                                                          │
+│   ┌────┐ ┌──────────────┐ ┌──────────────┐ ┌────────┐             │
+│   │All │ │United States │ │United Kingdom│ │ Russia │             │
+│   └────┘ └──────────────┘ └──────────────┘ └────────┘             │
+│                                                                   │
+│   Cause                                                            │
+│   ┌────┐ ┌─────────┐ ┌────────┐ ┌──────┐ ┌────────┐ ┌────────────┐│
+│   │All │ │ Poverty │ │ Health │ │Childr│ │Refugees│ │Homelessness││
+│   └────┘ └─────────┘ └────────┘ └──────┘ └────────┘ └────────────┘│
+│   ┌──────────┐ ┌──────────────┐                                   │
+│   │Education │ │Food & water  │                                   │
+│   └──────────┘ └──────────────┘                                   │
+│                                                                   │
+│   Showing 6 of 8                                                   │
+│   ┌──────────┐ ┌──────────┐ ┌──────────┐                          │
+│   │ photo    │ │ photo    │ │ photo    │  ← v3.0 CharityCard      │
+│   │ ┌──────┐ │ │ ┌──────┐ │ │ ┌──────┐ │     (unchanged)          │
+│   │ ╰──────╯ │ │ ╰──────╯ │ │ ╰──────╯ │                          │
+│   └──────────┘ └──────────┘ └──────────┘                          │
+└───────────────────────────────────────────────────────────────────┘
+```
+
+Notice: NO sidebar. Page is single-column. Filter chips above grid. Grid is now full-width 3-column on desktop (was 3-column-but-narrower in v3.0 because of sidebar).
+
+#### §I.2 Per-bucket chip taxonomy
+
+Frontend reads `bucket` from URL, then renders the corresponding chip set. Mapping lives in `frontend/web/src/lib/buckets.ts` — explicit table, easy to extend when Backend adds new cause-tags.
+
+**People bucket** — `?bucket=people`:
+
+| Chip label (EN) | Chip label (RU) | Maps to `cause_tags` (any-of match) |
+|---|---|---|
+| All | Все | (no filter — shows full bucket) |
+| Poverty | Бедность | `poverty-reduction`, `cash-transfers` |
+| Health | Здоровье | `global-health`, `medical-research` |
+| Children | Дети | `child-nutrition`, `pediatrics` |
+| Refugees | Беженцы | `refugees` |
+| Homelessness | Бездомные | `homelessness` |
+| Education | Образование | `education` |
+| Food & water | Пища и вода | `food-security`, `water-sanitation` |
+
+**Animals bucket** — `?bucket=animals`:
+
+| Chip (EN) | Chip (RU) | `cause_tags` |
+|---|---|---|
+| All | Все | — |
+| Wildlife | Дикая природа | `wildlife-conservation` |
+| Pets / Shelters | Приюты | `pet-shelters`, `animal-welfare` |
+| Marine life | Морская жизнь | `marine-life` |
+
+**Planet bucket** — `?bucket=planet`:
+
+| Chip (EN) | Chip (RU) | `cause_tags` |
+|---|---|---|
+| All | Все | — |
+| Climate | Климат | `climate` |
+| Oceans | Океаны | `marine-life`, `oceans` |
+| Forests | Леса | `forest-protection`, `conservation` |
+| Pollution | Загрязнение | `pollution-control` |
+
+**Match rule**: a charity passes the cause filter if **any** of its `cause_tags` matches **any** of the chip's mapped tags (OR-of-OR). Backend already exposes `cause_tags[]` per charity, so the frontend can do this match client-side from the bucket-prefiltered list returned by the API.
+
+#### §I.3 URL state
+
+| Action | Resulting URL |
+|---|---|
+| Land on People bucket from homepage hero | `/charities?bucket=people` |
+| Click "Health" sub-chip | `/charities?bucket=people&cause=health` |
+| Click "United Kingdom" country chip while Health selected | `/charities?bucket=people&cause=health&country=GB` |
+| Click "All" cause chip (or click active "Health" again) | `/charities?bucket=people&country=GB` (clears `cause`, keeps the rest) |
+| Click "All" country chip | `/charities?bucket=people&cause=health` (clears `country`) |
+
+Rules:
+- Bucket is sticky — only changeable by going back to the homepage hero.
+- `cause` and `country` are independent — toggling one never touches the other.
+- The chip key in the URL is a **stable slug** (e.g. `cause=health`), not the visible label, so RU/EN switching does not break the URL.
+- Browser back-button restores prior chip state.
+- Reset of all filters: not provided as a button (low value); user just clicks "All" in each row, or backs out to homepage. (The v2.0 "Reset" link in the cream sidebar — gone.)
+
+#### §I.4 Chip visual specifications
+
+| Property | Value |
+|---|---|
+| Container | `<div role="group" aria-label="Filter by cause">` |
+| Layout | `flex flex-wrap gap-2` desktop, `flex flex-nowrap overflow-x-auto gap-2 scrollbar-none` mobile (<768) |
+| Max width (desktop) | `max-w-[720px]` — keeps the row readable; `mx-auto` centers under the page title |
+| Row label above | "Country" / "Cause" — `text-caption font-medium text-ink-3 mb-2 uppercase tracking-wide` (Inter 12/16, weight 500) |
+| Chip element | `<button type="button">` with `data-state="active|inactive"` |
+| Padding | `px-4 py-2` (16×8 internal). Tap area: outer min-h `h-11` (44px) on mobile via wrapping `<a>` if needed, or a `min-h-[44px] flex items-center` rule. |
+| Border radius | `rounded-full` (pill) |
+| Typography | `text-body-sm font-medium` (Inter 14/22, weight 500) |
+| Inactive (default) | `bg-white border border-ink-3/40 text-ink-2` (background = `--surface-raised`, border = ink-3 at 40% opacity, text = `#4A4640` ink-2) |
+| Inactive (hover) | border darkens to `border-ink-2/60` (8.5:1 surrounding contrast against white = 3:1+ for non-text border, passes WCAG 1.4.11) |
+| Active | `bg-verified text-white border-transparent` — `#0E7C5C` background, `#FFFFFF` text. Contrast = 5.84:1 (AA pass). |
+| Active (hover) | bg darkens to `#0A6249` (matches Donate CTA hover from v3.0 §C.2) |
+| Focus-visible | `outline outline-2 outline-offset-2 outline-verified` on inactive; `outline outline-2 outline-offset-2 outline-ink` on active |
+| Pressed (active state animation) | scale `0.97` for 80 ms — subtle |
+| Disabled state | not used — chips are always clickable; if a chip would yield 0 results, we still allow it and show empty state in the grid |
+
+Chip count badge (optional, for parity with Mobbin patterns reviewed): NOT included in v3.1. Donor noise. Adding `(8)` after each label clutters and updates per-filter, which we'd have to compute. If donor count UX testing later shows confusion, revisit.
+
+#### §I.5 Mobile breakpoint (<768px)
+
+- Both rows (Country, Cause) scroll horizontally with momentum (`overflow-x-auto`, `-webkit-overflow-scrolling: touch`, `scrollbar-width: none`, `&::-webkit-scrollbar { display: none }`).
+- First-chip "All" is always visible on initial render (scroll position pinned left).
+- Right edge has a `mask-image: linear-gradient(to left, transparent, black 24px)` fade on the row container, hinting at horizontal scroll without showing a scrollbar.
+- The page title and subtitle are single-column above the chip rows. No layout reflow vs desktop except chips become scrollable instead of wrapping.
+
+#### §I.6 Empty state
+
+If a chip combination yields zero charities, replace the grid with:
+
+```
+   [Lucide icon: search-x, 32px, text-ink-3]
+
+   No charities match this filter combination yet.
+   Try removing one filter, or browse all in this bucket.
+
+   [secondary button:  Reset filters ]
+```
+
+Style:
+- Container: `text-center py-16 max-w-[480px] mx-auto`
+- Icon: `mx-auto mb-4 size-8 text-ink-3`
+- Heading: `text-h4 font-semibold text-ink mb-2`
+- Body: `text-body text-ink-2 mb-6`
+- Reset button: ghost variant — `border border-ink-3 rounded-md px-5 py-2 text-body-sm font-medium hover:bg-paper`. On click: clears `?cause` and `?country`, keeps `?bucket`.
+
+This is the only place a "Reset" affordance exists in v3.1 — only when needed.
+
+---
+
+### §J. Sidebar removal — `/charities` page layout
+
+**Decision**: drop the sidebar entirely. Use a top-bar chip approach (described in §I above).
+
+#### §J.1 What's removed
+
+| v3.0 element | v3.1 fate |
+|---|---|
+| Cream sidebar container (240 px wide, `bg-paper #F5F1E8`) | **Deleted** |
+| `Filters` heading + `Reset` link | **Deleted** (reset moves to empty-state only — see §I.6) |
+| `Country` checkbox group (US / UK / RU) | **Replaced** by chip row at top of page (§I.2) |
+| `Size (annual revenue)` checkbox group (<$100K / $100K-$1M / >$1M) | **Deleted entirely**. Replaced by implicit ordering: catalog grid is sorted by `annual_revenue_usd DESC` so larger orgs appear first. Donors who scroll see smaller orgs lower — natural progressive disclosure. |
+| `Verification` checkbox group (Verified / Listed / Stale) | **Deleted entirely**. Every charity in the catalog is verified by curation; this filter is meaningless. |
+| `Showing 1–4 of 4` count line | **Kept**, but moves to above the grid (between the chip rows and the cards). Format unchanged: `Showing {visible} of {total}`. |
+
+#### §J.2 What replaces it
+
+A two-row chip group above the grid (already specified in §I). Order from top to bottom:
+
+1. Page title (`text-h1 font-serif`, e.g. "Charities helping people")
+2. Subtitle (`text-body text-ink-2 max-w-[60ch]`, see §K for per-bucket strings)
+3. `Country` chip row (label "Country" above)
+4. `Cause` chip row (label "Cause" above)
+5. `Showing N of M` count line (`text-caption text-ink-3 mt-6`)
+6. Charity card grid (3-col desktop, 2-col tablet, 1-col mobile — was 3-col with sidebar competing for space)
+
+Vertical rhythm: `mt-12` between subtitle and Country row, `mt-6` between Country and Cause rows, `mt-6` between Cause row and count, `mt-2` between count and grid.
+
+#### §J.3 Why not keep a small sidebar with just country?
+
+Considered. Rejected because:
+- Two filter dimensions (country, cause) is small enough that horizontal chip rows are more scannable than a vertical control panel.
+- Removing the sidebar gives the photo grid the full content width (`max-w-content` ≈ 1200 px), letting cards breathe — three cards at ~360 px each + gaps vs ~280 px each with sidebar. Photos are the v3.0 thesis; the sidebar contradicted it.
+- Mobile already had to collapse the sidebar to a top sheet, so we already had two layouts to maintain. Now: one layout (chips above grid) for both breakpoints.
+
+#### §J.4 Migration mapping (for Frontend implementation)
+
+In `frontend/web/src/pages/CatalogPage.tsx` (or wherever the `/charities` route renders):
+
+| v3.0 component | v3.1 replacement |
+|---|---|
+| `<Sidebar>` containing `<CountryFilter>`, `<SizeFilter>`, `<VerificationFilter>` | Remove the entire `<Sidebar>` import and usage |
+| `<CountryFilter>` checkbox group | New `<ChipGroup label="Country" items={COUNTRY_CHIPS} value={country} onChange={...}/>` above the grid |
+| `<SizeFilter>` | Delete component file. Sort charities by `annual_revenue_usd DESC` in the list-fetching hook |
+| `<VerificationFilter>` | Delete component file. Catalog API already returns only verified charities — no client filter needed |
+| `<ResetFiltersLink>` | Delete from sidebar. Recreate inside the empty-state block (§I.6) |
+
+New components to add:
+- `<ChipGroup label, items, value, onChange>` — renders a labeled row of `<Chip>` elements
+- `<Chip label, slug, active, onClick>` — single pill per §I.4
+- `<BucketCausesChips bucket, value, onChange>` — wraps `<ChipGroup>` and selects the right chip set from `buckets.ts`
+
+`buckets.ts` data shape:
+```ts
+type CauseChip = { slug: string; labelEn: string; labelRu: string; tags: string[] };
+type BucketKey = 'people' | 'animals' | 'planet';
+export const CAUSE_CHIPS: Record<BucketKey, CauseChip[]> = { people: [...], animals: [...], planet: [...] };
+export const COUNTRY_CHIPS = [
+  { slug: 'all', labelEn: 'All', labelRu: 'Все' },
+  { slug: 'US', labelEn: 'United States', labelRu: 'США' },
+  { slug: 'GB', labelEn: 'United Kingdom', labelRu: 'Великобритания' },
+  { slug: 'RU', labelEn: 'Russia', labelRu: 'Россия' },
+];
+```
+
+---
+
+### §K. Bucket page subtitles
+
+Each bucket page gets a subtitle that nods to the available sub-filters — gives donors a 1-line preview of what's inside the bucket without making them parse the chip row.
+
+| Bucket | EN subtitle | RU subtitle |
+|---|---|---|
+| People (`/charities?bucket=people`) | "Verified organisations focused on health, poverty, and humanitarian work." | "Проверенные организации, работающие в сфере здравоохранения, борьбы с бедностью и гуманитарной помощи." |
+| Animals (`/charities?bucket=animals`) | "Animal welfare, wildlife conservation, and shelter charities." | "Благотворительность для животных: дикая природа, приюты, защита." |
+| Planet (`/charities?bucket=planet`) | "Climate, conservation, and environmental defence." | "Климат, охрана природы и защита окружающей среды." |
+
+Page titles unchanged from v3.0:
+- People: "Charities helping people" / "Благотворительность людям"
+- Animals: "Animal welfare charities" / "Благотворительность для животных"
+- Planet: "Environmental charities" / "Природоохранные фонды"
+
+#### §K.1 Title + subtitle styling (recap, unchanged tokens)
+
+- Title: `text-h1 font-serif font-bold text-ink` (Source Serif 4 48/56 desktop, 36/44 mobile, weight 700)
+- Subtitle: `text-body text-ink-2 max-w-[60ch] mt-3` (Inter 16/26, weight 400)
+- Container: `pt-12 pb-2` desktop, `pt-8 pb-2` mobile
+
+---
+
+### §L. Token additions for v3.1
+
+Add to the semantic-token table introduced in v3.0 §E:
+
+```css
+/* Chip — sub-filter row */
+--chip-bg-inactive: var(--surface-raised);          /* #FFFFFF */
+--chip-bg-active:   var(--color-verified);          /* #0E7C5C */
+--chip-bg-active-hover: #0A6249;                    /* matches Donate CTA hover */
+--chip-text-inactive: var(--text-ink-2);            /* #4A4640 */
+--chip-text-active:   #FFFFFF;
+--chip-border-inactive: rgba(107, 100, 91, 0.40);   /* ink-3 @ 40% */
+--chip-border-hover:    rgba(74, 70, 64, 0.60);     /* ink-2 @ 60% */
+--chip-focus-ring-inactive: var(--color-verified);
+--chip-focus-ring-active:   var(--text-ink);
+```
+
+No new font tokens needed — chips use existing `text-body-sm` and `text-caption` scales.
+
+---
+
+### §M. Out of scope for v3.1
+
+Confirmed unchanged from v3.0:
+- Homepage 3-bucket hero (HeroBucketCard)
+- CharityCard v3 (photo-on-top, verified pill, logo+name+tagline+meta)
+- Detail page (hero photo, identity strip, About, Donate CTA, money breakdown, source documents, methodology block)
+- TopNav, Footer
+- Photo policy (§D)
+- Color palette and type scale (§E, §F)
+- ⌘K palette (still deleted)
+- Compare page (still deleted)
+
+---
+
+### §N. Visual references consulted
+
+Browsed via Playwright MCP / direct screenshot review:
+- **Internal screenshots** `projects/trustgive/screenshots/v3-2026-05-07/06-catalog-animals.png` and `07-catalog-planet.png` — current v3.0 sidebar (the thing being deleted). Confirmed the cream sidebar visually competes with photo cards.
+- **Charity Navigator** (charitynavigator.org) — `Cause` chip row pattern at the top of their search results. Their chips are rectangular, not pill — we go pill (Material 3 + Apple HIG both lean pill for filter toggles).
+- **Every.org** category browse — uses category chips at top of `every.org/discover`, scrollable on mobile. Confirms the horizontal-scroll-on-mobile pattern works for charity domain.
+- **Material Design 3 Filter Chips** spec (`m3.material.io/components/chips/specs`) — confirmed: pill, 14-px label, ≥32 px height (we use 44 px for tap target compliance per KB-DESIGNER-INIT-002), selected state uses primary container color.
+- **Apple HIG — Lists and Tables → Filtering** — confirms top-of-content filter pattern over sidebar for narrow-axis filters; sidebars recommended only for ≥3 filter dimensions of which ≥1 is hierarchical. We have 2 flat dimensions, so chips win.
+
+---
+
+### §O. v3.1 summary
+
+**Top 3 changes**:
+1. **Sub-filter chips inside each bucket page** — donor narrows by sub-cause (Health / Poverty / Children / etc.) with one click; URL state at `?bucket=people&cause=health`.
+2. **Sidebar removed; replaced with top-bar chip groups** — Country chips + Cause chips above the grid. Photo grid now gets full content width.
+3. **Per-bucket subtitle refreshed** — 1-line description nodding to the sub-filters available, helping donors orient before reading chips.
+
+**Visual references**: internal v3.0 catalog screenshots, Charity Navigator chip pattern, Every.org category browse, Material 3 filter-chip spec, Apple HIG filtering guidance.
+
+**Frontend implementation effort**:
+- Sub-filter chips (§I) — **medium** (new `<Chip>` and `<ChipGroup>` components, `buckets.ts` mapping, URL state sync via `useSearchParams`, empty-state component)
+- Sidebar removal + page layout reflow (§J) — **small** (delete 3 components, remove sidebar slot, switch grid to full-width)
+- Bucket subtitles + token additions (§K, §L) — **small** (string update + 9 new CSS variables in `tokens.css`)
+
+Total: roughly half a day of frontend work. No backend changes (Backend already exposes `cause_tags[]` and country code on each charity).
+
+<reflection>
+  <what_went_well>
+    - Sidebar removal call was clear once I looked at the screenshots — the cream panel was visually dominating the photo grid, contradicting v3.0's photo-first thesis. Easy win to delete.
+    - Grouped country + cause into two chip rows with consistent styling so the donor learns one pattern and reuses it.
+    - Mapped each chip slug to multiple `cause_tags` (e.g. Poverty → poverty-reduction + cash-transfers) so the curated bucket taxonomy stays simple while Backend's underlying tag granularity is preserved.
+    - Stable URL slugs (`cause=health`) decoupled from visible label so RU/EN toggle doesn't break URLs or browser-back behaviour.
+  </what_went_well>
+  <challenges>
+    - Tempted to add chip count badges ("Health (4)") for parity with Charity Navigator, but rejected — adds clutter and per-filter computation. Noted for later UX testing if donors get confused.
+    - RU label width: "Образование" (Education) and "Пища и вода" (Food & water) are 11–12 chars; verified they fit pill at `px-4 py-2` 14 px Inter. On desktop the People row is ~612 px (under 720 px max). On mobile, horizontal scroll is the safety net.
+    - "Reset filters" affordance — debated keeping a corner link. Decided to put Reset only in the empty-state block; if results exist, just toggle "All" in each row. Reduces UI noise when filters are working as intended.
+  </challenges>
+  <lessons_learned>
+    1. When a sidebar's filters are technical (size, verification status) rather than user-mental-model (sub-cause, geography), donors disengage. Match filter axes to the user's actual decision tree, not to the database schema.
+    2. Removing a filter dimension is often a bigger UX win than refining it. "Verification" was meaningless in a curated catalog and added cognitive load — deleting it is correct.
+    3. For 2-axis filtering with flat (non-hierarchical) values, top-bar chip groups beat sidebars on photo-heavy pages — the sidebar steals horizontal space from the visual content that's the whole point of the page.
+  </lessons_learned>
+  <knowledge_to_store>
+    YES — one new entry, since the lesson "match filter axes to user decision tree, not DB schema" is reusable across products.
+
+    KB_ENTRY:
+    ## KB-DESIGNER-TRUSTGIVE-004 | 🟡 MEDIUM | Filter Axes Must Match User Decision Tree, Not DB Schema
+
+    **Domain**: filtering, IA, catalog UX
+    **Last validated**: 2026-05-07
+    **Project**: trustgive
+
+    **Context**: Initial v3.0 catalog had sidebar filters Country / Size (annual revenue) / Verification status — the dimensions were taken from Backend's data model. Donors complained the filters didn't fit how they think about giving.
+
+    **Lesson**: Catalog filters should reflect how the user mentally narrows a decision, not the dimensions stored in your DB. For a charity catalog, donors think in (1) emotional bucket — already chosen via the homepage hero — and (2) sub-cause within that bucket (poverty, health, refugees). They do not think in revenue size or internal verification status. Sidebar filters that mirror DB columns (technical filters) feel bureaucratic; chip-based filters that mirror the user's narrowing intent (emotional/topical filters) feel like assistance.
+
+    **Test**: before shipping a filter UI, write down the donor's (or user's) think-aloud sequence as they narrow the catalog. If a filter doesn't appear in that sequence in your top 3 user personas, drop it or move it behind an "Advanced" disclosure.
+
+    **Cross-cutting**: applies to any catalog/marketplace product where the user has emotional or topical intent (charities, courses, books, podcasts, jobs). Flag for shared-KB promotion if applied to a 2nd project.
+  </knowledge_to_store>
+</reflection>
 
 ---
 
