@@ -220,9 +220,13 @@ CACHALOT_UNCACHABLE_TABLES = (
 # Per KB-BACKEND-TRUSTGIVE-009: keyed on URL name
 CACHE_CONTROL_MAP = {
     "health": "no-store",
-    "charity-list": "public, s-maxage=3600, stale-while-revalidate=86400",
-    "charity-featured": "public, s-maxage=3600, stale-while-revalidate=86400",
-    "charity-detail": "public, s-maxage=3600, stale-while-revalidate=86400",
+    # s-maxage tightened from 3600 → 120 (2 min): backend data evolves
+    # frequently during the curation/seeding phase; long CDN caches mean the
+    # frontend sees stale photos/logos for an hour after every migration.
+    # Re-tighten to 3600 once charity data stabilises (e.g. after launch).
+    "charity-list": "public, s-maxage=120, stale-while-revalidate=3600",
+    "charity-featured": "public, s-maxage=120, stale-while-revalidate=3600",
+    "charity-detail": "public, s-maxage=120, stale-while-revalidate=3600",
     "charity-source-documents": "public, s-maxage=86400, stale-while-revalidate=86400",
     # charity-compare removed in v3.0 (DESIGN.md §J — Compare page killed).
     "cause-list": "public, s-maxage=86400",
