@@ -924,16 +924,139 @@ Backend v3.2 (seed 20) ~$15 + Backend v3.2.1 (backfill 0022+0023) ~$8 + hand-wri
 
 ---
 
-## [2026-05-09] [Backend Developer] [v3.6 — +20 charities, focus on underserved categories]
+## [2026-05-08] [Backend Developer] [v3.3 — scale catalog 58 → 98]
 
-User asked for 20 more charities targeting gaps surfaced by an audit of the live 198-charity catalog: under-indexed UK regulator presence, weak disability coverage, narrow mental-health depth, and missing US-side international affiliates that complement (don't duplicate) existing entries.
+User: "нам надо как можно больше фондов".
 
-### Files added (not yet applied — user will run them)
+### Migrations 0025 + 0026 + 0027 (commit `cea6f19`)
 
-- `backend/apps/charities/migrations/0035_seed_v36_expansion.py` — seeds 20 new curated charities
-- `backend/apps/charities/migrations/0036_backfill_v36_logos.py` — fills `logo_url` via `logo.uplead.com/{host}` for all 20 (KB-019 pattern)
+- **0025_seed_v33_expansion** — seeded **+40 curated charities**: People +20, Animals +8, Planet +12. Each with real EIN (zero-padded to 9 digits per KB-017), bilingual EN/RU content, real Form 990 financials, ProPublica `/organizations/{ein}` overview URL (KB-014). UK rows point at Charity Commission `/accounts-and-annual-returns`. Defensive `is_blocked()` per entry.
+- **0026_backfill_v33_logos** — `logo_url` filled via `logo.uplead.com/{host}` (KB-019), Google s2 favicons fallback for niche/hyphenated/country-TLD hosts uplead doesn't index.
+- **0027_backfill_v33_hero_photos** — Wikimedia Commons CC search (where attributable) → Unsplash CC0 with KB-015 hedged captions ("illustrative of", "thematic of") otherwise. All 40 got a photo.
 
-Total expected after both migrations apply: **218 charities** (was 198).
+### Substitution
+
+- "Iodine Global Network" — no clean US 501(c)(3) presence (their global work runs as ICCIDD via fiscal sponsorship). Substituted with **Possible Health** (Nyaya Health USA, EIN 56-2618866) — same bucket-level coverage.
+
+### v3.3.1 hotfix (commit `dc3e6c7`, same day)
+
+Catalog page size bumped 20 → 100 in `frontend/web/src/api/charities.ts` so the catalog page actually rendered all 98 charities instead of paginating after 20. Quick frontend-only follow-up after user noticed the cap.
+
+---
+
+## [2026-05-09] [Backend Developer] [v3.4 — scale catalog 98 → 138]
+
+User again: more charities.
+
+### Migrations 0028 + 0029 + 0030 (commit `ff9a157`)
+
+- **0028_seed_v34_expansion** — seeded **+40 curated charities**: People +25, Animals +6, Planet +9. Same template as 0025: real EINs verified against ProPublica live, bilingual EN/RU, ProPublica overview URL pattern, defensive `is_blocked()`.
+- **0029_backfill_v34_logos** — `logo.uplead.com` → Google s2 favicons fallback (same pattern as 0026).
+- **0030_backfill_v34_hero_photos** — Unsplash CC0 with KB-015 hedged captions only this time (Wikimedia Commons rarely had attributable photos for the v3.4 categories: mental-health, LGBTQ rights, disability services, veterans, women's rights, indigenous, EA, climate policy).
+
+### Substitutions vs. brief
+
+- "Direct Care" — too generic to resolve cleanly → **Partners In Health** (US, EIN 04-3567502).
+- "VillageReach" already in catalog (0025) → added **Sightsavers Inc USA** (US-arm of UK Sightsavers, EIN 47-4657747).
+- "Smile Train" already in catalog (0025) → **Cure International** (US, EIN 58-2248383).
+- "Pratham USA" already in catalog (0025) → skipped that slot.
+- "Wildlife Trust of India" — no clean US affiliate → **Wildlife Conservation Network** (US, EIN 30-0108469).
+
+### v3.4.1 (commit `336e303`)
+
+DRF pagination max 100 → 500. Frontend asks `page_size=200` so the catalog renders all 138 charities in one page. Sub-filter chip labels updated to match the real `cause_tags` from 0028 entries.
+
+---
+
+## [2026-05-09] [Backend Developer] [v3.5 — scale catalog 138 → 198 + OG-image scrape pattern]
+
+User: target ~200 charities + "real photos from each charity's site instead of generic Unsplash placeholders".
+
+### Migrations 0031 + 0032 + 0033 (commit `e74af4a`)
+
+- **0031_seed_v35_expansion** — seeded **+60 curated charities**: People +35, Animals +10, Planet +15. Same template as 0028. EINs verified via ProPublica.
+- **0032_backfill_v35_logos** — `logo.uplead.com` → Google s2 favicons fallback.
+- **0033_backfill_site_og_images** — original intent: scrape `og:image` meta tags from each charity's homepage, replace Unsplash placeholders with real site OG images.
+
+### Substitutions vs. brief
+
+- "988 Suicide Prevention Lifeline" → **Vibrant Emotional Health** (US, EIN 13-2992133), the parent 501(c)(3) that operates 988.
+- "Salvation Army (US)" → **The Salvation Army National Corporation** (EIN 22-2406433); regional corps file separately.
+- "Carbon Lighthouse Foundation" → not a clean US 501(c)(3); substituted with **Carbon180** (US, EIN 47-3221717).
+- "Solar Foundation" merged into IREC in 2021 → **Bonneville Environmental Foundation** (US, EIN 93-1217139).
+- "Yale School of the Environment Foundation" — not its own 501c3 → added **American Rivers** (US, EIN 23-7305963).
+- "GAVI Alliance USA" — no clean US 501(c)(3) → **Crisis Text Line** (US, EIN 32-0395877) + **Save the Elephants USA** (Animals, EIN 26-2603478) to keep bucket counts.
+
+### v3.5 hotfix — migration 0033 reduced to no-op (commit `72c986e`, same day)
+
+Migration 0033 originally embedded the full OG-scrape inline. Railway healthcheck (~120s) timed out long before scraping 198 charities at a 2s throttle (~17 minutes) finished. Fix: 0033 reduced to a `print()` no-op marker so migration sequence stays intact, scrape logic moved to a dedicated management command `apps.charities.management.commands.scrape_og_images` to be invoked out-of-band via `railway run python manage.py scrape_og_images` or Railway service shell.
+
+KB lesson: migrations must be fast (<<120s). Long-running data work belongs in management commands invoked manually after deploy. Documented in CLAUDE.md for future projects.
+
+---
+
+## [2026-05-09] [Project Lead] [v3.5.1 — extend hero_photo_url to 500 chars + scrape resilience + first live OG-scrape run]
+
+User on continuation session: "lfdfq rf;lsq ,kjr gj jxthtlb" — i.e. "let's do each block in order"; the OG-scrape from v3.5 had still not been executed against prod.
+
+### Bug found at scrape time
+
+`hero_photo_url = models.URLField(blank=True, default="")` defaults to `max_length=200`. Some real-world og:image URLs (CDN-hosted with hashes + tracking params) exceed 200 chars. **Sheldrick Wildlife Trust** hit 508 chars on its homepage og:image and crashed the scrape mid-run on the first attempt.
+
+### Migration 0034 (commit `85a8eff`)
+
+- **0034_extend_hero_photo_url_to_500** — `hero_photo_url` widened to `varchar(500)`. Single `ALTER COLUMN`, fast.
+
+### scrape_og_images patch (same commit)
+
+- **TOO-LONG guard**: skip + log URLs > 500 chars instead of attempting a doomed write.
+- **try/except around `.update()`**: a single DB write failure no longer aborts the whole 17-min scrape — it logs `DB-FAIL {slug} {error}` and continues.
+
+### Live scrape against Neon prod (run via `railway run` from local CLI)
+
+Project token created in Railway dashboard (Settings → Tokens → production); `RAILWAY_TOKEN` injected `DATABASE_URL` and the script executed against the live DB:
+
+```
+scanned                : 198 / 198
+og_found               : 82  (41 replaced unsplash + 41 filled empty)
+skipped_wikimedia      : 33  (preserved curated Commons photos)
+skipped_custom_curated : 27  (already had real OG from prior partial run)
+fetch_failed           : 12  (CRS, NAMI, ALS, Komen, City Year, etc — sites block bots)
+head_failed            :  5
+```
+
+**Final state**: **109/198 charities now have real OG images from their own sites** (was 0). Sample HEAD-probe of 6 random new URLs: 6/6 returned 200 + image/* content type.
+
+### Cachalot LocMem invalidation gotcha
+
+`cachalot LocMem` caches Django ORM results in each gunicorn worker's process memory. Local `railway run` updates write to Neon, but live workers serve stale cached querysets until they restart. Push to main triggers Railway redeploy → workers restart → cachalot empty → API serves fresh data. Documented for future out-of-band data backfills.
+
+### KB lesson captured
+
+- **KB-BACKEND-TRUSTGIVE-021** (MEDIUM): Django `URLField` defaults to `max_length=200`, which is too short for real-world og:image URLs. For columns storing arbitrary external URLs (especially CDN-hosted images with hashes + query params), default to `max_length=500`.
+
+### Cost
+
+Hand-written migration + scrape patch + live verification: ~$0 in agent tokens (Project Lead direct work).
+
+---
+
+## [2026-05-09] [Project Lead + Backend Developer] [v3.6 — +20 charities, focus on underserved categories]
+
+User: third block of the same continuation session (blocks 1 = OG-scrape, 2 = +20 charities, 3 = CHANGELOG backfill, 4 = polish). Audit of the live 198-charity catalog surfaced four gaps: under-indexed UK regulator presence, weak disability coverage, narrow mental-health depth, and missing US-side international affiliates that complement (don't duplicate) existing entries.
+
+### Migrations applied (commit `26ebceb`)
+
+- `backend/apps/charities/migrations/0035_seed_v36_expansion.py` — seeds 20 new curated charities, idempotent `update_or_create((country, registration_id))`, defensive `is_blocked()` per entry.
+- `backend/apps/charities/migrations/0036_backfill_v36_logos.py` — `logo_url` via `logo.uplead.com/{host}` for all 20 (KB-019).
+
+Applied via `RAILWAY_TOKEN=... railway run python manage.py migrate charities 0036` from local CLI; both succeeded — "new charities upserted: 20, blocked: 0, total in DB now: 218" / "logo_url backfilled: 20".
+
+### Live scrape after migrate
+
+`scrape_og_images` re-run: scanned 218 / og_found 16 / og_filled_empty 16 (the 20 new entries had empty `hero_photo_url`; 16 of 20 returned real og:image — `mind-uk`, `adaa`, and 2 others fetch-failed due to bot-blocking; remain empty for fallback gradient).
+
+Final live state: **218 charities, 125 with real site-OG photos, 33 Wikimedia, 37 Unsplash, 23 empty**. Cloudflare cache purged; Railway redeploy on push invalidated cachalot LocMem.
 
 ### Charities added (20)
 
@@ -1001,18 +1124,6 @@ Following KB-019: 20/20 logos use `logo.uplead.com/{apex-host}`. Hosts derived f
 ### Hero photo strategy
 
 Empty in this batch — user's existing `scrape_og_images` management command will populate `hero_photo_url` from each org's site OG image on its next run. No separate hero-photo backfill migration written, per task brief and the v3.5 / 0033 pattern. The `hero_photo_url` column was extended to `varchar(500)` in 0034 so site OG image URLs (often long with cache-busting query strings) won't truncate.
-
-### Apply (user runs)
-
-```bash
-railway run python manage.py migrate charities 0036
-```
-
-After apply, run the OG-image scrape to fill hero photos for the new 20:
-
-```bash
-railway run python manage.py scrape_og_images
-```
 
 ### Cost this session
 
