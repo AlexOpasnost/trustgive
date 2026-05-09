@@ -1,6 +1,6 @@
 {
   "$schema": "node_modules/wrangler/config-schema.json",
-  "name": "trustgive-web",
+  "name": "trustgive",
   "compatibility_date": "2026-01-01",
   // No "main" entry — pure static SPA, no Worker code.
   // Cloudflare will serve files from `frontend/web/dist` directly.
