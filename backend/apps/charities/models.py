@@ -106,7 +106,7 @@ class Charity(models.Model):
     # hero_photo_url is a public, hot-linkable URL to a 3:2 (or 16:9) landscape
     # photo of the charity's actual work. Empty string ⇒ frontend renders the
     # BrandedAvatar fallback (DESIGN.md §B.3, §D fallback chain).
-    hero_photo_url = models.URLField(blank=True, default="")
+    hero_photo_url = models.URLField(max_length=500, blank=True, default="")
     hero_photo_caption = LocalizedTextField()
     hero_photo_credit = models.CharField(max_length=200, blank=True, default="")
     hero_photo_license = models.CharField(

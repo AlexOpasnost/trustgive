@@ -215,6 +215,11 @@ class Command(BaseCommand):
                 time.sleep(THROTTLE_SECONDS)
                 continue
 
+            if len(og_url) > 500:
+                self.stdout.write(f"TOO-LONG {charity.slug} {og_url[:80]}... ({len(og_url)} chars)")
+                time.sleep(THROTTLE_SECONDS)
+                continue
+
             if not _head_image(og_url):
                 head_failed += 1
                 self.stdout.write(f"HEAD-FAIL {charity.slug} {og_url}")
@@ -235,15 +240,20 @@ class Command(BaseCommand):
             if not org_ru:
                 org_ru = org_en
 
-            Charity.objects.filter(pk=charity.pk).update(
-                hero_photo_url=og_url,
-                hero_photo_credit=f"Source: {host}",
-                hero_photo_license="press-kit",
-                hero_photo_caption={
-                    "en": f"Cover image from {org_en}.",
-                    "ru": f"Изображение с сайта {org_ru}.",
-                },
-            )
+            try:
+                Charity.objects.filter(pk=charity.pk).update(
+                    hero_photo_url=og_url,
+                    hero_photo_credit=f"Source: {host}",
+                    hero_photo_license="press-kit",
+                    hero_photo_caption={
+                        "en": f"Cover image from {org_en}.",
+                        "ru": f"Изображение с сайта {org_ru}.",
+                    },
+                )
+            except Exception as exc:
+                self.stdout.write(f"DB-FAIL {charity.slug} {type(exc).__name__}: {exc}")
+                time.sleep(THROTTLE_SECONDS)
+                continue
 
             if is_unsplash:
                 og_replaced_unsplash += 1
