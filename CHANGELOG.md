@@ -921,3 +921,126 @@ Backend v3.2 (seed 20) ~$15 + Backend v3.2.1 (backfill 0022+0023) ~$8 + hand-wri
 - **KB-BACKEND-TRUSTGIVE-014** (MEDIUM): ProPublica direct-download URLs are Cloudflare-bot-blocked — prefer organization overview pages for source-doc links to guarantee universal access.
 - **KB-BACKEND-TRUSTGIVE-019** (HIGH): Clearbit Logo API is dead (sunset late 2023, DNS returns no A records). Use logo.uplead.com instead. Substitute table provided. Flagged for shared-KB promotion.
 - **KB-BACKEND-TRUSTGIVE-020** (MEDIUM): idempotent backfill via `.filter(field="").update(...)` preserves manual curation between deploys.
+
+---
+
+## [2026-05-09] [Backend Developer] [v3.6 — +20 charities, focus on underserved categories]
+
+User asked for 20 more charities targeting gaps surfaced by an audit of the live 198-charity catalog: under-indexed UK regulator presence, weak disability coverage, narrow mental-health depth, and missing US-side international affiliates that complement (don't duplicate) existing entries.
+
+### Files added (not yet applied — user will run them)
+
+- `backend/apps/charities/migrations/0035_seed_v36_expansion.py` — seeds 20 new curated charities
+- `backend/apps/charities/migrations/0036_backfill_v36_logos.py` — fills `logo_url` via `logo.uplead.com/{host}` for all 20 (KB-019 pattern)
+
+Total expected after both migrations apply: **218 charities** (was 198).
+
+### Charities added (20)
+
+**UK Charity Commission (+6):**
+- `mind-uk` — Mind (CC #219830, mental health, founded 1946)
+- `macmillan-cancer-support` — Macmillan Cancer Support (CC #261017, cancer support, 1911)
+- `marie-curie-uk` — Marie Curie (CC #207994, end-of-life / hospice, 1948)
+- `cancer-research-uk` — Cancer Research UK (CC #1089464, cancer research, 2002)
+- `samaritans-uk` — Samaritans (CC #219432, suicide-prevention listening line, 1953)
+- `anthony-nolan` — Anthony Nolan (CC #803716, stem-cell donor register, 1974)
+
+**Disability services (+5):**
+- `special-olympics` — Special Olympics (US, EIN 52-0889518, sport for IDD, 1968)
+- `united-cerebral-palsy` — UCP (US, EIN 13-1947690, CP services, 1949)
+- `rnib` — Royal National Institute of Blind People (UK, CC #226227, 1868)
+- `sense-uk` — Sense (UK, CC #289868, deafblind support, 1955)
+- `dredf` — Disability Rights Education and Defense Fund (US, EIN 94-2780521, disability-rights litigation, 1979)
+
+**Mental health (+5):**
+- `afsp` — American Foundation for Suicide Prevention (US, EIN 13-3393329, 1987)
+- `active-minds` — Active Minds (US, EIN 35-2229543, youth-led campus mental health, 2003)
+- `bbrf` — Brain & Behavior Research Foundation (US, EIN 31-1020010, 100% to grants, 1987)
+- `adaa` — Anxiety and Depression Association of America (US, EIN 52-1248820, 1980)
+- `twloha` — To Write Love on Her Arms (US, EIN 20-5527077, peer mental-health movement, 2006)
+
+**International — US 501(c)(3) affiliates (+4):**
+- `oxfam-america` — Oxfam America (US, EIN 23-7069110, distinct from existing oxfam-gb, 1970)
+- `international-medical-corps` — International Medical Corps (US, EIN 95-3949646, 1984)
+- `helpage-usa` — HelpAge USA (US, EIN 13-3445198, global elderly rights, 2010)
+- `cmmb` — Catholic Medical Mission Board (US, EIN 13-5602340, faith-based global health, 1912)
+
+### Charities considered but rejected
+
+- **Autism Speaks** — well-documented controversies in autistic self-advocacy community (cure-framing, prior support of ABA without nuance). Excluded out of an abundance of caution; catalog covers IDD via The Arc / Easterseals / Best Buddies / DREDF instead.
+- **Helen Keller International** — already in catalog (slug `helen-keller-international`).
+- **Compassion International** — already in catalog (seeded 0021).
+- **Action Against Hunger USA, World Vision US, Catholic Relief Services, Salvation Army, MSF USA, UNICEF USA, IRC, CARE USA, Save the Children, Mercy Corps** — all already in catalog (existing 198). The 4 international slots picked instead fill genuine gaps.
+- **Conrad N. Hilton Foundation** — private foundation (990-PF), grant-maker, doesn't fit the public-donation catalog model. Replaced with HelpAge USA + CMMB.
+- **Mencap (UK CC #222377)** — would overlap thematically with The Arc; chose UCP (US) and Sense (UK) for cause-tag breadth instead.
+- **Royal British Legion** — military/veterans is already covered by Hope For The Warriors / Fisher House; chose UK cancer/end-of-life orgs for the bigger gap.
+- **Scope (UK CC #208231)** — would overlap with The Arc; chose Sense for cross-disability deafblind specialisation.
+
+### Pattern compliance
+
+- Each entry has bilingual EN/RU name, tagline, description (real translations, ~80–150 words EN), methodology_note.
+- Real revenue and program-expense % from latest available filing (US 990 / UK SORP accounts).
+- US source URLs use ProPublica `/organizations/{ein}` overview (KB-014 — NOT `/download-filing` which is Cloudflare-bot-blocked).
+- UK source URLs use Charity Commission `/charity-search/-/charity-details/{number}/accounts-and-annual-returns` listing page (KB-014 — direct PDFs change yearly).
+- Defensive `is_blocked()` call on every entry per the canonical 0021 / 0028 pattern.
+- 8 new cause-taxonomy slugs added (hospice-palliative, blood-cancer, blindness, deafblind, cerebral-palsy, intellectual-disability-sport, anxiety-depression, neuroscience-research) with bilingual labels and `charity_count` denormalisation refresh after seed.
+- `update_or_create((country, registration_id))` for idempotency. Reverse migration is a no-op (never auto-delete curated rows).
+- All EINs zero-padded to 9 digits per KB-017.
+- No Russia-targeted charities; no war-relief / military-aid causes.
+
+### Verification
+
+- `python manage.py makemigrations charities --check --dry-run` → "No changes detected in app 'charities'" (no schema drift).
+- `python manage.py showmigrations charities` confirms 0035 and 0036 registered with correct dependency chain (0034 → 0035 → 0036).
+- Both files parse cleanly (`ast.parse` success) and follow the 0021 / 0028 / 0031 canonical seed-migration template.
+
+### Logo strategy (migration 0036)
+
+Following KB-019: 20/20 logos use `logo.uplead.com/{apex-host}`. Hosts derived from each entry's donation_url and stripped to apex (uplead indexes apex domains). HEAD-probe deferred to runtime per KB-PHOTO-001 — frontend BrandedAvatar gradient covers any 404 visually. Idempotent via `.filter(slug=..., logo_url="").update(...)` so manual curation isn't overwritten on re-runs.
+
+### Hero photo strategy
+
+Empty in this batch — user's existing `scrape_og_images` management command will populate `hero_photo_url` from each org's site OG image on its next run. No separate hero-photo backfill migration written, per task brief and the v3.5 / 0033 pattern. The `hero_photo_url` column was extended to `varchar(500)` in 0034 so site OG image URLs (often long with cache-busting query strings) won't truncate.
+
+### Apply (user runs)
+
+```bash
+railway run python manage.py migrate charities 0036
+```
+
+After apply, run the OG-image scrape to fill hero photos for the new 20:
+
+```bash
+railway run python manage.py scrape_og_images
+```
+
+### Cost this session
+
+Backend Developer ~12K tokens output for ~1.5K lines across two migrations. Project total now around the user's ~$10-remaining mark — kept disciplined per task brief (no external API calls except quick verification, no rabbit holes on borderline orgs).
+
+### KB notes from this session
+
+- No new KB lesson worth promoting — applied known patterns (KB-014, KB-017, KB-019, KB-PHOTO-001, KB-012). The notable refinement worth capturing is process-level: when seeding a UK + US mixed batch, keep `source_url` / `source_kind` per-entry so the `_source_doc()` and `_financial_row()` helpers can pick the right URL pattern and document kind without a second lookup table.
+
+<reflection>
+  <what_went_well>
+    - Reusing the canonical 0021 / 0028 / 0031 seed-migration template (idempotent update_or_create on (country, registration_id), defensive is_blocked, no-op reverse, denormalised charity_count refresh) meant zero new architectural risk on 20 new rows.
+    - Putting `source_url` and `source_kind` on each SEED entry let the same `forwards()` loop handle US 990 entries and UK Charity Commission entries cleanly without two parallel code paths — cleaner than 0021's full-dict-per-entry approach.
+    - Defaulted hero photos to empty (no Unsplash placeholders) — user's existing `scrape_og_images` command will fill them with REAL site OG images. Avoids the v3.2.1 outcome of having to scrub thematic-but-not-real Unsplash images later.
+    - Caught the Catholic Medical Mission Board program_expense_pct = 96% which is unusually high; verified it matches the published Form 990 (CMMB ships donated medicine, so distribution-of-gifts-in-kind dominates the program line — legitimate, not a data error).
+    - Rejected Autism Speaks proactively — the controversies are well-known in the autistic community and silently including a controversial org in a "trust" platform would be off-brand for TrustGive.
+  </what_went_well>
+  <challenges>
+    - The original brief listed Helen Keller International, Compassion International, Action Against Hunger USA and World Vision USA in the International bucket — all four already seeded in earlier migrations. Required substituting four fresh organisations (HelpAge USA, CMMB, plus already-distinct Oxfam America, IMC) and documenting the substitution in the migration docstring per the 0028 pattern.
+    - UK Charity Commission registers numbers without a country prefix and without zero-padding; we store the raw number (e.g. "1089464", "219830"). Mixed length (5–7 digits) is fine because the Charity model `registration_id` is a `CharField(64)`, but worth being explicit so readers don't try to "fix" them the way KB-017 fixes US EINs to 9 digits.
+    - `program_expense_pct` for orgs like CMMB (gifts-in-kind heavy) ranges 90–96% which can look fishy on the Compare page next to typical 75–85% orgs. Decided to honour the actual filing rather than smooth it; the methodology page already explains how programme-expense % is computed.
+  </challenges>
+  <lessons_learned>
+    - When a seed batch is mixed-country (US 990 + UK SORP), put per-entry `source_url` and `source_kind` on the dict and let helper functions (`_source_doc`, `_financial_row`) branch on `country`. Cleaner than two separate SEED lists or full-dict-per-entry duplication.
+    - When the original brief lists charities you can't add (already in catalog, controversial, or wrong legal form like 990-PF), document the substitution in the migration docstring itself — future maintainers reading `git blame` on the file find the rationale without crossing CHANGELOG references.
+    - Always `manage.py makemigrations charities --check --dry-run` before claiming "no schema drift" — even pure-RunPython migrations can accidentally trigger schema-detection if you import a model wrong (e.g. importing the actual ORM class instead of using `apps.get_model`).
+  </lessons_learned>
+  <knowledge_to_store>
+    NO — this session applied existing KB lessons (KB-014, KB-017, KB-019, KB-PHOTO-001, KB-012) without discovering new patterns. The mixed-US-UK source-url-on-entry refinement is a minor process improvement noted in CHANGELOG above, but doesn't rise to a reusable KB entry on its own.
+  </knowledge_to_store>
+</reflection>
