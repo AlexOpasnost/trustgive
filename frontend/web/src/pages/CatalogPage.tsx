@@ -48,7 +48,7 @@ export function CatalogPage() {
     // Render the full catalog without paginate-controls UI. Catalog tops
     // out at ~100 charities for the foreseeable future; bumping this is
     // simpler than building "Load more" / pagination links.
-    page_size: 100,
+    page_size: 200,
   }
 
   const { data, isLoading, isError } = useQuery({

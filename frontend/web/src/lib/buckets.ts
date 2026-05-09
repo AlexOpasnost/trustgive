@@ -1,13 +1,14 @@
 /**
- * Bucket → sub-cause filter mapping per DESIGN.md v3.1 §I.
+ * Bucket → sub-cause filter mapping per DESIGN.md v3.1 §I, expanded in v3.4
+ * to match the real cause-tag distribution after migrations 0008..0030.
  *
- * Drives the catalog page's cause-chip row when a `?bucket=` is active. Maps
- * user-friendly labels (Poverty, Health, Wildlife) to the underlying
- * `cause_tags` slugs used by Backend's filter.
+ * Each chip filters by ONE primary cause-tag (the dominant one for that
+ * topic). Charities tagged with adjacent tags surface naturally because
+ * curators tagged the dominant + secondary tags together (e.g. a child-
+ * health org has both `global-health` and `child-nutrition`).
  *
- * To add a new sub-filter: add an entry here AND make sure ≥1 charity in the
- * relevant bucket has that cause_tag. Backend auto-creates Cause rows via
- * get_or_create, so no Backend code change is required.
+ * Rule: every chip must match ≥3 charities. Tags with <3 are accessible
+ * via "All" (the default no-filter view).
  */
 
 import type { Bucket } from "@/types/api"
@@ -20,28 +21,38 @@ export type SubFilter = {
 }
 
 export const BUCKET_SUBFILTERS: Record<Bucket, SubFilter[]> = {
+  // 75 People charities — top 9 chips
   people: [
     { slug: null, labelEn: "All", labelRu: "Все" },
-    { slug: "poverty-reduction", labelEn: "Poverty", labelRu: "Бедность" },
     { slug: "global-health", labelEn: "Health", labelRu: "Здоровье" },
-    { slug: "child-nutrition", labelEn: "Children", labelRu: "Дети" },
-    { slug: "refugees", labelEn: "Refugees", labelRu: "Беженцы" },
-    { slug: "homelessness", labelEn: "Homelessness", labelRu: "Бездомные" },
     { slug: "education", labelEn: "Education", labelRu: "Образование" },
-    { slug: "food-security", labelEn: "Food & water", labelRu: "Пища и вода" },
+    { slug: "poverty-reduction", labelEn: "Poverty", labelRu: "Бедность" },
+    { slug: "civil-rights", labelEn: "Civil rights", labelRu: "Права человека" },
+    { slug: "disaster-relief", labelEn: "Disaster relief", labelRu: "Помощь при катастрофах" },
+    { slug: "child-nutrition", labelEn: "Children", labelRu: "Дети" },
+    { slug: "mental-health", labelEn: "Mental health", labelRu: "Психическое здоровье" },
+    { slug: "disability-services", labelEn: "Disability", labelRu: "Инвалидность" },
+    { slug: "lgbt-rights", labelEn: "LGBT rights", labelRu: "Права ЛГБТ" },
+    { slug: "womens-rights", labelEn: "Women's rights", labelRu: "Права женщин" },
+    { slug: "effective-altruism", labelEn: "Effective altruism", labelRu: "Эффективный альтруизм" },
   ],
+  // 28 Animals charities — 5 chips
   animals: [
     { slug: null, labelEn: "All", labelRu: "Все" },
+    { slug: "animal-welfare", labelEn: "Pets & welfare", labelRu: "Приюты и забота" },
     { slug: "wildlife-conservation", labelEn: "Wildlife", labelRu: "Дикая природа" },
-    { slug: "animal-welfare", labelEn: "Pets & shelters", labelRu: "Приюты и питомцы" },
-    { slug: "marine-life", labelEn: "Marine life", labelRu: "Морская жизнь" },
+    { slug: "endangered-species", labelEn: "Endangered species", labelRu: "Исчезающие виды" },
+    { slug: "biodiversity-defense", labelEn: "Biodiversity", labelRu: "Биоразнообразие" },
   ],
+  // 35 Planet charities — 6 chips
   planet: [
     { slug: null, labelEn: "All", labelRu: "Все" },
     { slug: "climate", labelEn: "Climate", labelRu: "Климат" },
-    { slug: "conservation", labelEn: "Conservation", labelRu: "Заповедники" },
+    { slug: "climate-policy", labelEn: "Climate policy", labelRu: "Климатическая политика" },
+    { slug: "biodiversity-defense", labelEn: "Biodiversity", labelRu: "Биоразнообразие" },
     { slug: "forest-protection", labelEn: "Forests", labelRu: "Леса" },
-    { slug: "pollution-control", labelEn: "Pollution", labelRu: "Загрязнение" },
+    { slug: "ocean-protection", labelEn: "Oceans", labelRu: "Океаны" },
+    { slug: "conservation", labelEn: "Conservation", labelRu: "Заповедники" },
   ],
 }
 

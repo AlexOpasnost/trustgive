@@ -12,7 +12,11 @@ from rest_framework.response import Response
 class StandardPagination(PageNumberPagination):
     page_size = 20
     page_size_query_param = "page_size"
-    max_page_size = 100
+    # Bumped 100 → 500 so the frontend catalog page can request the full
+    # curated catalog in one shot without paginate-controls UI. As the
+    # catalog scales past ~300 the frontend should switch to infinite
+    # scroll / proper pagination.
+    max_page_size = 500
     page_query_param = "page"
 
     def get_paginated_response(self, data):
