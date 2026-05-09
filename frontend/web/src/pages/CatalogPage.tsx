@@ -45,6 +45,10 @@ export function CatalogPage() {
     bucket,
     sort: bucket ? "largest_revenue" : "most_recent_filing",
     page: Number(searchParams.get("page") || 1),
+    // Render the full catalog without paginate-controls UI. Catalog tops
+    // out at ~100 charities for the foreseeable future; bumping this is
+    // simpler than building "Load more" / pagination links.
+    page_size: 100,
   }
 
   const { data, isLoading, isError } = useQuery({
