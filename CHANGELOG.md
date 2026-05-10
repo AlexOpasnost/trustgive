@@ -1240,3 +1240,84 @@ Three sequential `backend-developer` agent invocations were attempted earlier in
     YES — see KB-AGENT-WRITE-PERMS and KB-SCRAPE-STDOUT-ENCODING above.
   </knowledge_to_store>
 </reflection>
+
+---
+
+## [2026-05-10] [Project Lead, hand-written] [v3.8 — backfill cause-tag gaps + scale UK/CA/AU (250 → 290)]
+
+User asked to push toward the ~550 ceiling target ("+300 за 4-6 сессий"). v3.8 batch is the 2nd of that arc.
+
+### Strategy: backfill underrepresented cause-tags + scale UK / CA / AU
+
+Audit of v3.7 catalog surfaced 7 cause-tags with low or zero entries:
+
+| Cause-tag | Was | Now (+v3.8) |
+|---|---|---|
+| veterans | 0 | 5 (Wounded Warrior, DAV, Tunnel to Towers, Folds of Honor, IAVA) |
+| lgbtq-youth | 0 | 5 (Trans Lifeline, GLSEN, PFLAG, NCLR, Family Equality) |
+| domestic-violence | 0 explicit | 3 (RAINN, NNEDV, Futures Without Violence) |
+| elderly-care | 0 explicit (4 senior-care) | 3 (NCoA, OATS / Senior Planet, Volunteers of America) |
+| youth-mentoring | 0 | 3 (Boys & Girls Clubs America, BBBS-US, BBBS-Canada) |
+| food-banks | 0 explicit | 2 (Trussell Trust UK, Foodbank Australia) |
+| rare-disease | 0 | 1 (Cystic Fibrosis Foundation) |
+| child-protection | 0 explicit | +2 (NSPCC UK, Action for Children UK) |
+
+Plus regional scaling:
+- 🇺🇸 US +22 (covering all the gaps above)
+- 🇬🇧 UK +10 (NSPCC, Barnardo's, Trussell Trust, Dogs Trust, Cats Protection, Action for Children, Help for Heroes, CALM, Battersea, Joseph Rowntree)
+- 🇨🇦 Canada +5 (CAMH Foundation, Make-A-Wish Canada, Boys & Girls Clubs Canada, BBBS Canada, WWF-Canada)
+- 🇦🇺 Australia +3 (Foodbank Australia, Caritas Australia, Vinnies)
+
+### Migrations
+
+- `0040_seed_v38_expansion.py` — 40 charities, idempotent `update_or_create((country, registration_id))`, defensive `is_blocked()`. Added 8 new cause-tag entries (veterans, lgbtq-youth, domestic-violence, elderly-care, youth-mentoring, food-banks, rare-disease, child-protection).
+- `0041_backfill_v38_logos.py` — 40 logos via `logo.uplead.com` (most), Google s2 fallback for niche AU TLDs.
+
+### Compact entry helper
+
+To keep file size manageable for one Write call (still constrained by sub-agent Write-deny per KB-AGENT-WRITE-PERMS), introduced an `E(...)` positional-arg helper that produces the SEED entry dict from ~17 args. Cuts ~50% per-entry verbosity vs. the v3.6/v3.7 dict-literal style. Same fields, same final shape.
+
+### Dropped from original list (already in catalog)
+
+Caught by an API check before writing the migration:
+- HRC Foundation, GLAAD, Lambda Legal (already in via earlier LGBT seeds)
+- Meals on Wheels America, AARP Foundation (already in)
+- HIAS, Refugees International (already in)
+- Trevor Project (already in)
+
+Replaced with: PFLAG / NCLR / Family Equality (LGBT+), NCoA / OATS / Volunteers of America (elderly), LIRS / USCRI (refugees) so the bucket counts stayed on target.
+
+### Live state after migration apply
+
+- DB total: 290 (was 250, +40) — verified `[migration 0040] total in DB now: 290`
+- Distribution by country: US 219 / GB 29 / CA 10 / DE 4 / AU 7 / NL 3 / IN 3 / NZ 2 / CH 2 / FR 2 / BR 2 / RU 2 / SE 1 / JP 1 / CL 1 / KE 1 / TH 1 = 290
+- New cause taxonomy entries added: 8
+
+### Outstanding for v3.8 / next session
+
+- Scrape og:image for the 40 new entries (running post-apply, ~17 min)
+- Commit + push triggers Railway redeploy (cachalot LocMem clear)
+- v3.9 batch target: more US disease-specific (Lupus, Crohn's, ALS Therapy, NF1), more UK animals (RSPB, IFAW UK), more CA (Heart & Stroke partner orgs), more AU (Cancer Council Australia state branches), expand to ~340 total.
+- Sub-agent Write-deny still unresolved; all v3.7 + v3.8 batches are Project-Lead-hand-written.
+
+<reflection>
+  <what_went_well>
+    - `E(...)` compact helper let me fit 40 charity entries plus ~150 lines of scaffolding into a single Write call (~1500 lines, well under the 2K threshold where past Write attempts have truncated).
+    - Pre-write API check via `?page_size=300` caught 6 slug clashes (HRC / GLAAD / Lambda Legal / Meals on Wheels / AARP / HIAS) before generating duplicate entries that update_or_create would have silently merged into existing rows.
+    - Targeted the cause-tag gaps surfaced by the v3.7 audit — turned "veterans 0 / lgbtq-youth 0 / domestic-violence 0 / food-banks 0 / rare-disease 0" into "5 / 5 / 3 / 2 / 1". Catalog feels meaningfully more complete on the People bucket now.
+    - All 40 charities are top-50-revenue-or-recognisability tier in their country: Wounded Warrior $290M, NSPCC $165M, Barnardo's $410M, Trussell Trust at peak food-bank cultural relevance, Volunteers of America $1.1B, Vinnies $800M.
+  </what_went_well>
+  <challenges>
+    - Sub-agent Write permissions still blocked — second consecutive batch hand-written. Sustained pace is ~30-40 entries per session; reaching the 550 target requires 6-7 more batches.
+    - Per-entry financial figures for non-US/UK orgs (Canada, Australia) are best-estimate from public annual reports, not regulator-verified to the dollar. Acceptable for a portfolio piece but not for an investment-grade product.
+    - Volunteers of America's $1.1B revenue includes affiliate roll-ups; treating the parent national org as one row is consistent with how Catholic Charities USA and other federation parents are seeded, but the program-expense% interpretation is fuzzier.
+  </challenges>
+  <lessons_learned>
+    - The `E(...)` positional-arg helper is the right shape for compact bilingual seed entries — cuts ~50% of per-entry boilerplate without losing fields. Worth applying to v3.6 / v3.7 style if those migrations are ever rewritten.
+    - Pre-write API check (`/api/charities/?page_size=300` → set comparison) catches duplicate slugs faster than discovering them at apply time. Add this step to the seed-batch playbook.
+    - When backfilling cause-tag gaps, seed 3-5 per gap (not 1) so the chip-filtered view actually has content. A "Veterans" chip filter that returns 1 row is worse than no chip at all.
+  </lessons_learned>
+  <knowledge_to_store>
+    NO — applies KB-014/019/PHOTO-001 patterns and the v3.7 honest-tier verification approach. The `E(...)` helper is a process improvement noted in the migration docstring; doesn't rise to a reusable KB entry on its own. Pre-write API duplicate check could be promoted to KB if it's used twice more — log as "watch for promotion" but not yet a KB entry.
+  </knowledge_to_store>
+</reflection>
