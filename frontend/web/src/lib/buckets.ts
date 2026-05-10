@@ -86,7 +86,8 @@ export const REGION_FILTERS: RegionFilter[] = [
     slug: "europe",
     labelEn: "Europe",
     labelRu: "Европа",
-    countries: ["GB", "DE", "NL", "CH", "SE", "FR"],
+    // v3.10: +IT (Italy), +ES (Spain), +IE (Ireland), +NO (Norway).
+    countries: ["GB", "DE", "NL", "CH", "SE", "FR", "IT", "ES", "IE", "NO"],
   },
   { slug: "russia", labelEn: "Russia", labelRu: "Россия", countries: ["RU"] },
   {

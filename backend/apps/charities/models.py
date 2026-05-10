@@ -63,6 +63,11 @@ class Country(models.TextChoices):
     EG = "EG", "Egypt"
     JO = "JO", "Jordan"
     TN = "TN", "Tunisia"
+    # v3.10 — additional regulated EU + Ireland (Italy, Spain, Ireland, Norway)
+    IT = "IT", "Italy"
+    ES = "ES", "Spain"
+    IE = "IE", "Ireland"
+    NO = "NO", "Norway"
 
 
 class SizeBucket(models.TextChoices):

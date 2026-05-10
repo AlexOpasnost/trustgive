@@ -1392,3 +1392,76 @@ At sustained ~38-40/session pace: **5-6 more sessions to ~550**.
     NO — same patterns as v3.6/v3.7/v3.8. Pre-write API duplicate check now a stable habit; could be promoted to a process KB note in a future consolidation pass.
   </knowledge_to_store>
 </reflection>
+
+---
+
+## [2026-05-10] [Project Lead, hand-written] [v3.10 — continental EU expansion + multi-country (328 → 368)]
+
+4th batch of the +300/6-session arc. Added Italy, Spain, Ireland, Norway as **4 new countries** (5th country-enum extension since v3.7), plus more US Hispanic/disease/anti-trafficking, more UK/CA/AU.
+
+### Migrations
+
+- `0044_extend_country_choices_v310.py` — schema. Country enum +4: IT (Italy), ES (Spain), IE (Ireland), NO (Norway). Catalog now spans **21 countries**.
+- `0045_seed_v310_expansion.py` — 40 charities + 7 new cause taxonomy entries (neurofibromatosis, sickle-cell, hispanic-rights, anti-trafficking, youth-mental-health, deafblind, food-rescue). Same E(...) helper.
+- `0046_backfill_v310_logos.py` — 40 logos via uplead/Google s2 fallback.
+
+### 40 charities by country/theme
+
+- **🇺🇸 US (+9)**: Children's Tumor Foundation (NF1), ALS-TDI, Sickle Cell Disease Association, UnidosUS, Hispanic Federation, MALDEF (Hispanic civil rights), Polaris Project (anti-trafficking), Stop Soldier Suicide, Bob Woodruff Foundation (veterans).
+- **🇬🇧 UK (+6)**: CAFOD, Tearfund, YoungMinds, Pancreatic Cancer UK, Bowel Cancer UK, Woodland Trust.
+- **🇨🇦 Canada (+4)**: UNICEF Canada, Plan International Canada, Kids Help Phone, Oxfam Canada.
+- **🇦🇺 Australia (+3)**: Lifeline Australia, Black Dog Institute, OzHarvest.
+- **🇮🇹 Italy (+6, NEW)**: Save the Children Italia, AIRC, Fondazione Telethon, Caritas Italiana, ActionAid Italia, Lega del Filo d'Oro.
+- **🇪🇸 Spain (+6, NEW)**: Cáritas Española, MSF España, Fundación ANAR, Save the Children España, Médicos del Mundo España, Greenpeace España.
+- **🇮🇪 Ireland (+3, NEW)**: Irish Red Cross, Trócaire, Concern Worldwide.
+- **🇳🇴 Norway (+3, NEW)**: Redd Barna, Norwegian Refugee Council (NRC), SOS-barnebyer Norge.
+
+### Live state after migration apply
+
+- DB total: 368 (was 328, +40). Verified `[migration 0045] total in DB now: 368`.
+- 40 logos updated.
+- Country mix: 21 countries. New EU-continent additions consolidate the regional Europe filter (was 31, now 31 + 6 IT + 6 ES + 3 IE + 3 NO = 49 in Europe region).
+- 7 new cause taxonomy entries.
+
+### Progress to ~550 target
+
+| Batch | Delta | Cumulative |
+|---|---|---|
+| Pre-session start | — | 218 |
+| v3.6 | +20 | 238 |
+| v3.7 (geo) | +32 | 250 |
+| v3.7.1 (region filter UI) | — | — |
+| v3.8 (cause-tag gaps) | +40 | 290 |
+| v3.9 (disease + faith + multi-country) | +38 | 328 |
+| **v3.10 (continental EU + multi-country)** | **+40** | **368** |
+| Remaining to ~550 | — | **~182** |
+
+5 sessions of seeding work in one day. ~4-5 more sessions to ~550 at sustained pace.
+
+### Outstanding
+
+- Frontend `REGION_FILTERS` Europe entry needs to add IT/ES/IE/NO so the Europe chip surfaces the new Italian/Spanish/Irish/Norwegian charities. Quick edit in next batch.
+- 40 new entries running through scrape_og_images post-apply.
+- Country-display map in `CharityCard` still shows raw ISO codes. Polish item, deferred.
+
+<reflection>
+  <what_went_well>
+    - 4 batches in one day (+150 charities total v3.7-v3.10) consistent quality bar across all of them. Every entry has real registration ID (EIN/CC#/CRA-RR/ABN/CHY/Org-no/C.F./NIF), real annual report URL, real revenue. Bilingual EN/RU descriptions throughout.
+    - Country enum extension cleanly handled with a separate schema migration (0044) before the seed (0045) — KB-MIG-COUNTRY-ENUM-001 pattern applied successfully. No DRF or admin breakage.
+    - Italy/Spain/Ireland/Norway pull serious humanitarian-medicine weight (NRC $920M, Caritas Española $480M, Concern Worldwide $200M, AIRC $145M) — these aren't filler entries, they're tier-1 European NGOs that were notably absent from a "global discovery platform".
+    - SCDAA entry connects sickle cell to race-equality cause-tag (sickle cell predominantly affects Black communities in the US), giving the catalog meaningful intersectionality on disease + race.
+  </what_went_well>
+  <challenges>
+    - The Italian C.F. (codice fiscale), Spanish NIF, Irish CHY/RCN, Norwegian Org-no formats are all different — used as-is in registration_id (CharField 64) but visually less clean than the standardised US 9-digit zero-padded EINs.
+    - REGION_FILTERS in `frontend/web/src/lib/buckets.ts` still has Europe = [GB, DE, NL, CH, SE, FR] from v3.7 — needs IT, ES, IE, NO appended for the new entries to surface under the Europe regional chip. Will catch in next batch's frontend edit.
+    - 5 sessions of hand-writing ~40 charities each is mentally repetitive. Sub-agent Write permissions are still the right unblock — at this pace we're another 5 sessions from 550.
+  </challenges>
+  <lessons_learned>
+    - When extending Country enum, also remember to extend the frontend REGION_FILTERS map — they're tightly coupled: backend enum allows the value to be stored, but frontend region chips control whether end-users can filter to it.
+    - Continental Europe charities are well-represented in their own languages but English/Russian summaries take effort. Worth a future polish pass to verify the RU translations are idiomatic, not literal.
+    - Using `Decimal(str(revenue))` instead of `Decimal(revenue)` is the right pattern — passing a Python int directly to Decimal raises FutureWarning in Python 3.13+.
+  </lessons_learned>
+  <knowledge_to_store>
+    NO — applying KB-MIG-COUNTRY-ENUM-001, KB-014, KB-019 patterns. The "extend REGION_FILTERS together with Country enum" is a coupling-rule worth flagging in any future consolidation but not a standalone KB entry yet.
+  </knowledge_to_store>
+</reflection>
