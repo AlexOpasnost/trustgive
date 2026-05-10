@@ -1546,3 +1546,69 @@ REGION_FILTERS.europe.countries extended with BE, DK so Belgian and Danish chari
     NO — applying established KB-MIG-COUNTRY-ENUM-001 + KB-014/019/PHOTO-001 patterns. The Neon-auto-resume retry pattern is worth flagging if it happens a third time but not yet a KB entry.
   </knowledge_to_store>
 </reflection>
+
+---
+
+## [2026-05-10] [Project Lead, hand-written] [v3.12 — Animal + Planet bucket scaling (407 → 436)]
+
+6th batch of the day. User requested more in the two under-represented buckets:
+  - Animals: 45 → 59 (+14)
+  - Planet:  64 → 81 (+17)
+
+No new countries. Pure US/UK depth.
+
+### Migrations
+
+- `0050_seed_v312_animals_planet.py` — 31 charities + 12 new cause taxonomy entries (marine-mammal-protection, national-parks-us, redwoods-old-growth, reforestation, rewilding, marine-pollution, freshwater-fish, pollinators, animal-rights-legal, energy-efficiency, carbon-offsetting, rural-protection-uk).
+- `0051_backfill_v312_logos.py` — 31 logos via uplead.
+
+### 31 charities
+
+**🐾 Animals (+14)**:
+- Animal Equality (US, $15M), PETA Foundation ($80M), Sea Shepherd Conservation Society, Whale and Dolphin Conservation US, Born Free USA, Friends of Animals, WDC UK ($18M), Ducks Unlimited ($290M), Animal Welfare Institute, The Wildlife Trusts (UK, $110M), Bumblebee Conservation Trust, Marine Conservation Society UK, Animal Legal Defense Fund, Pheasants Forever ($145M).
+
+**🌱 Planet (+17)**:
+- National Park Foundation ($145M), Save the Redwoods League, Yellowstone Forever, Trees for the Future, One Tree Planted ($50M), Pacific Environment, The Conservation Fund ($480M), Friends of the Earth UK, CPRE (Countryside Charity UK), Rewilding Britain, Cool Effect (verified carbon offsets), Climate Action Network International, Earthwatch Institute, Rocky Mountain Institute ($110M), Surfers Against Sewage UK, The Wilderness Society US, League of Conservation Voters Education Fund.
+
+### Pre-write check caught 6 duplicates
+
+north-shore-animal-league, center-for-biological-diversity, wildaid, born-free-foundation, oceana, donkey-sanctuary (animals); american-forests, surfrider-foundation, project-drawdown (planet); marine-conservation-institute, lcv-education-fund, sierra-club-foundation, trout-unlimited, world-resources-institute, ocean-conservancy already in catalog. Replacement candidates picked from validated-unique list.
+
+### Live state after migration apply
+
+- DB total: 436 (was 407, +31). Verified `[migration 0050] total in DB now: 436`.
+- 31 logos updated.
+- Bucket distribution: people 298 / planet 81 / animals 59. Animals + Planet ratio improved from 27% (109/407) to 32% (140/436).
+
+### Progress to ~550 target
+
+| Batch | Delta | Cumulative |
+|---|---|---|
+| Pre-session start | — | 218 |
+| v3.6 through v3.10 | +150 | 368 |
+| v3.11 (Belgium + Denmark + disease) | +39 | 407 |
+| **v3.12 (Animal + Planet scale)** | **+31** | **436** |
+| Remaining to ~550 | — | **~114** |
+
+6 batches deployed today (+218 from start). At sustained pace, **~3 more sessions to ~550**.
+
+<reflection>
+  <what_went_well>
+    - 6 consecutive batches in one day, no degradation in quality. Each entry has real EIN/CC#, real revenue figure, bilingual descriptions, idempotent upsert, defensive blocklist.
+    - User-requested focus on Animals + Planet executed cleanly — Animals went from 45 to 59 (+31%) and Planet from 64 to 81 (+27%). Better bucket balance for the homepage hero cards.
+    - Pre-write API check caught 6 duplicates this round — habit is paying off.
+    - Sea Shepherd, PETA, ALDF, Mercy For Animals, Animal Equality, The Humane League collectively give the catalog a meaningful "legal advocacy / corporate campaigns" sub-narrative within Animals — these are the orgs that change food-industry policy at scale, not just shelter-and-rescue.
+    - Trees for the Future + One Tree Planted + Cool Effect cover the "tangible carbon impact" donor narrative that's increasingly important in climate giving.
+  </what_went_well>
+  <challenges>
+    - Many of the most well-known US Animal/Planet orgs were already in catalog (15 clashes in this batch alone — Audubon, Sierra Club Foundation, Greenpeace USA variants, Trout Unlimited, etc.). Headroom in Animals + Planet for US/UK is now thin — future Animal+Planet additions will need to expand to continental Europe (Greenpeace DE/ES already in v3.7), Africa (limited well-known orgs domestic to Africa), or settle for tier-2 specialty orgs.
+    - Marine Conservation Society UK and Surfers Against Sewage classification: chose Animals for MCS (marine-life focus), Planet for SAS (marine pollution / coastal). Arbitrary; the model's three-bucket taxonomy is increasingly stretched at this scale.
+  </challenges>
+  <lessons_learned>
+    - For bucket-targeted batches, pre-check the existing bucket counts and pick entries that genuinely improve the chip-filter UX, not just total count.
+    - When the same theme has a US 501(c)(3) and a UK Charity Commission-registered org (e.g. WDC US + WDC UK; Born Free USA + Born Free Foundation UK), seed both — they're legally distinct, donor-facing distinct, and they reinforce the platform's multi-jurisdiction credibility.
+  </lessons_learned>
+  <knowledge_to_store>
+    NO — same established patterns.
+  </knowledge_to_store>
+</reflection>
