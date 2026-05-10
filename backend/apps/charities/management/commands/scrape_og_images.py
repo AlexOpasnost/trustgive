@@ -30,6 +30,7 @@ import time
 from urllib.parse import urljoin, urlparse
 
 from django.core.management.base import BaseCommand
+from django.db import connection
 
 from apps.charities.models import Charity
 
@@ -183,7 +184,12 @@ class Command(BaseCommand):
         fetch_failed = 0
         head_failed = 0
 
-        for charity in qs.iterator():
+        # v3.13: replaced qs.iterator() with list(qs) so we don't depend on
+        # a long-lived server cursor. Neon serverless Postgres terminates
+        # idle server cursors after a few minutes; the 17-minute scrape
+        # routinely lost its cursor mid-loop (~v3.10, v3.13 retry).
+        # 500 charities in-memory at this scale is trivial (~5MB).
+        for charity in list(qs):
             scanned += 1
             current = charity.hero_photo_url or ""
 
@@ -240,7 +246,11 @@ class Command(BaseCommand):
             if not org_ru:
                 org_ru = org_en
 
-            try:
+            # v3.13.x: Neon Postgres drops idle connections during the
+            # 17-min scrape. close_if_unusable_or_obsolete + retry once
+            # guarantees we don't lose successful HTTP work to a dead
+            # DB connection. The next ORM call auto-reconnects.
+            def _save():
                 Charity.objects.filter(pk=charity.pk).update(
                     hero_photo_url=og_url,
                     hero_photo_credit=f"Source: {host}",
@@ -250,10 +260,23 @@ class Command(BaseCommand):
                         "ru": f"Изображение с сайта {org_ru}.",
                     },
                 )
-            except Exception as exc:
-                self.stdout.write(f"DB-FAIL {charity.slug} {type(exc).__name__}: {exc}")
-                time.sleep(THROTTLE_SECONDS)
-                continue
+
+            try:
+                connection.close_if_unusable_or_obsolete()
+                _save()
+            except Exception:
+                # First attempt failed (likely stale connection).
+                # Force-close and retry once.
+                try:
+                    connection.close()
+                except Exception:
+                    pass
+                try:
+                    _save()
+                except Exception as exc:
+                    self.stdout.write(f"DB-FAIL {charity.slug} {type(exc).__name__}: {exc}")
+                    time.sleep(THROTTLE_SECONDS)
+                    continue
 
             if is_unsplash:
                 og_replaced_unsplash += 1

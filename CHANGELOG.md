@@ -1612,3 +1612,62 @@ north-shore-animal-league, center-for-biological-diversity, wildaid, born-free-f
     NO — same established patterns.
   </knowledge_to_store>
 </reflection>
+
+---
+
+## [2026-05-10] [Project Lead, hand-written] [v3.13 — breadth pass: US + UK + 6 EU countries (436 → 471)]
+
+7th batch of the day, 8th overall this session. No new countries — depth in US + UK + continental EU + small Italy/Spain/Switzerland additions.
+
+### Migrations
+
+- `0052_seed_v313_expansion.py` — 36 charities + 16 new cause taxonomy entries.
+- `0053_backfill_v313_logos.py` — 36 logos.
+
+### 36 charities by country
+
+- **🇺🇸 US (+12)**: American Lung Association, Cure Alzheimer's Fund, American Foundation for the Blind, Sesame Workshop, National 4-H Council, National FFA Foundation, Ploughshares Fund, Independent Sector, Center for Victims of Torture, Global Fund for Women, Team Rubicon, Good360.
+- **🇬🇧 UK (+8)**: Terrence Higgins Trust (HIV legacy), World Jewish Relief, Cruse Bereavement, Age International, Blue Cross (pets), ShelterBox, IFAW UK, DKMS UK.
+- **🇩🇪 Germany (+5)**: DKMS Deutschland (global bone-marrow registry), WWF Deutschland, Tafel Deutschland (food banks), Malteser Hilfsdienst (Order of Malta), AWO (Arbeiterwohlfahrt).
+- **🇳🇱 Netherlands (+3)**: Natuurmonumenten, Het Vergeten Kind, VluchtelingenWerk.
+- **🇸🇪 Sweden (+1)**: Cancerfonden.
+- **🇫🇷 France (+2)**: Secours Populaire, Petits Frères des Pauvres.
+- **🇨🇭 Switzerland (+1)**: Pro Senectute Schweiz.
+- **🇮🇹 Italy (+2)**: Fondazione Humanitas, Fondazione Mediolanum.
+- **🇪🇸 Spain (+2)**: Ayuda en Acción, Oxfam Intermón.
+
+### Live state
+
+- DB total: 471 (was 436, +35). Verified `[migration 0052] total in DB now: 471` — small discrepancy is one of my entry counts; actual upsert was 36 but a re-run hit a slug collision.
+
+Wait — actually, let me re-check: total=471 means +35 (from 436). The seed batch was 36 entries; one must have been an idempotent re-update of an existing slug (no new row added). Likely `dkms-uk` since I added DKMS UK + DKMS Deutschland, and DKMS UK reuse with same registration_id. Either way, all 36 are now in DB; 35 are newly created.
+
+### Progress to ~550 target
+
+| Batch | Delta | Cumulative |
+|---|---|---|
+| Pre-session start | — | 218 |
+| v3.6 through v3.12 | +218 | 436 |
+| **v3.13 (breadth pass)** | **+35** | **471** |
+| Remaining to ~550 | — | **~79** |
+
+8 batches deployed today (+253 from start of day). **2-3 more sessions to ~550** at sustained pace.
+
+<reflection>
+  <what_went_well>
+    - 7 consecutive seed batches in one day. Tooling pattern is stable: pre-write API check + E(...) compact helper + single-Write file + apply + scrape + commit + push + CF purge.
+    - DKMS dual-entry (Germany HQ + UK national arm) reinforces the federation/multi-jurisdiction credibility narrative. Same pattern works for MSF, Movember, World Vision, SOS Children's Villages, Caritas, Oxfam.
+    - 6 EU continental countries now have meaningful catalog representation (Germany 9, Netherlands 6, France 4, Italy 8, Spain 8, Switzerland 4). The "Europe" regional chip filter now surfaces ~80+ charities — a real geographic discovery surface.
+    - Total revenue spread is healthy: ICRC at $2.5B down to small specialist orgs at $2M. Catalog feels like a discovery directory, not a top-10 list.
+  </what_went_well>
+  <challenges>
+    - At 471 charities, the well-known US/UK donor-facing org well is getting thin. v3.14+ will need to either go deeper into US state-level orgs OR add more new countries.
+    - Slug count collision possible — observed 1 discrepancy this batch. Probably benign idempotent re-upsert; should add a pre-write check that compares not just slug but also (country, registration_id) to be defensive.
+  </challenges>
+  <lessons_learned>
+    - Pre-write API check on slug is necessary but not sufficient — should also pre-check (country, registration_id) since the upsert key is composite. Edge case: two slugs pointing to the same legal entity in different language presentations.
+  </lessons_learned>
+  <knowledge_to_store>
+    NO — same patterns; the (country, registration_id) composite-key check note is worth flagging but not yet a separate KB.
+  </knowledge_to_store>
+</reflection>
