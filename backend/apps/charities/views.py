@@ -169,7 +169,7 @@ class CharityViewSet(viewsets.ReadOnlyModelViewSet):
         summary="Paginated, faceted charity list",
         parameters=[
             OpenApiParameter("cause", OpenApiTypes.STR, OpenApiParameter.QUERY, description="Cause slug(s); repeat for multiple"),
-            OpenApiParameter("country", OpenApiTypes.STR, OpenApiParameter.QUERY, enum=["US", "GB", "RU"]),
+            OpenApiParameter("country", OpenApiTypes.STR, OpenApiParameter.QUERY, description="ISO 3166-1 alpha-2 code(s); comma-separated for regional filters (e.g. country=GB,DE,NL for Europe)"),
             OpenApiParameter("size", OpenApiTypes.STR, OpenApiParameter.QUERY, enum=["small", "medium", "large"]),
             OpenApiParameter("verification_status", OpenApiTypes.STR, OpenApiParameter.QUERY, enum=["verified", "listed", "stale"]),
             OpenApiParameter("badges", OpenApiTypes.STR, OpenApiParameter.QUERY, description="Comma-separated badge slugs"),

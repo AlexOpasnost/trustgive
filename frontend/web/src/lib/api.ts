@@ -52,7 +52,13 @@ async function apiFetch<T>(path: string, opts: FetchOptions = {}): Promise<T> {
 
 export type CharityListParams = {
   cause?: string[]
-  country?: "US" | "GB" | "RU"
+  /**
+   * ISO 3166-1 alpha-2 code(s). Single code for one country
+   * (`country: "GB"`) or comma-separated for regional groups
+   * (`country: "GB,DE,NL,CH,SE,FR"` for Europe). v3.7+ backend
+   * BaseInFilter accepts both forms.
+   */
+  country?: string
   size?: "small" | "medium" | "large"
   verification_status?: "verified" | "listed" | "stale"
   badges?: string[]

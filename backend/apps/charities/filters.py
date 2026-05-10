@@ -10,7 +10,12 @@ from apps.charities.models import Bucket, Charity, Country, SizeBucket, Verifica
 
 class CharityFilter(django_filters.FilterSet):
     cause = django_filters.BaseInFilter(field_name="cause_tags", lookup_expr="overlap")
-    country = django_filters.ChoiceFilter(choices=Country.choices)
+    # v3.7: country accepts comma-separated ISO codes so a single API call
+    # can support regional filters like ?country=GB,DE,NL,CH,SE,FR (Europe).
+    # Each value is still validated against Country.choices implicitly via
+    # the model field; unknown codes simply match no rows. Was ChoiceFilter
+    # (single-value) before v3.7 expanded the catalog to 14 countries.
+    country = django_filters.BaseInFilter(field_name="country")
     size = django_filters.ChoiceFilter(field_name="size_bucket", choices=SizeBucket.choices)
     verification_status = django_filters.ChoiceFilter(choices=VerificationStatus.choices)
     badges = django_filters.CharFilter(method="filter_badges")

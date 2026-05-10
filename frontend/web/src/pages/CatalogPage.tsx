@@ -19,7 +19,7 @@ import { useSearchParams } from "react-router-dom"
 import { CharityCard } from "@/components/charity/CharityCard"
 import { Chip } from "@/components/ui/Chip"
 import { api, type CharityListParams } from "@/lib/api"
-import { BUCKET_SUBFILTERS, COUNTRY_FILTERS } from "@/lib/buckets"
+import { BUCKET_SUBFILTERS, REGION_FILTERS } from "@/lib/buckets"
 import { usePreferences } from "@/store/preferences"
 import type { Bucket } from "@/types/api"
 
@@ -37,18 +37,22 @@ export function CatalogPage() {
   const bucketParam = searchParams.get("bucket")
   const bucket: Bucket | undefined = isBucket(bucketParam) ? bucketParam : undefined
   const activeCause = searchParams.get("cause")
-  const activeCountry = searchParams.get("country")
+  // v3.7: replaced single-country filter with regional groups
+  // (?region=europe → country=GB,DE,NL,CH,SE,FR). Frontend-only param;
+  // translated to comma-separated ISO codes for the backend BaseInFilter.
+  const activeRegion = searchParams.get("region")
+  const region = REGION_FILTERS.find((r) => r.slug === activeRegion)
+  const countryParam = region?.countries?.length ? region.countries.join(",") : undefined
 
   const params: CharityListParams = {
     cause: activeCause ? [activeCause] : [],
-    country: (activeCountry as CharityListParams["country"]) || undefined,
+    country: countryParam,
     bucket,
     sort: bucket ? "largest_revenue" : "most_recent_filing",
     page: Number(searchParams.get("page") || 1),
-    // Render the full catalog without paginate-controls UI. Catalog tops
-    // out at ~100 charities for the foreseeable future; bumping this is
-    // simpler than building "Load more" / pagination links.
-    page_size: 200,
+    // Render the full catalog without paginate-controls UI. Bumped to 300
+    // in v3.7 to fit the 250+ charity catalog without pagination UI.
+    page_size: 300,
   }
 
   const { data, isLoading, isError } = useQuery({
@@ -89,17 +93,17 @@ export function CatalogPage() {
         )}
       </header>
 
-      {/* === Country chips === */}
+      {/* === Region chips (v3.7 — replaces single-country filter) === */}
       <div className="flex flex-wrap gap-2 mb-3" role="group" aria-label={t("catalog.country")}>
-        {COUNTRY_FILTERS.map((c) => {
-          const active = (activeCountry ?? null) === c.code
+        {REGION_FILTERS.map((r) => {
+          const active = (activeRegion ?? null) === r.slug
           return (
             <Chip
-              key={c.code ?? "all"}
+              key={r.slug ?? "all"}
               active={active}
-              onClick={() => setFilter("country", c.code)}
+              onClick={() => setFilter("region", r.slug)}
             >
-              {lang === "ru" ? c.labelRu : c.labelEn}
+              {lang === "ru" ? r.labelRu : r.labelEn}
             </Chip>
           )
         })}
