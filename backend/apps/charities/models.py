@@ -17,12 +17,52 @@ from apps.core.fields import LocalizedTextField
 
 
 class Country(models.TextChoices):
+    # Original (US/UK/RU/CA/AU/NL) — strong English-speaking + Dutch regulators
     US = "US", "United States"
     GB = "GB", "United Kingdom"
     RU = "RU", "Russia"
     CA = "CA", "Canada"
     AU = "AU", "Australia"
     NL = "NL", "Netherlands"
+    # v3.7a — additional regulated-geo countries (strong national charity regulators)
+    NZ = "NZ", "New Zealand"
+    DE = "DE", "Germany"
+    CH = "CH", "Switzerland"
+    SE = "SE", "Sweden"
+    FR = "FR", "France"
+    JP = "JP", "Japan"
+    SG = "SG", "Singapore"
+    # v3.7b — unregulated-geo countries (verification via org annual reports)
+    # Africa
+    KE = "KE", "Kenya"
+    ZA = "ZA", "South Africa"
+    GH = "GH", "Ghana"
+    MZ = "MZ", "Mozambique"
+    LS = "LS", "Lesotho"
+    SN = "SN", "Senegal"
+    TZ = "TZ", "Tanzania"
+    UG = "UG", "Uganda"
+    # South & SE Asia
+    IN = "IN", "India"
+    PH = "PH", "Philippines"
+    ID = "ID", "Indonesia"
+    VN = "VN", "Vietnam"
+    TH = "TH", "Thailand"
+    BD = "BD", "Bangladesh"
+    # Latin America
+    BR = "BR", "Brazil"
+    AR = "AR", "Argentina"
+    CL = "CL", "Chile"
+    CO = "CO", "Colombia"
+    MX = "MX", "Mexico"
+    EC = "EC", "Ecuador"
+    CR = "CR", "Costa Rica"
+    PE = "PE", "Peru"
+    # MENA
+    LB = "LB", "Lebanon"
+    EG = "EG", "Egypt"
+    JO = "JO", "Jordan"
+    TN = "TN", "Tunisia"
 
 
 class SizeBucket(models.TextChoices):

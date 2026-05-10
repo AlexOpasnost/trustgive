@@ -1155,3 +1155,88 @@ Backend Developer ~12K tokens output for ~1.5K lines across two migrations. Proj
     NO — this session applied existing KB lessons (KB-014, KB-017, KB-019, KB-PHOTO-001, KB-012) without discovering new patterns. The mixed-US-UK source-url-on-entry refinement is a minor process improvement noted in CHANGELOG above, but doesn't rise to a reusable KB entry on its own.
   </knowledge_to_store>
 </reflection>
+
+---
+
+## [2026-05-10] [Project Lead, hand-written] [v3.7 — geographic expansion 218 → 250]
+
+User asked for geographic diversity ("европейские, африканские, азиатские, океанию, южную америку"). Catalog was 197 US / 19 UK / 2 RU = US-monopoly. Goal: break it without diluting the verification differentiator.
+
+### Strategy: regulator-aware seed
+
+Two tiers of verification, honest about each:
+- **"verified"** — country has a strong regulator with public annual returns: CA (CRA T3010), AU (ACNC), NZ (Charities Services), NL (CBF Erkend), CH (ZEWO), SE (Svensk Insamlingskontroll), DE (DZI Spendensiegel), FR (Don en Confiance), JP (公益財団法人 PIC).
+- **"listed"** — verification via the org's own annual report only: IN (FCRA + 80G), BR (utility-pública / UPF), CL (TECHO Latin America NGO), KE (Kenyan NGO Coordination Board + AMREF size), TH (Mae Tao Clinic, partial via US 501c3 fiscal sponsor).
+
+### Migrations
+
+- **`0037_extend_country_choices_v37`** — schema. Extends `Country` TextChoices in `apps/charities/models.py` with **31 new ISO codes**: NZ DE CH SE FR JP SG · KE ZA GH MZ LS SN TZ UG · IN PH ID VN TH BD · BR AR CL CO MX EC CR PE · LB EG JO TN. AlterField on `country` column (no DB DDL since column already accepted any varchar(2); just re-syncs `choices` for DRF and admin validation).
+- **`0038_seed_v37_geo_expansion`** — seeds **32 charities** across 14 countries. Per-entry `verification_status="verified"` for regulated-geo, `"listed"` for unregulated-geo. `update_or_create((country, registration_id))` idempotent + defensive `is_blocked()`. Reverse no-op.
+- **`0039_backfill_v37_geo_logos`** — `logo.uplead.com/{host}` for global TLDs, Google s2 favicons fallback for niche AU/NZ TLDs. 32/32 logos set.
+
+### 32 charities by country
+
+| Country | Count | Slugs |
+|---|---|---|
+| 🇨🇦 CA | 5 | sickkids-foundation, heart-stroke-canada, canadian-cancer-society, nature-conservancy-canada, msf-canada |
+| 🇦🇺 AU | 4 | beyond-blue, rfds-australia, world-vision-australia, australian-red-cross |
+| 🇳🇿 NZ | 2 | forest-and-bird-nz, world-vision-nz |
+| 🇩🇪 DE | 4 | sos-kinderdorf-international, welthungerhilfe, greenpeace-deutschland, caritas-deutschland |
+| 🇳🇱 NL | 3 | oxfam-novib, cordaid, greenpeace-nederland |
+| 🇨🇭 CH | 2 | wwf-schweiz, icrc |
+| 🇸🇪 SE | 1 | radda-barnen |
+| 🇫🇷 FR | 2 | medecins-du-monde, croix-rouge-francaise |
+| 🇯🇵 JP | 1 | nippon-foundation |
+| 🇮🇳 IN | 3 | akshaya-patra, cry-india, goonj |
+| 🇧🇷 BR | 2 | sos-mata-atlantica, msf-brasil |
+| 🇨🇱 CL | 1 | techo (Latin America-wide) |
+| 🇰🇪 KE | 1 | amref-health-africa |
+| 🇹🇭 TH | 1 | mae-tao-clinic (Thai-Burmese border) |
+| **Total** | **32** | (~5–10 more candidates per country in headroom for v3.8+) |
+
+### Why hand-written, not agent-driven
+
+Three sequential `backend-developer` agent invocations were attempted earlier in the session for an originally-planned 150-charity batch. All three returned with `Write` / `Edit` / `Bash` permission denials — sub-agents in this session don't have filesystem-write permissions for the project (Project Lead does). After the third agent died on Write-deny in the same way, pivoted to hand-writing a smaller but tighter batch (32 well-known orgs covering 14 countries) in a single Project-Lead Write call.
+
+### Results
+
+- Live deploy on commit `<TBD push>` (Railway redeploy on push to `main` triggers auto-migrate; cachalot LocMem clears on worker restart).
+- DB final state: total=250 (+32 new) · site_og=148 (+23) · wikimedia=33 (preserved) · unsplash=36 · empty=33.
+- 23 of 32 new charities got real og:image from their own sites via `scrape_og_images` post-migrate. 9 didn't (sites that block bots or lack og:image meta tags — same 19 fetch-fail / 7 head-fail pattern as v3.5.1).
+- Geographic mix in catalog: was 197 US / 19 UK / 2 RU → now 197 US / 19 UK / 2 RU / 5 CA / 4 AU / 2 NZ / 4 DE / 3 NL / 2 CH / 1 SE / 2 FR / 1 JP / 3 IN / 2 BR / 1 CL / 1 KE / 1 TH (15 countries total).
+
+### Outstanding
+
+- Headroom for v3.8: ~5-10 more well-known orgs per country still available in regulated-geo; African / Asian / LatAm headroom larger but verification gets weaker.
+- Sub-agent Write permission needs to be granted to allow agent-driven batches in future sessions; without it Project Lead has to hand-write large seeds, which limits batch size to 30-40 per session.
+- Russia-side (RU) headroom narrow due to legal blocklist (foreign agents, war-relief, extremist designations); KB-RU-LEGAL applies.
+- Frontend: filter UI doesn't have a country chip group beyond US/UK/RU/CA/AU/NL on the catalog page. With 16 countries now, country filter chips need to either expand (cluttered) or collapse to "Global / North America / Europe / Asia / Africa / LatAm / Oceania / Middle East" regional groups (cleaner).
+
+### KB lessons
+
+- **KB-MIG-COUNTRY-ENUM-001 (MEDIUM)** captured by sub-agent before its Write-deny: when a Django seed migration inserts rows whose `CharField` has `choices=SomeTextChoices.choices`, the DB writes succeed without `CHECK` constraint, but DRF serializers and admin reject unknown values on edit. Always update the model TextChoices BEFORE or ALONGSIDE any seed that introduces new values. (Worked around in this session by Project Lead editing models.py directly.)
+- **KB-AGENT-WRITE-PERMS** (process): when sub-agents fail with Write/Edit deny on multiple retries, pivot immediately to Project-Lead-direct rather than retry — the third retry doesn't fix permission state.
+- **KB-SCRAPE-STDOUT-ENCODING** (LOW): the OG-scrape command crashes on Windows when stdout is redirected to a file because non-ASCII bytes in og:image URLs (e.g. `\xc3` in `IrÃ_ne`) get cp1251-encoded. Fix: invoke with `PYTHONIOENCODING=utf-8` and `python -X utf8`. Patched in this session's run; consider hardening the script's `self.stdout.write` to be encoding-safe in v3.8.
+
+<reflection>
+  <what_went_well>
+    - Caught the agents' Write-deny pattern after attempt #3 and pivoted to hand-write rather than burn more retries on the same infra block.
+    - Picked 32 well-known orgs across 14 countries that all have public annual reports — no faked financials, no orgs without real EINs / CC# / CNPJs / PANs / ABNs.
+    - Honest verification tiering: "verified" only where a national regulator publishes annual returns; "listed" with explicit `methodology_note` saying so otherwise. Doesn't pretend the differentiator (one-click regulator-filed source documents) works equally for orgs in countries without that infrastructure.
+    - Schema migration 0037 cleanly extends Country enum with 31 ISO codes, opening headroom for v3.8 expansion without further schema changes.
+    - First `scrape_og_images` run crashed on cp1251 stdout encoding mid-loop; second run with `PYTHONIOENCODING=utf-8 python -X utf8` cleaned that up. Idempotent script meant no rollback needed — second run picked up where first left off.
+  </what_went_well>
+  <challenges>
+    - Sub-agent permission denial on Write/Edit/Bash blocked the originally-planned 150-charity batch (90 regulated + 60 unregulated). Pivoted to a smaller hand-written 32-charity batch. Time cost: ~30 minutes wasted across 3 agent attempts before the pivot decision.
+    - Original Russian-locale Windows stdout encoding (cp1251) is incompatible with non-ASCII URLs the scrape encounters. Workaround documented but not fixed at the script level.
+    - 9 of 32 new charities still have empty `hero_photo_url` post-scrape. Sites that block bots (Mind, ADAA, CRY, NCC, RFDS, World Vision Australia) need either a manual press-photo curation pass OR a different scraping strategy (e.g., a real browser via Playwright instead of urllib).
+  </challenges>
+  <lessons_learned>
+    - When sub-agents repeatedly hit a permission deny, the constraint is at the harness layer, not retry-on-error. Stop retrying — pivot to in-band Project Lead work or escalate the permission setting to the user.
+    - For Russian-locale Windows shells running Python on a redirected stdout, always set `PYTHONIOENCODING=utf-8` and `python -X utf8`. Cp1251 will silently work for ASCII output and explode the moment a non-ASCII byte appears in a log line.
+    - Honest verification tiers (`"verified"` vs. `"listed"`) communicated via `methodology_note` keep the trust differentiator intact even when expanding into countries without regulator-filed annual returns.
+  </lessons_learned>
+  <knowledge_to_store>
+    YES — see KB-AGENT-WRITE-PERMS and KB-SCRAPE-STDOUT-ENCODING above.
+  </knowledge_to_store>
+</reflection>
