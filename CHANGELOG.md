@@ -1465,3 +1465,84 @@ At sustained ~38-40/session pace: **5-6 more sessions to ~550**.
     NO — applying KB-MIG-COUNTRY-ENUM-001, KB-014, KB-019 patterns. The "extend REGION_FILTERS together with Country enum" is a coupling-rule worth flagging in any future consolidation but not a standalone KB entry yet.
   </knowledge_to_store>
 </reflection>
+
+---
+
+## [2026-05-10] [Project Lead, hand-written] [v3.11 — disease + DV + LGBT+ + Belgium/Denmark (368 → 407)]
+
+5th batch of the +300/6-session arc. Adds Belgium + Denmark as 2 new countries (6th country-enum extension since v3.7). Catalog now spans **23 countries**.
+
+### Migrations
+
+- `0047_extend_country_choices_v311.py` — schema. Country enum +2: BE (Belgium), DK (Denmark).
+- `0048_seed_v311_expansion.py` — 39 charities + 11 new cause taxonomy entries (type-1-diabetes, multiple-sclerosis, epilepsy, hiv-aids, farm-animal-welfare, mens-health, heritage-conservation, lgbtq-rights, trans-rights, asylum-seekers, leprosy).
+- `0049_backfill_v311_logos.py` — 39 logos via uplead/Google s2.
+
+### 39 charities by country/theme
+
+- **🇺🇸 US (+12)**: Breakthrough T1D (formerly JDRF), National MS Society, Epilepsy Foundation, GMHC (AIDS legacy), National Wildlife Federation, Aspen Institute, First Book, Reading Is Fundamental, Mercy For Animals, The Humane League, Movember USA, American Farmland Trust.
+- **🇬🇧 UK (+8)**: Centrepoint, Refuge, Women's Aid, National Trust, Stonewall, Maggie's Cancer, The Big Issue Foundation, Mermaids.
+- **🇨🇦 CA (+4)**: Canadian Wildlife Federation, Movember Canada, Daily Bread Food Bank Toronto, Easter Seals Canada.
+- **🇦🇺 AU (+3)**: Movember Foundation (AU HQ), The Wilderness Society Australia, ASRC (Asylum Seeker Resource Centre).
+- **🇮🇹 Italy (+3)**: Emergency, AVSI Foundation, Fondazione Veronesi.
+- **🇪🇸 Spain (+3)**: AECC, Manos Unidas, Fundación Vicente Ferrer.
+- **🇧🇪 Belgium (+3, NEW)**: MSF Belgium Operational Centre, Caritas International Belgium, Damien Foundation (leprosy / NTDs).
+- **🇩🇰 Denmark (+3, NEW)**: DanChurchAid, MSF Danmark, Mary Foundation.
+
+### Pre-write check caught 3 duplicates
+
+amfar, year-up, audubon-society already in catalog. Replaced with GMHC, Aspen Institute, American Farmland Trust to keep US bucket at 12.
+
+### Frontend (buckets.ts)
+
+REGION_FILTERS.europe.countries extended with BE, DK so Belgian and Danish charities surface under the Europe regional chip.
+
+### Live state after migration apply
+
+- DB total: 407 (was 368, +39). Verified `[migration 0048] total in DB now: 407`.
+- 39 logos updated.
+- Country mix: **23 countries** now.
+- 11 new cause taxonomy entries.
+
+### Progress to ~550 target
+
+| Batch | Delta | Cumulative |
+|---|---|---|
+| Pre-session start | — | 218 |
+| v3.6 | +20 | 238 |
+| v3.7 (geo +14 countries) | +32 | 250 |
+| v3.7.1 (region filter) | — | — |
+| v3.8 (cause-tag gaps) | +40 | 290 |
+| v3.9 (disease + faith + multi-country) | +38 | 328 |
+| v3.10 (continental EU IT/ES/IE/NO) | +40 | 368 |
+| **v3.11 (BE + DK + disease + LGBT + DV)** | **+39** | **407** |
+| Remaining to ~550 | — | **~143** |
+
+5 batches deployed today (+189 total v3.7-v3.11). At sustained pace, **~3-4 more sessions to ~550**.
+
+### Outstanding
+
+- 39 v3.11 entries to scrape og:image post-apply.
+- Country-display map in `CharityCard` still shows raw ISO codes (now adds BE, DK to the unmapped list). Polish item, still deferred — should batch with the eventual i18n country-name pass.
+
+<reflection>
+  <what_went_well>
+    - 5 batches in one day (+189 charities) consistent quality. Hit 23 countries now — meaningful global discovery surface.
+    - GMHC entry connects HIV/AIDS history to current frontline care — that bucket (hiv-aids) was completely absent. Catalog now has the foundational AIDS service organisation.
+    - National Trust UK ($800M revenue, 5.4M members) is the largest single membership-conservation entry now. Stonewall + Mermaids cover LGBTQ+ rights + trans-specific support gap.
+    - Belgium and Denmark both have strong regulators (Crossroads Bank for Enterprises BE / Erhvervsstyrelsen DK), so verification_status="verified" is honest for these countries — not a downgrade.
+  </what_went_well>
+  <challenges>
+    - 5th consecutive seed migration this session — physically tiring to write 39 high-quality bilingual entries. Mental quality control matters more after the 3rd batch; pre-write API check has caught duplicates each time.
+    - Neon DB connection bounced during initial `railway run migrate` (server closed connection mid-handshake) — retry succeeded immediately. Worth noting that Neon free tier auto-suspends and reconnects can hiccup during compute resume.
+    - Movember entity has US, CA, AU entries — federation pattern again. All three are legally distinct national organisations sharing the brand, but average revenue is the AU HQ's roll-up.
+  </challenges>
+  <lessons_learned>
+    - When Neon DB auto-resume hiccups (server closed unexpectedly mid-connection), just retry — it's transient, not a configuration issue. Don't bypass with workarounds.
+    - For brand-federation entries (Movember, MSF, Caritas, Salvation Army, World Vision, SOS Children's Villages), pick the national legal entity rather than the international parent — that's what donors actually give to.
+    - Belgium's Crossroads Bank for Enterprises (KBO/BCE) BE-####### format is the practical equivalent of a US EIN — fits cleanly into the registration_id CharField pattern.
+  </lessons_learned>
+  <knowledge_to_store>
+    NO — applying established KB-MIG-COUNTRY-ENUM-001 + KB-014/019/PHOTO-001 patterns. The Neon-auto-resume retry pattern is worth flagging if it happens a third time but not yet a KB entry.
+  </knowledge_to_store>
+</reflection>

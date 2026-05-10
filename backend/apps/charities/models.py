@@ -68,6 +68,9 @@ class Country(models.TextChoices):
     ES = "ES", "Spain"
     IE = "IE", "Ireland"
     NO = "NO", "Norway"
+    # v3.11 — Belgium + Denmark
+    BE = "BE", "Belgium"
+    DK = "DK", "Denmark"
 
 
 class SizeBucket(models.TextChoices):
