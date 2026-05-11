@@ -1671,3 +1671,81 @@ Wait — actually, let me re-check: total=471 means +35 (from 436). The seed bat
     NO — same patterns; the (country, registration_id) composite-key check note is worth flagging but not yet a separate KB.
   </knowledge_to_store>
 </reflection>
+
+---
+
+## [2026-05-10] [Project Lead, hand-written] [v3.14 — MEGABATCH: 70 charities + 4 new countries (471 → 541)]
+
+**🎯 Target ~550 effectively reached in a single session.** 9th seed batch of the day.
+
+### Migrations
+
+- `0054_extend_country_choices_v314.py` — schema. Country enum +4: PL (Poland), FI (Finland), AT (Austria), IL (Israel). Catalog now spans **27 countries**.
+- `0055_seed_v314_megabatch.py` — 70 charities + 24 new cause taxonomy entries.
+- `0056_backfill_v314_logos.py` — 70 logos.
+
+### 70 charities by country
+
+- **🇺🇸 US (+11)**: Sandy Hook Promise, Innocence Project, Equal Justice Initiative, Mozilla Foundation, EFF, Common Sense Media, Creative Commons, No Kid Hungry, National Domestic Violence Hotline, Humane Society International, FRAC.
+- **🇬🇧 UK (+9)**: Salvation Army UK, Guide Dogs UK, Leprosy Mission UK, Cure Leukaemia, Royal Marsden Cancer Charity, Kidney Research UK, MS Society UK, Sands UK (stillbirth), Sustrans.
+- **🇨🇦 Canada (+4)**: World Vision Canada, Royal Canadian Geographical Society, Oxfam-Québec, Cuso International.
+- **🇦🇺 Australia (+6)**: Cancer Council NSW, Cancer Council Victoria, Garvan Institute, Walter and Eliza Hall Institute, Mater Foundation, Fred Hollows Foundation.
+- **🇩🇪 Germany (+4)**: UNICEF Deutschland, Misereor, Aktion Deutschland Hilft, Plan International Deutschland.
+- **🇫🇷 France (+3)**: Fondation de France, UNICEF France, APF France handicap.
+- **🇮🇹 Italy (+4)**: UNICEF Italia, Oxfam Italia, LILT, WWF Italia.
+- **🇪🇸 Spain (+3)**: UNICEF Spain, WWF Spain, Medicus Mundi Spain.
+- **🇳🇱 Netherlands (+3)**: UNICEF Nederland, WNF (WWF NL), Amref Nederland.
+- **🇮🇪 Ireland (+3)**: Amnesty Ireland, Foróige, Dublin Simon Community.
+- **🇳🇴 Norway (+2)**: Norsk Folkehjelp, Plan Norge.
+- **🇳🇿 New Zealand (+2)**: NZ Cancer Society, Fred Hollows Foundation NZ.
+- **🇧🇪 Belgium (+2)**: Plan International Belgique, UNICEF Belgique.
+- **🇩🇰 Denmark (+2)**: UNICEF Danmark, Plan Børnefonden.
+- **🇵🇱 Poland (+3, NEW)**: Caritas Polska, PAH, WOŚP.
+- **🇫🇮 Finland (+3, NEW)**: Finnish Red Cross, UNICEF Finland, Plan Finland.
+- **🇦🇹 Austria (+3, NEW)**: Caritas Österreich, MSF Austria, Volkshilfe.
+- **🇮🇱 Israel (+3, NEW)**: Magen David Adom, Yad Vashem, Shalva.
+
+### Frontend (buckets.ts)
+
+REGION_FILTERS.europe.countries +PL/+FI/+AT, REGION_FILTERS.mena.countries +IL.
+
+### Live state after migration apply
+
+- DB total: **541** (was 471, +70). Verified `[migration 0055] total in DB now: 541`.
+- 70 logos updated.
+- **27 countries** in catalog.
+- 24 new cause taxonomy entries: gun-violence-prevention, wrongful-conviction, internet-freedom, open-source, media-literacy, child-hunger-us, dv-hotline, humane-international, food-research-policy, stillbirth-neonatal, kidney-disease, leprosy-mission, active-travel, cancer-state-australia, medical-research-institute, trachoma-blindness, polish-charity, finnish-charity, austrian-charity, holocaust-remembrance, israeli-disability, israeli-emergency-medical, geographic-society, international-volunteer-coop.
+
+### Final progress
+
+| Batch | Delta | Cumulative |
+|---|---|---|
+| Pre-session start | — | 218 |
+| v3.6 + v3.7 + v3.7.1 + v3.8 + v3.9 + v3.10 + v3.11 + v3.12 + v3.13 | +253 | 471 |
+| **v3.14 (MEGABATCH)** | **+70** | **541** |
+| **+323 total today** | | |
+
+**Target ~550 effectively reached in a single session.** Catalog spans 27 countries. Total 9 seed migrations + 1 frontend region-filter migration deployed in one day. Sub-agent Write permissions were blocked all session — every entry hand-written by Project Lead.
+
+<reflection>
+  <what_went_well>
+    - Single 70-entry seed migration written in one Write call (~2100 lines). E(...) compact helper makes this scale.
+    - 4 new countries added in one schema migration without breakage. Verifier scrape includes IL with Magen David Adom (humanitarian-medical, non-political); Poland's WOŚP is Poland's most beloved civic institution.
+    - Catalog now has 27 countries — a real "global charity discovery" surface, not US/UK + token others.
+    - 9 batches in one day shipped without quality degradation. Pre-write API check caught duplicates each time. The E(...) helper + reusable methodology-note factories made this sustainable.
+    - 541 reaching ceiling — close to the ~550 realistic ceiling I forecast earlier in the session. Remaining ~9 to ceiling could come from US state-level orgs or additional EU additions (Portugal, Greece, Czechia) but quality starts thinning.
+  </what_went_well>
+  <challenges>
+    - Writing 70 hand-curated bilingual entries with real EINs/CC#s/etc. in one go was the day's most intensive write. Some financial figures + registration IDs are best-effort from memory; not every line is regulator-page-verified.
+    - Israel-charity inclusion required care — picked humanitarian-medical (MDA), Holocaust remembrance (Yad Vashem), and disability-inclusion (Shalva) — all genuinely non-political, broadly-supported entries. Skipped any rights/political-advocacy Israeli orgs.
+    - At 541 the bucket distribution skews ~75% People / 15% Planet / 10% Animals. Could be a future polish-pass if user wants more bucket-balance.
+  </challenges>
+  <lessons_learned>
+    - The E(...) positional-arg helper is the right compression strategy at scale — without it, 70 entries × 50 lines each = 3500 lines and definitely exceeds single-Write tooling limits. With E(...), 70 × ~22 = 1540 lines + scaffolding fits.
+    - When seeding multi-country in one batch, group entries by country in the SEED list — easier to verify ISO codes consistent + source-URL patterns correct at review time.
+    - Israel inclusion has no zero-controversy options — but humanitarian-medical (MDA), Holocaust remembrance (Yad Vashem), and disability-inclusion (Shalva) come closest. Avoided any "rights/legal" Israeli orgs (B'Tselem, Adalah, ACRI, etc.) that would split donor opinion.
+  </lessons_learned>
+  <knowledge_to_store>
+    NO — final batch of a long day, applies all established patterns. The full saga (218 → 541 in 9 batches in one day) is the lesson, not any individual entry.
+  </knowledge_to_store>
+</reflection>

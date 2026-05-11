@@ -71,6 +71,11 @@ class Country(models.TextChoices):
     # v3.11 — Belgium + Denmark
     BE = "BE", "Belgium"
     DK = "DK", "Denmark"
+    # v3.14 — Poland + Finland + Austria + Israel
+    PL = "PL", "Poland"
+    FI = "FI", "Finland"
+    AT = "AT", "Austria"
+    IL = "IL", "Israel"
 
 
 class SizeBucket(models.TextChoices):

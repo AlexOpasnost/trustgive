@@ -86,9 +86,8 @@ export const REGION_FILTERS: RegionFilter[] = [
     slug: "europe",
     labelEn: "Europe",
     labelRu: "Европа",
-    // v3.10: +IT (Italy), +ES (Spain), +IE (Ireland), +NO (Norway).
-    // v3.11: +BE (Belgium), +DK (Denmark).
-    countries: ["GB", "DE", "NL", "CH", "SE", "FR", "IT", "ES", "IE", "NO", "BE", "DK"],
+    // v3.10: +IT, +ES, +IE, +NO. v3.11: +BE, +DK. v3.14: +PL, +FI, +AT.
+    countries: ["GB", "DE", "NL", "CH", "SE", "FR", "IT", "ES", "IE", "NO", "BE", "DK", "PL", "FI", "AT"],
   },
   { slug: "russia", labelEn: "Russia", labelRu: "Россия", countries: ["RU"] },
   {
@@ -101,7 +100,8 @@ export const REGION_FILTERS: RegionFilter[] = [
     slug: "mena",
     labelEn: "Middle East",
     labelRu: "Ближний Восток",
-    countries: ["LB", "EG", "JO", "TN"],
+    // v3.14: +IL (Israel).
+    countries: ["LB", "EG", "JO", "TN", "IL"],
   },
   {
     slug: "asia",
