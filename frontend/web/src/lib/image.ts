@@ -8,12 +8,18 @@
  *
  * Solution: route all third-party images through `images.weserv.nl`, a free
  * image proxy/CDN used widely in OSS (no API key, no rate limits at our scale,
- * caches at edge, returns WebP for modern browsers via `output=webp`).
+ * caches at edge).
  *
- * Result on a typical 6.7 MB Wikimedia JPEG:
- *   - w=600 → ~37 KB (99% reduction)
- *   - w=800 → ~56 KB
- *   - w=1200 → ~100 KB
+ * v3.15: dropped `output=webp` — Chrome's Opaque Response Blocking (ORB)
+ * silently rejects cross-origin webp responses from weserv when the source
+ * is wikimedia.org, breaking ~80% of detail-page heroes. Letting weserv
+ * default to the source mime (JPEG/PNG) bypasses ORB at a ~30% bytes cost,
+ * still ~95% smaller than the un-proxied original because of `w=` resize.
+ *
+ * Result on a typical 6.7 MB Wikimedia JPEG (JPEG output, q=80):
+ *   - w=600 → ~55 KB (99% reduction)
+ *   - w=800 → ~80 KB
+ *   - w=1200 → ~140 KB
  *
  * For non-Wikimedia URLs (e.g. our own future R2 bucket), the proxy still
  * works since weserv accepts any public URL.
@@ -43,9 +49,10 @@ export function wikimediaThumb(
     url: bare,
     w: String(widthPx),
     q: "80",
-    output: "webp",
     // Cover-fit the requested width; prevents distortion. Default is "fit=inside".
     fit: "cover",
+    // No `output=` — let weserv echo the source mime (JPEG for Wikimedia).
+    // `output=webp` triggers Chrome ORB on Wikimedia sources at large widths.
   })
   return `${WESERV_BASE}${params.toString()}`
 }

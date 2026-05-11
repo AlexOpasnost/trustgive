@@ -1,0 +1,116 @@
+- generic [ref=e3]:
+  - banner [ref=e4]:
+    - generic [ref=e5]:
+      - link "TrustGive" [ref=e6] [cursor=pointer]:
+        - /url: /
+        - img [ref=e7]
+        - generic [ref=e9]: TrustGive
+      - generic [ref=e10]:
+        - group "Language" [ref=e11]:
+          - button "EN" [pressed] [ref=e12]
+          - generic [ref=e13]: ·
+          - button "Switch language to Russian" [ref=e14]: RU
+        - button "Open menu" [ref=e15]:
+          - img [ref=e16]
+  - main [ref=e17]:
+    - generic [ref=e18]:
+      - generic "GiveWell (The Clear Fund)" [ref=e67]:
+        - link "Back to results" [ref=e69] [cursor=pointer]:
+          - /url: /charities
+          - img [ref=e70]
+          - text: Back to results
+        - generic "Verified" [ref=e72]:
+          - img [ref=e73]
+          - text: Verified
+        - generic [ref=e75]:
+          - heading "GiveWell (The Clear Fund)" [level=1] [ref=e76]
+          - paragraph [ref=e77]: Independent research finding the best giving opportunities
+        - generic [ref=e79]: "Cover image from GiveWell (The Clear Fund). — Photo: Source: givewell.org / press-kit"
+      - generic [ref=e82]:
+        - generic [ref=e83]:
+          - img "GiveWell (The Clear Fund)" [ref=e85]
+          - generic [ref=e86]:
+            - heading "GiveWell (The Clear Fund)" [level=2] [ref=e87]
+            - paragraph [ref=e88]:
+              - generic [ref=e89]: EIN/Reg 208625442
+              - text: ·US·
+              - generic [ref=e90]: Founded 2007
+        - paragraph [ref=e91]: Last filed 2025-08-05
+      - generic [ref=e93]:
+        - heading "About" [level=2] [ref=e94]
+        - paragraph [ref=e95]: GiveWell — legal name The Clear Fund — is a US 501(c)(3) headquartered in Oakland, CA. Conducts in-depth research on global-health and poverty charities and publishes a short list of Top Charities. Has directed $2B+ in donations since 2007. Charges no fees on donor contributions.
+      - generic [ref=e97]:
+        - button "Donate at givewell.org" [ref=e98]:
+          - text: Donate at givewell.org
+          - img [ref=e99]
+        - paragraph [ref=e101]: 0% commission. We never touch your money.
+      - generic [ref=e103]:
+        - heading "Methodology" [level=2] [ref=e104]
+        - paragraph [ref=e105]: "Verified: 501(c)(3) registered with IRS (ProPublica), Form 990 on file with ProPublica. Open methodology and full reasoning published per recommendation."
+      - generic [ref=e107]:
+        - heading "Where the money goes" [level=2] [ref=e108]
+        - generic [ref=e110]:
+          - generic [ref=e111]:
+            - heading "How they spend the money" [level=2] [ref=e112]
+            - paragraph [ref=e113]: Fiscal year 2025
+          - generic [ref=e114]:
+            - generic [ref=e115]: $219.6M
+            - generic [ref=e116]: annual revenue
+          - separator [ref=e117]
+          - paragraph [ref=e118]: Program-services breakdown not reported on this Form 990. Many charities outside the U.S. don't itemise these in their filings, and we don't infer what wasn't disclosed.
+      - generic [ref=e120]:
+        - heading "Source documents" [level=2] [ref=e121]
+        - list [ref=e122]:
+          - listitem [ref=e123]:
+            - button "IRS Form 990 (FY 2023) [PDF]" [ref=e124]:
+              - img [ref=e125]
+              - text: IRS Form 990 (FY 2023)
+              - generic [ref=e128]: "[PDF]"
+  - contentinfo [ref=e27]:
+    - generic [ref=e28]:
+      - generic [ref=e30]:
+        - img [ref=e31]
+        - generic [ref=e33]: TrustGive
+      - generic [ref=e34]:
+        - generic [ref=e35]:
+          - heading "Discover" [level=3] [ref=e36]
+          - list [ref=e37]:
+            - listitem [ref=e38]:
+              - link "Full catalog" [ref=e39] [cursor=pointer]:
+                - /url: /charities
+            - listitem [ref=e40]:
+              - link "United States" [ref=e41] [cursor=pointer]:
+                - /url: /charities?country=US
+            - listitem [ref=e42]:
+              - link "United Kingdom" [ref=e43] [cursor=pointer]:
+                - /url: /charities?country=GB
+            - listitem [ref=e44]:
+              - link "Russia (curated)" [ref=e45] [cursor=pointer]:
+                - /url: /charities?country=RU
+        - generic [ref=e46]:
+          - heading "Methodology" [level=3] [ref=e47]
+          - list [ref=e48]:
+            - listitem [ref=e49]:
+              - link "How we verify" [ref=e50] [cursor=pointer]:
+                - /url: /methodology
+            - listitem [ref=e51]:
+              - link "Data sources" [ref=e52] [cursor=pointer]:
+                - /url: /methodology#sources
+            - listitem [ref=e53]:
+              - link "What we don't verify" [ref=e54] [cursor=pointer]:
+                - /url: /methodology#standards
+        - generic [ref=e55]:
+          - heading "About" [level=3] [ref=e56]
+          - list [ref=e57]:
+            - listitem [ref=e58]:
+              - link "Source on GitHub" [ref=e59] [cursor=pointer]:
+                - /url: https://github.com/AlexOpasnost/trustgive
+            - listitem [ref=e60]:
+              - link "Changelog" [ref=e61] [cursor=pointer]:
+                - /url: https://github.com/AlexOpasnost/trustgive/blob/main/CHANGELOG.md
+            - listitem [ref=e62]:
+              - link "Contact" [ref=e63] [cursor=pointer]:
+                - /url: mailto:hello@trustgive.org
+      - generic [ref=e64]:
+        - paragraph [ref=e65]: © 2026 TrustGive · We don't process donations. We never see your money.
+        - paragraph [ref=e66]: Built with Inter · Source Serif 4 · Geist Mono · Hugeicons

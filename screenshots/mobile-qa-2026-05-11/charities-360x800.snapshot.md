@@ -1,0 +1,3803 @@
+- generic [ref=e3]:
+  - banner [ref=e4]:
+    - generic [ref=e5]:
+      - link "TrustGive" [ref=e6] [cursor=pointer]:
+        - /url: /
+        - img [ref=e7]
+        - generic [ref=e9]: TrustGive
+      - generic [ref=e10]:
+        - group "Language" [ref=e11]:
+          - button "EN" [pressed] [ref=e12]
+          - generic [ref=e13]: ·
+          - button "Switch language to Russian" [ref=e14]: RU
+        - button "Open menu" [ref=e15]:
+          - img [ref=e16]
+  - main [ref=e17]:
+    - generic [ref=e18]:
+      - generic [ref=e19]:
+        - heading "Charities" [level=1] [ref=e20]
+        - paragraph [ref=e108]: Showing 1–300 of 541
+      - group "Country" [ref=e21]:
+        - button "All regions" [pressed] [ref=e22] [cursor=pointer]
+        - button "Americas" [ref=e23] [cursor=pointer]
+        - button "Europe" [ref=e24] [cursor=pointer]
+        - button "Russia" [ref=e25] [cursor=pointer]
+        - button "Africa" [ref=e26] [cursor=pointer]
+        - button "Middle East" [ref=e27] [cursor=pointer]
+        - button "Asia" [ref=e28] [cursor=pointer]
+        - button "Oceania" [ref=e29] [cursor=pointer]
+      - main [ref=e30]:
+        - generic [ref=e109]:
+          - link "GiveWell (The Clear Fund)" [ref=e110] [cursor=pointer]:
+            - /url: /charities/givewell
+            - generic "Verified" [ref=e112]:
+              - img [ref=e113]
+              - text: Verified
+            - generic [ref=e115]:
+              - generic [ref=e116]:
+                - img "GiveWell (The Clear Fund)" [ref=e118]
+                - heading "GiveWell (The Clear Fund)" [level=3] [ref=e119]
+              - paragraph [ref=e120]: Independent research finding the best giving opportunities
+              - paragraph [ref=e121]: United States·effective-altruism·$219.6M
+          - link "Human Rights Campaign Foundation" [ref=e122] [cursor=pointer]:
+            - /url: /charities/hrc-foundation
+            - generic "Verified" [ref=e124]:
+              - img [ref=e125]
+              - text: Verified
+            - generic [ref=e127]:
+              - generic [ref=e128]:
+                - img "Human Rights Campaign Foundation" [ref=e130]
+                - heading "Human Rights Campaign Foundation" [level=3] [ref=e131]
+              - paragraph [ref=e132]: Education and research arm of the largest US LGBTQ+ rights org
+              - paragraph [ref=e133]: United States·lgbt-rights·$21M
+          - link "NAMI — National Alliance on Mental Illness" [ref=e134] [cursor=pointer]:
+            - /url: /charities/nami-national
+            - generic "Verified" [ref=e136]:
+              - img [ref=e137]
+              - text: Verified
+            - generic [ref=e139]:
+              - generic [ref=e140]:
+                - img "NAMI — National Alliance on Mental Illness" [ref=e142]
+                - heading "NAMI — National Alliance on Mental Illness" [level=3] [ref=e143]
+              - paragraph [ref=e144]: US grassroots mental-health support, education, advocacy
+              - paragraph [ref=e145]: United States·mental-health·$38M
+          - link "The Trevor Project" [ref=e146] [cursor=pointer]:
+            - /url: /charities/trevor-project
+            - generic "Verified" [ref=e148]:
+              - img [ref=e149]
+              - text: Verified
+            - generic [ref=e151]:
+              - generic [ref=e152]:
+                - img "The Trevor Project" [ref=e154]
+                - heading "The Trevor Project" [level=3] [ref=e155]
+              - paragraph [ref=e156]: 24/7 crisis support for LGBTQ+ young people in the US
+              - paragraph [ref=e157]: United States·lgbt-rights·$83.8M
+          - link "Need Help Foundation" [ref=e158] [cursor=pointer]:
+            - /url: /charities/nuzhna-pomosh
+            - generic "Verified" [ref=e160]:
+              - img [ref=e161]
+              - text: Verified
+            - generic [ref=e163]:
+              - generic [ref=e164]:
+                - generic [ref=e165]: "N"
+                - heading "Need Help Foundation" [level=3] [ref=e166]
+              - paragraph [ref=e167]: Funds and amplifies vetted Russian regional charities
+              - paragraph [ref=e168]: Russia·poverty-reduction·$13.5M
+          - link "Nochlezhka" [ref=e169] [cursor=pointer]:
+            - /url: /charities/nochlezhka
+            - generic "Verified" [ref=e171]:
+              - img [ref=e172]
+              - text: Verified
+            - generic [ref=e174]:
+              - generic [ref=e175]:
+                - generic [ref=e176]:
+                  - img "Nochlezhka"
+                - heading "Nochlezhka" [level=3] [ref=e177]
+              - paragraph [ref=e178]: Russia's longest-running homelessness charity
+              - paragraph [ref=e179]: Russia·homelessness·$3.2M
+          - link "Médecins Sans Frontières USA (Doctors Without Borders)" [ref=e180] [cursor=pointer]:
+            - /url: /charities/msf-usa
+            - generic "Verified" [ref=e182]:
+              - img [ref=e183]
+              - text: Verified
+            - generic [ref=e185]:
+              - generic [ref=e186]:
+                - generic [ref=e187]:
+                  - img "Médecins Sans Frontières USA (Doctors Without Borders)"
+                - heading "Médecins Sans Frontières USA (Doctors Without Borders)" [level=3] [ref=e188]
+              - paragraph [ref=e189]: Emergency medical aid in conflict zones and crisis areas
+              - paragraph [ref=e190]: United States·humanitarian-medicine·$767.4M
+          - link "Save the Children Federation" [ref=e191] [cursor=pointer]:
+            - /url: /charities/save-the-children
+            - generic "Verified" [ref=e193]:
+              - img [ref=e194]
+              - text: Verified
+            - generic [ref=e196]:
+              - generic [ref=e197]:
+                - generic [ref=e198]:
+                  - img "Save the Children Federation"
+                - heading "Save the Children Federation" [level=3] [ref=e199]
+              - paragraph [ref=e200]: Programs for children's survival, education, and protection
+              - paragraph [ref=e201]: United States·child-welfare·$903M
+          - link "Humane Society of the United States" [ref=e202] [cursor=pointer]:
+            - /url: /charities/humane-society-us
+            - generic "Verified" [ref=e204]:
+              - img [ref=e205]
+              - text: Verified
+            - generic [ref=e207]:
+              - generic [ref=e208]:
+                - generic [ref=e209]:
+                  - img "Humane Society of the United States"
+                - heading "Humane Society of the United States" [level=3] [ref=e210]
+              - paragraph [ref=e211]: National animal-welfare advocacy and rescue
+              - paragraph [ref=e212]: United States·animal-welfare·$175M
+          - link "PetSmart Charities" [ref=e213] [cursor=pointer]:
+            - /url: /charities/petsmart-charities
+            - generic "Verified" [ref=e215]:
+              - img [ref=e216]
+              - text: Verified
+            - generic [ref=e218]:
+              - generic [ref=e219]:
+                - generic [ref=e220]:
+                  - img "PetSmart Charities"
+                - heading "PetSmart Charities" [level=3] [ref=e221]
+              - paragraph [ref=e222]: Helps pets find homes and supports veterinary care access
+              - paragraph [ref=e223]: United States·animal-welfare·$61.9M
+          - link "ALS Therapy Development Institute" [ref=e224] [cursor=pointer]:
+            - /url: /charities/als-tdi
+            - generic "Verified" [ref=e226]:
+              - img [ref=e227]
+              - text: Verified
+            - generic [ref=e229]:
+              - generic [ref=e230]:
+                - generic [ref=e231]:
+                  - img "ALS Therapy Development Institute"
+                - heading "ALS Therapy Development Institute" [level=3] [ref=e232]
+              - paragraph [ref=e233]: First non-profit biotech 100% focused on ALS drug discovery — pre-clinical research.
+              - paragraph [ref=e234]: United States·rare-disease·$12M
+          - link "Animal Equality" [ref=e235] [cursor=pointer]:
+            - /url: /charities/animal-equality
+            - generic "Verified" [ref=e237]:
+              - img [ref=e238]
+              - text: Verified
+            - generic [ref=e240]:
+              - generic [ref=e241]:
+                - generic [ref=e242]:
+                  - img "Animal Equality"
+                - heading "Animal Equality" [level=3] [ref=e243]
+              - paragraph [ref=e244]: International farm-animal protection NGO — investigations, corporate campaigns, legal advocacy.
+              - paragraph [ref=e245]: United States·farm-animal-welfare·$15M
+          - link "The Aspen Institute" [ref=e246] [cursor=pointer]:
+            - /url: /charities/aspen-institute
+            - generic [ref=e247]:
+              - img [ref=e249]
+              - generic "Verified" [ref=e253]:
+                - img [ref=e254]
+                - text: Verified
+            - generic [ref=e256]:
+              - generic [ref=e257]:
+                - generic [ref=e258]:
+                  - img "The Aspen Institute"
+                - heading "The Aspen Institute" [level=3] [ref=e259]
+              - paragraph [ref=e260]: Non-partisan policy think-tank — leadership, programs across 30+ policy areas.
+              - paragraph [ref=e261]: United States·education·$165M
+          - link "Big Brothers Big Sisters of America" [ref=e262] [cursor=pointer]:
+            - /url: /charities/big-brothers-big-sisters-america
+            - generic [ref=e263]:
+              - img [ref=e265]
+              - generic "Verified" [ref=e269]:
+                - img [ref=e270]
+                - text: Verified
+            - generic [ref=e272]:
+              - generic [ref=e273]:
+                - generic [ref=e274]:
+                  - img "Big Brothers Big Sisters of America"
+                - heading "Big Brothers Big Sisters of America" [level=3] [ref=e275]
+              - paragraph [ref=e276]: 1-to-1 youth mentoring — matches adult volunteers (Bigs) with children 6-18 (Littles).
+              - paragraph [ref=e277]: United States·youth-mentoring·$26M
+          - link "Bob Woodruff Foundation" [ref=e278] [cursor=pointer]:
+            - /url: /charities/bob-woodruff-foundation
+            - generic [ref=e279]:
+              - img [ref=e281]
+              - generic "Verified" [ref=e285]:
+                - img [ref=e286]
+                - text: Verified
+            - generic [ref=e288]:
+              - generic [ref=e289]:
+                - generic [ref=e290]:
+                  - img "Bob Woodruff Foundation"
+                - heading "Bob Woodruff Foundation" [level=3] [ref=e291]
+              - paragraph [ref=e292]: Funds local-level vetted programs for post-9/11 veterans, service members and their families.
+              - paragraph [ref=e293]: United States·veterans·$14M
+          - link "Born Free USA" [ref=e294] [cursor=pointer]:
+            - /url: /charities/born-free-usa
+            - generic "Verified" [ref=e296]:
+              - img [ref=e297]
+              - text: Verified
+            - generic [ref=e299]:
+              - generic [ref=e300]:
+                - generic [ref=e301]:
+                  - img "Born Free USA"
+                - heading "Born Free USA" [level=3] [ref=e302]
+              - paragraph [ref=e303]: Wildlife protection + primate sanctuary in Texas — sister org to UK's Born Free Foundation.
+              - paragraph [ref=e304]: United States·wildlife-conservation·$4M
+          - link "Boys & Girls Clubs of America" [ref=e305] [cursor=pointer]:
+            - /url: /charities/boys-girls-clubs-america
+            - generic "Verified" [ref=e307]:
+              - img [ref=e308]
+              - text: Verified
+            - generic [ref=e310]:
+              - generic [ref=e311]:
+                - generic [ref=e312]:
+                  - img "Boys & Girls Clubs of America"
+                - heading "Boys & Girls Clubs of America" [level=3] [ref=e313]
+              - paragraph [ref=e314]: National federation of after-school clubs serving ~4M young people across 5,000+ club sites.
+              - paragraph [ref=e315]: United States·youth-mentoring·$215M
+          - link "Boys Town" [ref=e316] [cursor=pointer]:
+            - /url: /charities/boys-town
+            - generic [ref=e317]:
+              - img [ref=e319]
+              - generic "Verified" [ref=e323]:
+                - img [ref=e324]
+                - text: Verified
+            - generic [ref=e326]:
+              - generic [ref=e327]:
+                - generic [ref=e328]:
+                  - img "Boys Town"
+                - heading "Boys Town" [level=3] [ref=e329]
+              - paragraph [ref=e330]: Faith-based but inclusive integrated child and family services — residential, behavioural, healthcare.
+              - paragraph [ref=e331]: United States·youth-mentoring·$470M
+          - link "Compassion in World Farming" [ref=e332] [cursor=pointer]:
+            - /url: /charities/ciwf
+            - generic "Verified" [ref=e334]:
+              - img [ref=e335]
+              - text: Verified
+            - generic [ref=e337]:
+              - generic [ref=e338]:
+                - generic [ref=e339]:
+                  - img "Compassion in World Farming"
+                - heading "Compassion in World Farming" [level=3] [ref=e340]
+              - paragraph [ref=e341]: Ends factory farming through investigation and policy
+              - paragraph [ref=e342]: United Kingdom·animal-welfare·$16M
+          - link "Climate Action Network (CAN International)" [ref=e343] [cursor=pointer]:
+            - /url: /charities/climate-action-network
+            - generic "Verified" [ref=e345]:
+              - img [ref=e346]
+              - text: Verified
+            - generic [ref=e348]:
+              - generic [ref=e349]:
+                - generic [ref=e350]:
+                  - img "Climate Action Network (CAN International)"
+                - heading "Climate Action Network (CAN International)" [level=3] [ref=e351]
+              - paragraph [ref=e352]: World's largest network of climate-civil-society organisations — 1,900 members in 130+ countries.
+              - paragraph [ref=e353]: United States·climate-policy·$8M
+          - link "Cool Effect" [ref=e354] [cursor=pointer]:
+            - /url: /charities/cool-effect
+            - generic "Verified" [ref=e356]:
+              - img [ref=e357]
+              - text: Verified
+            - generic [ref=e359]:
+              - generic [ref=e360]:
+                - generic [ref=e361]:
+                  - img "Cool Effect"
+                - heading "Cool Effect" [level=3] [ref=e362]
+              - paragraph [ref=e363]: Verified carbon-offset marketplace — vets each project's quality before it's sold to donors.
+              - paragraph [ref=e364]: United States·carbon-offsetting·$9M
+          - link "Creative Commons" [ref=e365] [cursor=pointer]:
+            - /url: /charities/creative-commons
+            - generic [ref=e366]:
+              - img [ref=e368]
+              - generic "Verified" [ref=e372]:
+                - img [ref=e373]
+                - text: Verified
+            - generic [ref=e375]:
+              - generic [ref=e376]:
+                - generic [ref=e377]:
+                  - img "Creative Commons"
+                - heading "Creative Commons" [level=3] [ref=e378]
+              - paragraph [ref=e379]: Non-profit stewarding the Creative Commons licences — open-knowledge infrastructure for the web.
+              - paragraph [ref=e380]: United States·open-source·$4.5M
+          - link "Cure Alzheimer's Fund" [ref=e381] [cursor=pointer]:
+            - /url: /charities/cure-alzheimers-fund
+            - generic "Verified" [ref=e383]:
+              - img [ref=e384]
+              - text: Verified
+            - generic [ref=e386]:
+              - generic [ref=e387]:
+                - generic [ref=e388]:
+                  - img "Cure Alzheimer's Fund"
+                - heading "Cure Alzheimer's Fund" [level=3] [ref=e389]
+              - paragraph [ref=e390]: Alzheimer's research-only charity — 100% of donations go to research.
+              - paragraph [ref=e391]: United States·alzheimers-dementia·$35M
+          - link "Cystic Fibrosis Foundation" [ref=e392] [cursor=pointer]:
+            - /url: /charities/cystic-fibrosis-foundation
+            - generic [ref=e393]:
+              - img [ref=e395]
+              - generic "Verified" [ref=e399]:
+                - img [ref=e400]
+                - text: Verified
+            - generic [ref=e402]:
+              - generic [ref=e403]:
+                - generic [ref=e404]:
+                  - img "Cystic Fibrosis Foundation"
+                - heading "Cystic Fibrosis Foundation" [level=3] [ref=e405]
+              - paragraph [ref=e406]: Funded the venture-philanthropy R&D pipeline that produced Trikafta (CF therapy).
+              - paragraph [ref=e407]: United States·rare-disease·$280M
+          - link "The Donkey Sanctuary" [ref=e408] [cursor=pointer]:
+            - /url: /charities/donkey-sanctuary
+            - generic "Verified" [ref=e410]:
+              - img [ref=e411]
+              - text: Verified
+            - generic [ref=e413]:
+              - generic [ref=e414]:
+                - generic [ref=e415]:
+                  - img "The Donkey Sanctuary"
+                - heading "The Donkey Sanctuary" [level=3] [ref=e416]
+              - paragraph [ref=e417]: Donkey welfare and rescue — UK and globally
+              - paragraph [ref=e418]: United Kingdom·animal-welfare·$60M
+          - link "Equal Justice Initiative (EJI)" [ref=e419] [cursor=pointer]:
+            - /url: /charities/equal-justice-initiative
+            - generic "Verified" [ref=e421]:
+              - img [ref=e422]
+              - text: Verified
+            - generic [ref=e424]:
+              - generic [ref=e425]:
+                - generic [ref=e426]:
+                  - img "Equal Justice Initiative (EJI)"
+                - heading "Equal Justice Initiative (EJI)" [level=3] [ref=e427]
+              - paragraph [ref=e428]: Bryan Stevenson's racial-justice legal-advocacy org — death-row defence + reparative-history museums.
+              - paragraph [ref=e429]: United States·wrongful-conviction·$60M
+          - link "Folds of Honor" [ref=e430] [cursor=pointer]:
+            - /url: /charities/folds-of-honor
+            - generic [ref=e431]:
+              - img [ref=e433]
+              - generic "Verified" [ref=e437]:
+                - img [ref=e438]
+                - text: Verified
+            - generic [ref=e440]:
+              - generic [ref=e441]:
+                - generic [ref=e442]:
+                  - img "Folds of Honor"
+                - heading "Folds of Honor" [level=3] [ref=e443]
+              - paragraph [ref=e444]: Education scholarships for spouses and children of fallen and disabled US military.
+              - paragraph [ref=e445]: United States·veterans·$50M
+          - link "Friends of Animals" [ref=e446] [cursor=pointer]:
+            - /url: /charities/friends-of-animals
+            - generic "Verified" [ref=e448]:
+              - img [ref=e449]
+              - text: Verified
+            - generic [ref=e451]:
+              - generic [ref=e452]:
+                - generic [ref=e453]:
+                  - img "Friends of Animals"
+                - heading "Friends of Animals" [level=3] [ref=e454]
+              - paragraph [ref=e455]: US animal-rights org running a low-cost spay/neuter program + wildlife legal advocacy.
+              - paragraph [ref=e456]: United States·animal-welfare·$7.5M
+          - link "Global Fund for Women" [ref=e457] [cursor=pointer]:
+            - /url: /charities/global-fund-for-women
+            - generic "Verified" [ref=e459]:
+              - img [ref=e460]
+              - text: Verified
+            - generic [ref=e462]:
+              - generic [ref=e463]:
+                - generic [ref=e464]:
+                  - img "Global Fund for Women"
+                - heading "Global Fund for Women" [level=3] [ref=e465]
+              - paragraph [ref=e466]: Public foundation funding women's-rights movements in ~175 countries — flexible, trust-based grants.
+              - paragraph [ref=e467]: United States·global-womens-rights·$25M
+          - link "Humane Society International" [ref=e468] [cursor=pointer]:
+            - /url: /charities/humane-society-international
+            - generic "Verified" [ref=e470]:
+              - img [ref=e471]
+              - text: Verified
+            - generic [ref=e473]:
+              - generic [ref=e474]:
+                - generic [ref=e475]:
+                  - img "Humane Society International"
+                - heading "Humane Society International" [level=3] [ref=e476]
+              - paragraph [ref=e477]: Global arm of the Humane Society of the United States — wildlife protection, factory-farm reform, disaster response.
+              - paragraph [ref=e478]: United States·humane-international·$55M
+          - link "Iraq and Afghanistan Veterans of America" [ref=e479] [cursor=pointer]:
+            - /url: /charities/iava
+            - generic "Verified" [ref=e481]:
+              - img [ref=e482]
+              - text: Verified
+            - generic [ref=e484]:
+              - generic [ref=e485]:
+                - generic [ref=e486]:
+                  - img "Iraq and Afghanistan Veterans of America"
+                - heading "Iraq and Afghanistan Veterans of America" [level=3] [ref=e487]
+              - paragraph [ref=e488]: Advocacy and direct services for post-9/11 veterans — VA reform, mental health, women veterans.
+              - paragraph [ref=e489]: United States·veterans·$7.8M
+          - link "Islamic Relief USA" [ref=e490] [cursor=pointer]:
+            - /url: /charities/islamic-relief-usa
+            - generic "Verified" [ref=e492]:
+              - img [ref=e493]
+              - text: Verified
+            - generic [ref=e495]:
+              - generic [ref=e496]:
+                - generic [ref=e497]:
+                  - img "Islamic Relief USA"
+                - heading "Islamic Relief USA" [level=3] [ref=e498]
+              - paragraph [ref=e499]: US arm of Islamic Relief Worldwide — disaster response, refugees, orphan support globally.
+              - paragraph [ref=e500]: United States·faith-based·$110M
+          - link "Jewish Federations of Canada — UIA" [ref=e501] [cursor=pointer]:
+            - /url: /charities/jewish-federations-canada
+            - generic [ref=e502]:
+              - img [ref=e504]
+              - generic "Verified" [ref=e508]:
+                - img [ref=e509]
+                - text: Verified
+            - generic [ref=e511]:
+              - generic [ref=e512]:
+                - generic [ref=e513]:
+                  - img "Jewish Federations of Canada — UIA"
+                - heading "Jewish Federations of Canada — UIA" [level=3] [ref=e514]
+              - paragraph [ref=e515]: Canadian Jewish communal philanthropy network — supports Israel, Canadian Jewish life.
+              - paragraph [ref=e516]: Canada·faith-based·$35M
+          - link "Joseph Rowntree Foundation" [ref=e517] [cursor=pointer]:
+            - /url: /charities/joseph-rowntree-foundation
+            - generic "Verified" [ref=e519]:
+              - img [ref=e520]
+              - text: Verified
+            - generic [ref=e522]:
+              - generic [ref=e523]:
+                - generic [ref=e524]:
+                  - img "Joseph Rowntree Foundation"
+                - heading "Joseph Rowntree Foundation" [level=3] [ref=e525]
+              - paragraph [ref=e526]: Independent UK think-tank and funder working to solve UK poverty.
+              - paragraph [ref=e527]: United Kingdom·poverty-reduction·$25M
+          - link "Kids Help Phone" [ref=e528] [cursor=pointer]:
+            - /url: /charities/kids-help-phone-canada
+            - generic "Verified" [ref=e530]:
+              - img [ref=e531]
+              - text: Verified
+            - generic [ref=e533]:
+              - generic [ref=e534]:
+                - generic [ref=e535]:
+                  - img "Kids Help Phone"
+                - heading "Kids Help Phone" [level=3] [ref=e536]
+              - paragraph [ref=e537]: Canada's only national 24/7 e-mental-health service for young people — phone, text, online.
+              - paragraph [ref=e538]: Canada·youth-mental-health·$50M
+          - link "League of Conservation Voters Education Fund" [ref=e539] [cursor=pointer]:
+            - /url: /charities/league-conservation-voters
+            - generic [ref=e540]:
+              - img [ref=e542]
+              - generic "Verified" [ref=e546]:
+                - img [ref=e547]
+                - text: Verified
+            - generic [ref=e549]:
+              - generic [ref=e550]:
+                - generic [ref=e551]:
+                  - img "League of Conservation Voters Education Fund"
+                - heading "League of Conservation Voters Education Fund" [level=3] [ref=e552]
+              - paragraph [ref=e553]: 501(c)(3) educational arm of LCV — National Environmental Scorecard, voter education, civic engagement.
+              - paragraph [ref=e554]: United States·climate-policy·$35M
+          - link "March of Dimes" [ref=e555] [cursor=pointer]:
+            - /url: /charities/march-of-dimes
+            - generic [ref=e556]:
+              - img [ref=e558]
+              - generic "Verified" [ref=e562]:
+                - img [ref=e563]
+                - text: Verified
+            - generic [ref=e565]:
+              - generic [ref=e566]:
+                - generic [ref=e567]:
+                  - img "March of Dimes"
+                - heading "March of Dimes" [level=3] [ref=e568]
+              - paragraph [ref=e569]: US maternal & infant health — preterm birth research, NICU support, advocacy.
+              - paragraph [ref=e570]: United States·maternal-infant-health·$110M
+          - link "Mercy For Animals" [ref=e571] [cursor=pointer]:
+            - /url: /charities/mercy-for-animals
+            - generic [ref=e572]:
+              - img [ref=e574]
+              - generic "Verified" [ref=e578]:
+                - img [ref=e579]
+                - text: Verified
+            - generic [ref=e581]:
+              - generic [ref=e582]:
+                - generic [ref=e583]:
+                  - img "Mercy For Animals"
+                - heading "Mercy For Animals" [level=3] [ref=e584]
+              - paragraph [ref=e585]: Farm-animal protection through undercover investigations + corporate-policy campaigns.
+              - paragraph [ref=e586]: United States·farm-animal-welfare·$22M
+          - link "Michael J. Fox Foundation for Parkinson's Research" [ref=e587] [cursor=pointer]:
+            - /url: /charities/michael-j-fox-foundation
+            - generic "Verified" [ref=e589]:
+              - img [ref=e590]
+              - text: Verified
+            - generic [ref=e592]:
+              - generic [ref=e593]:
+                - generic [ref=e594]:
+                  - img "Michael J. Fox Foundation for Parkinson's Research"
+                - heading "Michael J. Fox Foundation for Parkinson's Research" [level=3] [ref=e595]
+              - paragraph [ref=e596]: World's largest non-profit funder of Parkinson's research — focused on a cure.
+              - paragraph [ref=e597]: United States·parkinsons·$145M
+          - link "Mozilla Foundation" [ref=e598] [cursor=pointer]:
+            - /url: /charities/mozilla-foundation
+            - generic "Verified" [ref=e600]:
+              - img [ref=e601]
+              - text: Verified
+            - generic [ref=e603]:
+              - generic [ref=e604]:
+                - generic [ref=e605]:
+                  - img "Mozilla Foundation"
+                - heading "Mozilla Foundation" [level=3] [ref=e606]
+              - paragraph [ref=e607]: Non-profit owner of Mozilla Corporation (Firefox) — funds internet-health work and open-source.
+              - paragraph [ref=e608]: United States·internet-freedom·$35M
+          - link "Médecins Sans Frontières Canada" [ref=e609] [cursor=pointer]:
+            - /url: /charities/msf-canada
+            - generic "Verified" [ref=e611]:
+              - img [ref=e612]
+              - text: Verified
+            - generic [ref=e614]:
+              - generic [ref=e615]:
+                - generic [ref=e616]:
+                  - img "Médecins Sans Frontières Canada"
+                - heading "Médecins Sans Frontières Canada" [level=3] [ref=e617]
+              - paragraph [ref=e618]: Canadian section of MSF — emergency medical humanitarian work in conflict zones globally.
+              - paragraph [ref=e619]: Canada·humanitarian-medicine·$110M
+          - link "National Multiple Sclerosis Society" [ref=e620] [cursor=pointer]:
+            - /url: /charities/national-ms-society
+            - generic [ref=e621]:
+              - img [ref=e623]
+              - generic "Verified" [ref=e627]:
+                - img [ref=e628]
+                - text: Verified
+            - generic [ref=e630]:
+              - generic [ref=e631]:
+                - generic [ref=e632]:
+                  - img "National Multiple Sclerosis Society"
+                - heading "National Multiple Sclerosis Society" [level=3] [ref=e633]
+              - paragraph [ref=e634]: Largest US MS charity — research funding, advocacy, MS Navigator support.
+              - paragraph [ref=e635]: United States·multiple-sclerosis·$240M
+          - link "Older Adults Technology Services (OATS)" [ref=e636] [cursor=pointer]:
+            - /url: /charities/oats-tech
+            - generic [ref=e637]:
+              - img [ref=e639]
+              - generic "Verified" [ref=e643]:
+                - img [ref=e644]
+                - text: Verified
+            - generic [ref=e646]:
+              - generic [ref=e647]:
+                - generic [ref=e648]:
+                  - img "Older Adults Technology Services (OATS)"
+                - heading "Older Adults Technology Services (OATS)" [level=3] [ref=e649]
+              - paragraph [ref=e650]: Trains older adults in digital skills via Senior Planet community tech centers.
+              - paragraph [ref=e651]: United States·elderly-care·$11M
+          - link "One Tree Planted" [ref=e652] [cursor=pointer]:
+            - /url: /charities/one-tree-planted
+            - generic "Verified" [ref=e654]:
+              - img [ref=e655]
+              - text: Verified
+            - generic [ref=e657]:
+              - generic [ref=e658]:
+                - generic [ref=e659]:
+                  - img "One Tree Planted"
+                - heading "One Tree Planted" [level=3] [ref=e660]
+              - paragraph [ref=e661]: Plants trees worldwide — $1 plants 1 tree, partners with local reforestation orgs in 80+ countries.
+              - paragraph [ref=e662]: United States·reforestation·$50M
+          - link "Pheasants Forever and Quail Forever" [ref=e663] [cursor=pointer]:
+            - /url: /charities/pheasants-forever
+            - generic [ref=e664]:
+              - img [ref=e666]
+              - generic "Verified" [ref=e670]:
+                - img [ref=e671]
+                - text: Verified
+            - generic [ref=e673]:
+              - generic [ref=e674]:
+                - generic [ref=e675]:
+                  - img "Pheasants Forever and Quail Forever"
+                - heading "Pheasants Forever and Quail Forever" [level=3] [ref=e676]
+              - paragraph [ref=e677]: US upland-game-bird and habitat conservation — chapter-based volunteer model; ~290 chapters.
+              - paragraph [ref=e678]: United States·wildlife-conservation·$145M
+          - link "Ploughshares Fund" [ref=e679] [cursor=pointer]:
+            - /url: /charities/ploughshares-fund
+            - generic "Verified" [ref=e681]:
+              - img [ref=e682]
+              - text: Verified
+            - generic [ref=e684]:
+              - generic [ref=e685]:
+                - generic [ref=e686]:
+                  - img "Ploughshares Fund"
+                - heading "Ploughshares Fund" [level=3] [ref=e687]
+              - paragraph [ref=e688]: Public foundation funding nuclear-weapons-elimination grants since 1981.
+              - paragraph [ref=e689]: United States·peace-disarmament·$12M
+          - link "Polaris Project" [ref=e690] [cursor=pointer]:
+            - /url: /charities/polaris-project
+            - generic "Verified" [ref=e692]:
+              - img [ref=e693]
+              - text: Verified
+            - generic [ref=e695]:
+              - generic [ref=e696]:
+                - generic [ref=e697]:
+                  - img "Polaris Project"
+                - heading "Polaris Project" [level=3] [ref=e698]
+              - paragraph [ref=e699]: Operates the US National Human Trafficking Hotline + research on trafficking patterns.
+              - paragraph [ref=e700]: United States·anti-trafficking·$12M
+          - link "Ronald McDonald House Charities Canada" [ref=e701] [cursor=pointer]:
+            - /url: /charities/ronald-mcdonald-canada
+            - generic [ref=e702]:
+              - img [ref=e704]
+              - generic "Verified" [ref=e708]:
+                - img [ref=e709]
+                - text: Verified
+            - generic [ref=e711]:
+              - generic [ref=e712]:
+                - generic [ref=e713]:
+                  - img "Ronald McDonald House Charities Canada"
+                - heading "Ronald McDonald House Charities Canada" [level=3] [ref=e714]
+              - paragraph [ref=e715]: Provides housing for families of seriously-ill children near hospitals across Canada.
+              - paragraph [ref=e716]: Canada·child-welfare·$30M
+          - link "Shriners Hospitals for Children" [ref=e717] [cursor=pointer]:
+            - /url: /charities/shriners-hospitals
+            - generic [ref=e718]:
+              - img [ref=e720]
+              - generic "Verified" [ref=e724]:
+                - img [ref=e725]
+                - text: Verified
+            - generic [ref=e727]:
+              - generic [ref=e728]:
+                - generic [ref=e729]:
+                  - img "Shriners Hospitals for Children"
+                - heading "Shriners Hospitals for Children" [level=3] [ref=e730]
+              - paragraph [ref=e731]: Pediatric specialty care network — orthopedics, burns, spinal cord, cleft lip/palate. No family billed.
+              - paragraph [ref=e732]: United States·child-welfare·$1.1B
+          - link "Stop Soldier Suicide" [ref=e733] [cursor=pointer]:
+            - /url: /charities/stop-soldier-suicide
+            - generic "Verified" [ref=e735]:
+              - img [ref=e736]
+              - text: Verified
+            - generic [ref=e738]:
+              - generic [ref=e739]:
+                - generic [ref=e740]:
+                  - img "Stop Soldier Suicide"
+                - heading "Stop Soldier Suicide" [level=3] [ref=e741]
+              - paragraph [ref=e742]: Veteran-founded nonprofit providing case management for at-risk veterans and active-duty military.
+              - paragraph [ref=e743]: United States·veterans·$13M
+          - link "Team Rubicon" [ref=e744] [cursor=pointer]:
+            - /url: /charities/team-rubicon
+            - generic "Verified" [ref=e746]:
+              - img [ref=e747]
+              - text: Verified
+            - generic [ref=e749]:
+              - generic [ref=e750]:
+                - generic [ref=e751]:
+                  - img "Team Rubicon"
+                - heading "Team Rubicon" [level=3] [ref=e752]
+              - paragraph [ref=e753]: Veteran-led US disaster-response NGO — deploys to disasters domestically + globally.
+              - paragraph [ref=e754]: United States·disaster-relief·$70M
+          - link "Trees for the Future" [ref=e755] [cursor=pointer]:
+            - /url: /charities/trees-for-the-future
+            - generic [ref=e756]:
+              - img [ref=e758]
+              - generic "Verified" [ref=e762]:
+                - img [ref=e763]
+                - text: Verified
+            - generic [ref=e765]:
+              - generic [ref=e766]:
+                - generic [ref=e767]:
+                  - img "Trees for the Future"
+                - heading "Trees for the Future" [level=3] [ref=e768]
+              - paragraph [ref=e769]: Forest Garden agroforestry programme — trains farmers in sub-Saharan Africa.
+              - paragraph [ref=e770]: United States·reforestation·$18M
+          - link "Tunnel to Towers Foundation" [ref=e771] [cursor=pointer]:
+            - /url: /charities/tunnel-to-towers
+            - generic "Verified" [ref=e773]:
+              - img [ref=e774]
+              - text: Verified
+            - generic [ref=e776]:
+              - generic [ref=e777]:
+                - generic [ref=e778]:
+                  - img "Tunnel to Towers Foundation"
+                - heading "Tunnel to Towers Foundation" [level=3] [ref=e779]
+              - paragraph [ref=e780]: Pays off mortgages for fallen first-responder & catastrophically-injured veteran families.
+              - paragraph [ref=e781]: United States·veterans·$300M
+          - link "UNICEF Canada" [ref=e782] [cursor=pointer]:
+            - /url: /charities/unicef-canada
+            - generic "Verified" [ref=e784]:
+              - img [ref=e785]
+              - text: Verified
+            - generic [ref=e787]:
+              - generic [ref=e788]:
+                - generic [ref=e789]:
+                  - img "UNICEF Canada"
+                - heading "UNICEF Canada" [level=3] [ref=e790]
+              - paragraph [ref=e791]: Canadian National Committee for UNICEF — funds global UNICEF programmes.
+              - paragraph [ref=e792]: Canada·child-welfare·$65M
+          - link "Crisis" [ref=e793] [cursor=pointer]:
+            - /url: /charities/crisis-uk
+            - generic "Verified" [ref=e795]:
+              - img [ref=e796]
+              - text: Verified
+            - generic [ref=e798]:
+              - generic [ref=e799]:
+                - generic [ref=e800]:
+                  - img "Crisis"
+                - heading "Crisis" [level=3] [ref=e801]
+              - paragraph [ref=e802]: UK national charity ending homelessness
+              - paragraph [ref=e803]: United Kingdom·homelessness·$65.3M
+          - link "Founders Pledge" [ref=e804] [cursor=pointer]:
+            - /url: /charities/founders-pledge
+            - generic "Verified" [ref=e806]:
+              - img [ref=e807]
+              - text: Verified
+            - generic [ref=e809]:
+              - generic [ref=e810]:
+                - generic [ref=e811]:
+                  - img "Founders Pledge"
+                - heading "Founders Pledge" [level=3] [ref=e812]
+              - paragraph [ref=e813]: Helps founders pledge a share of exits to effective causes
+              - paragraph [ref=e814]: United States·effective-altruism·$35M
+          - link "The Nature Conservancy" [ref=e815] [cursor=pointer]:
+            - /url: /charities/the-nature-conservancy
+            - generic "Verified" [ref=e817]:
+              - img [ref=e818]
+              - text: Verified
+            - generic [ref=e820]:
+              - generic [ref=e821]:
+                - generic [ref=e822]:
+                  - img "The Nature Conservancy"
+                - heading "The Nature Conservancy" [level=3] [ref=e823]
+              - paragraph [ref=e824]: Protects ecologically important lands and waters globally
+              - paragraph [ref=e825]: United States·conservation·$1.4B
+          - link "Watsi" [ref=e826] [cursor=pointer]:
+            - /url: /charities/watsi
+            - generic "Verified" [ref=e828]:
+              - img [ref=e829]
+              - text: Verified
+            - generic [ref=e831]:
+              - generic [ref=e832]:
+                - generic [ref=e833]:
+                  - img "Watsi"
+                - heading "Watsi" [level=3] [ref=e834]
+              - paragraph [ref=e835]: Crowdfunds individual medical care for people worldwide
+              - paragraph [ref=e836]: United States·global-health·$3.5M
+          - link "AARP Foundation" [ref=e837] [cursor=pointer]:
+            - /url: /charities/aarp-foundation
+            - generic "Verified" [ref=e839]:
+              - img [ref=e840]
+              - text: Verified
+            - generic [ref=e842]:
+              - generic [ref=e843]:
+                - generic [ref=e844]:
+                  - img "AARP Foundation"
+                - heading "AARP Foundation" [level=3] [ref=e845]
+              - paragraph [ref=e846]: Charitable affiliate of AARP — advocates for low-income older adults
+              - paragraph [ref=e847]: United States·senior-care·$85M
+          - link "Action Against Hunger USA" [ref=e848] [cursor=pointer]:
+            - /url: /charities/action-against-hunger-usa
+            - generic "Verified" [ref=e850]:
+              - img [ref=e851]
+              - text: Verified
+            - generic [ref=e853]:
+              - generic [ref=e854]:
+                - generic [ref=e855]:
+                  - img "Action Against Hunger USA"
+                - heading "Action Against Hunger USA" [level=3] [ref=e856]
+              - paragraph [ref=e857]: Lifesaving treatment for severe acute malnutrition in 50+ countries
+              - paragraph [ref=e858]: United States·hunger·$50M
+          - link "American Foundation for Suicide Prevention" [ref=e859] [cursor=pointer]:
+            - /url: /charities/afsp
+            - generic "Verified" [ref=e861]:
+              - img [ref=e862]
+              - text: Verified
+            - generic [ref=e864]:
+              - generic [ref=e865]:
+                - generic [ref=e866]:
+                  - img "American Foundation for Suicide Prevention"
+                - heading "American Foundation for Suicide Prevention" [level=3] [ref=e867]
+              - paragraph [ref=e868]: Saves lives by funding suicide-prevention research and supporting those affected
+              - paragraph [ref=e869]: United States·mental-health·$44M
+          - link "The ALS Association" [ref=e870] [cursor=pointer]:
+            - /url: /charities/als-association
+            - generic [ref=e871]:
+              - img [ref=e873]
+              - generic "Verified" [ref=e877]:
+                - img [ref=e878]
+                - text: Verified
+            - generic [ref=e880]:
+              - generic [ref=e881]:
+                - generic [ref=e882]:
+                  - img "The ALS Association"
+                - heading "The ALS Association" [level=3] [ref=e883]
+              - paragraph [ref=e884]: Care services and research toward a cure for ALS
+              - paragraph [ref=e885]: United States·neurology·$33M
+          - link "Alzheimer's Association" [ref=e886] [cursor=pointer]:
+            - /url: /charities/alzheimers-association
+            - generic "Verified" [ref=e888]:
+              - img [ref=e889]
+              - text: Verified
+            - generic [ref=e891]:
+              - generic [ref=e892]:
+                - generic [ref=e893]:
+                  - img "Alzheimer's Association"
+                - heading "Alzheimer's Association" [level=3] [ref=e894]
+              - paragraph [ref=e895]: Leading US voluntary health organisation in Alzheimer's care and research
+              - paragraph [ref=e896]: United States·neurology·$440M
+          - link "American Cancer Society" [ref=e897] [cursor=pointer]:
+            - /url: /charities/american-cancer-society
+            - generic "Verified" [ref=e899]:
+              - img [ref=e900]
+              - text: Verified
+            - generic [ref=e902]:
+              - generic [ref=e903]:
+                - generic [ref=e904]:
+                  - img "American Cancer Society"
+                - heading "American Cancer Society" [level=3] [ref=e905]
+              - paragraph [ref=e906]: Largest non-government cancer-research funder in the US
+              - paragraph [ref=e907]: United States·cancer-research·$830M
+          - link "American Diabetes Association" [ref=e908] [cursor=pointer]:
+            - /url: /charities/american-diabetes-association
+            - generic [ref=e909]:
+              - img [ref=e911]
+              - generic "Verified" [ref=e915]:
+                - img [ref=e916]
+                - text: Verified
+            - generic [ref=e918]:
+              - generic [ref=e919]:
+                - generic [ref=e920]:
+                  - img "American Diabetes Association"
+                - heading "American Diabetes Association" [level=3] [ref=e921]
+              - paragraph [ref=e922]: Research, advocacy and care for the 38M+ Americans living with diabetes
+              - paragraph [ref=e923]: United States·diabetes·$150M
+          - link "American Heart Association" [ref=e924] [cursor=pointer]:
+            - /url: /charities/american-heart-association
+            - generic "Verified" [ref=e926]:
+              - img [ref=e927]
+              - text: Verified
+            - generic [ref=e929]:
+              - generic [ref=e930]:
+                - generic [ref=e931]:
+                  - img "American Heart Association"
+                - heading "American Heart Association" [level=3] [ref=e932]
+              - paragraph [ref=e933]: Fights heart disease and stroke through research and prevention
+              - paragraph [ref=e934]: United States·heart-disease·$950M
+          - link "American Rivers" [ref=e935] [cursor=pointer]:
+            - /url: /charities/american-rivers
+            - generic "Verified" [ref=e937]:
+              - img [ref=e938]
+              - text: Verified
+            - generic [ref=e940]:
+              - generic [ref=e941]:
+                - generic [ref=e942]:
+                  - img "American Rivers"
+                - heading "American Rivers" [level=3] [ref=e943]
+              - paragraph [ref=e944]: Champions free-flowing rivers and clean water across the US
+              - paragraph [ref=e945]: United States·rivers·$30M
+          - link "Brain & Behavior Research Foundation" [ref=e946] [cursor=pointer]:
+            - /url: /charities/bbrf
+            - generic [ref=e947]:
+              - img [ref=e949]
+              - generic "Verified" [ref=e953]:
+                - img [ref=e954]
+                - text: Verified
+            - generic [ref=e956]:
+              - generic [ref=e957]:
+                - generic [ref=e958]:
+                  - img "Brain & Behavior Research Foundation"
+                - heading "Brain & Behavior Research Foundation" [level=3] [ref=e959]
+              - paragraph [ref=e960]: Funds psychiatric research grants — 100% of donations to grants
+              - paragraph [ref=e961]: United States·mental-health·$36M
+          - link "BRAC USA" [ref=e962] [cursor=pointer]:
+            - /url: /charities/brac-usa
+            - generic "Verified" [ref=e964]:
+              - img [ref=e965]
+              - text: Verified
+            - generic [ref=e967]:
+              - generic [ref=e968]:
+                - generic [ref=e969]:
+                  - img "BRAC USA"
+                - heading "BRAC USA" [level=3] [ref=e970]
+              - paragraph [ref=e971]: US affiliate of BRAC — world's largest NGO
+              - paragraph [ref=e972]: United States·poverty-reduction·$44.8M
+          - link "Catholic Relief Services" [ref=e973] [cursor=pointer]:
+            - /url: /charities/catholic-relief-services
+            - generic [ref=e974]:
+              - img [ref=e976]
+              - generic "Verified" [ref=e980]:
+                - img [ref=e981]
+                - text: Verified
+            - generic [ref=e983]:
+              - generic [ref=e984]:
+                - generic [ref=e985]:
+                  - img "Catholic Relief Services"
+                - heading "Catholic Relief Services" [level=3] [ref=e986]
+              - paragraph [ref=e987]: International humanitarian agency of the US Catholic Bishops
+              - paragraph [ref=e988]: United States·faith-based·$1.1B
+          - link "City Harvest" [ref=e989] [cursor=pointer]:
+            - /url: /charities/city-harvest
+            - generic "Verified" [ref=e991]:
+              - img [ref=e992]
+              - text: Verified
+            - generic [ref=e994]:
+              - generic [ref=e995]:
+                - generic [ref=e996]:
+                  - img "City Harvest"
+                - heading "City Harvest" [level=3] [ref=e997]
+              - paragraph [ref=e998]: New York City's largest food rescue organisation
+              - paragraph [ref=e999]: United States·hunger·$150M
+          - link "City Year" [ref=e1000] [cursor=pointer]:
+            - /url: /charities/city-year
+            - generic [ref=e1001]:
+              - img [ref=e1003]
+              - generic "Verified" [ref=e1007]:
+                - img [ref=e1008]
+                - text: Verified
+            - generic [ref=e1010]:
+              - generic [ref=e1011]:
+                - generic [ref=e1012]:
+                  - img "City Year"
+                - heading "City Year" [level=3] [ref=e1013]
+              - paragraph [ref=e1014]: AmeriCorps tutors and mentors in high-need US public schools
+              - paragraph [ref=e1015]: United States·education·$180M
+          - link "ClimateWorks Foundation" [ref=e1016] [cursor=pointer]:
+            - /url: /charities/climateworks-foundation
+            - generic "Verified" [ref=e1018]:
+              - img [ref=e1019]
+              - text: Verified
+            - generic [ref=e1021]:
+              - generic [ref=e1022]:
+                - generic [ref=e1023]:
+                  - img "ClimateWorks Foundation"
+                - heading "ClimateWorks Foundation" [level=3] [ref=e1024]
+              - paragraph [ref=e1025]: Re-grants climate philanthropy to high-leverage strategies
+              - paragraph [ref=e1026]: United States·climate·$420M
+          - link "Catholic Medical Mission Board" [ref=e1027] [cursor=pointer]:
+            - /url: /charities/cmmb
+            - generic "Verified" [ref=e1029]:
+              - img [ref=e1030]
+              - text: Verified
+            - generic [ref=e1032]:
+              - generic [ref=e1033]:
+                - generic [ref=e1034]:
+                  - img "Catholic Medical Mission Board"
+                - heading "Catholic Medical Mission Board" [level=3] [ref=e1035]
+              - paragraph [ref=e1036]: Faith-based 501(c)(3) delivering healthcare and medical aid to vulnerable communities
+              - paragraph [ref=e1037]: United States·global-health·$400M
+          - link "Communities In Schools" [ref=e1038] [cursor=pointer]:
+            - /url: /charities/communities-in-schools
+            - generic "Verified" [ref=e1040]:
+              - img [ref=e1041]
+              - text: Verified
+            - generic [ref=e1043]:
+              - generic [ref=e1044]:
+                - generic [ref=e1045]:
+                  - img "Communities In Schools"
+                - heading "Communities In Schools" [level=3] [ref=e1046]
+              - paragraph [ref=e1047]: Largest US dropout-prevention organisation
+              - paragraph [ref=e1048]: United States·education·$47M
+          - link "Enterprise Community Partners" [ref=e1049] [cursor=pointer]:
+            - /url: /charities/enterprise-community-partners
+            - generic [ref=e1050]:
+              - img [ref=e1052]
+              - generic "Verified" [ref=e1056]:
+                - img [ref=e1057]
+                - text: Verified
+            - generic [ref=e1059]:
+              - generic [ref=e1060]:
+                - generic [ref=e1061]:
+                  - img "Enterprise Community Partners"
+                - heading "Enterprise Community Partners" [level=3] [ref=e1062]
+              - paragraph [ref=e1063]: Builds and preserves affordable homes; invests in low-income communities
+              - paragraph [ref=e1064]: United States·housing·$650M
+          - link "Feeding America" [ref=e1065] [cursor=pointer]:
+            - /url: /charities/feeding-america
+            - generic [ref=e1066]:
+              - img [ref=e1068]
+              - generic "Verified" [ref=e1072]:
+                - img [ref=e1073]
+                - text: Verified
+            - generic [ref=e1075]:
+              - generic [ref=e1076]:
+                - generic [ref=e1077]:
+                  - img "Feeding America"
+                - heading "Feeding America" [level=3] [ref=e1078]
+              - paragraph [ref=e1079]: Largest US hunger-relief organisation — 200+ food banks nationwide
+              - paragraph [ref=e1080]: United States·hunger·$4.2B
+          - link "Greater Good Charities" [ref=e1081] [cursor=pointer]:
+            - /url: /charities/greater-good-charities
+            - generic "Verified" [ref=e1083]:
+              - img [ref=e1084]
+              - text: Verified
+            - generic [ref=e1086]:
+              - generic [ref=e1087]:
+                - generic [ref=e1088]:
+                  - img "Greater Good Charities"
+                - heading "Greater Good Charities" [level=3] [ref=e1089]
+              - paragraph [ref=e1090]: Funds animal-welfare and humanitarian projects worldwide
+              - paragraph [ref=e1091]: United States·animal-welfare·$120M
+          - link "HIAS" [ref=e1092] [cursor=pointer]:
+            - /url: /charities/hias
+            - generic "Verified" [ref=e1094]:
+              - img [ref=e1095]
+              - text: Verified
+            - generic [ref=e1097]:
+              - generic [ref=e1098]:
+                - generic [ref=e1099]:
+                  - img "HIAS"
+                - heading "HIAS" [level=3] [ref=e1100]
+              - paragraph [ref=e1101]: Jewish humanitarian agency providing protection to refugees worldwide
+              - paragraph [ref=e1102]: United States·refugees·$100M
+          - link "JDRF (Breakthrough T1D)" [ref=e1103] [cursor=pointer]:
+            - /url: /charities/jdrf
+            - generic "Verified" [ref=e1105]:
+              - img [ref=e1106]
+              - text: Verified
+            - generic [ref=e1108]:
+              - generic [ref=e1109]:
+                - generic [ref=e1110]:
+                  - img "JDRF (Breakthrough T1D)"
+                - heading "JDRF (Breakthrough T1D)" [level=3] [ref=e1111]
+              - paragraph [ref=e1112]: World's largest funder of type 1 diabetes research
+              - paragraph [ref=e1113]: United States·diabetes·$210M
+          - link "KIPP Foundation" [ref=e1114] [cursor=pointer]:
+            - /url: /charities/kipp-foundation
+            - generic "Verified" [ref=e1116]:
+              - img [ref=e1117]
+              - text: Verified
+            - generic [ref=e1119]:
+              - generic [ref=e1120]:
+                - generic [ref=e1121]:
+                  - img "KIPP Foundation"
+                - heading "KIPP Foundation" [level=3] [ref=e1122]
+              - paragraph [ref=e1123]: National network of 280+ public charter schools
+              - paragraph [ref=e1124]: United States·education·$55M
+          - link "Kiva" [ref=e1125] [cursor=pointer]:
+            - /url: /charities/kiva
+            - generic "Verified" [ref=e1127]:
+              - img [ref=e1128]
+              - text: Verified
+            - generic [ref=e1130]:
+              - generic [ref=e1131]:
+                - generic [ref=e1132]:
+                  - img "Kiva"
+                - heading "Kiva" [level=3] [ref=e1133]
+              - paragraph [ref=e1134]: Crowdfunded microloans to entrepreneurs in 80+ countries
+              - paragraph [ref=e1135]: United States·microfinance·$30M
+          - link "Last Mile Health" [ref=e1136] [cursor=pointer]:
+            - /url: /charities/last-mile-health
+            - generic "Verified" [ref=e1138]:
+              - img [ref=e1139]
+              - text: Verified
+            - generic [ref=e1141]:
+              - generic [ref=e1142]:
+                - generic [ref=e1143]:
+                  - img "Last Mile Health"
+                - heading "Last Mile Health" [level=3] [ref=e1144]
+              - paragraph [ref=e1145]: Trains community health workers in rural Liberia and beyond
+              - paragraph [ref=e1146]: United States·global-health·$48M
+          - link "League of Conservation Voters Education Fund" [ref=e1147] [cursor=pointer]:
+            - /url: /charities/lcv-education-fund
+            - generic "Verified" [ref=e1149]:
+              - img [ref=e1150]
+              - text: Verified
+            - generic [ref=e1152]:
+              - generic [ref=e1153]:
+                - generic [ref=e1154]:
+                  - img "League of Conservation Voters Education Fund"
+                - heading "League of Conservation Voters Education Fund" [level=3] [ref=e1155]
+              - paragraph [ref=e1156]: Civic education on environmental policy and voting records
+              - paragraph [ref=e1157]: United States·climate-policy·$28M
+          - link "Meals on Wheels America" [ref=e1158] [cursor=pointer]:
+            - /url: /charities/meals-on-wheels-america
+            - generic "Verified" [ref=e1160]:
+              - img [ref=e1161]
+              - text: Verified
+            - generic [ref=e1163]:
+              - generic [ref=e1164]:
+                - generic [ref=e1165]:
+                  - img "Meals on Wheels America"
+                - heading "Meals on Wheels America" [level=3] [ref=e1166]
+              - paragraph [ref=e1167]: Federation of 5,000+ local programmes delivering meals to homebound seniors
+              - paragraph [ref=e1168]: United States·hunger·$23M
+          - link "NeighborWorks America" [ref=e1169] [cursor=pointer]:
+            - /url: /charities/neighborworks-america
+            - generic [ref=e1170]:
+              - img [ref=e1172]
+              - generic "Verified" [ref=e1176]:
+                - img [ref=e1177]
+                - text: Verified
+            - generic [ref=e1179]:
+              - generic [ref=e1180]:
+                - generic [ref=e1181]:
+                  - img "NeighborWorks America"
+                - heading "NeighborWorks America" [level=3] [ref=e1182]
+              - paragraph [ref=e1183]: Federally chartered nonprofit supporting 250+ community-development orgs
+              - paragraph [ref=e1184]: United States·housing·$300M
+          - link "North Shore Animal League America" [ref=e1185] [cursor=pointer]:
+            - /url: /charities/north-shore-animal-league
+            - generic "Verified" [ref=e1187]:
+              - img [ref=e1188]
+              - text: Verified
+            - generic [ref=e1190]:
+              - generic [ref=e1191]:
+                - generic [ref=e1192]:
+                  - img "North Shore Animal League America"
+                - heading "North Shore Animal League America" [level=3] [ref=e1193]
+              - paragraph [ref=e1194]: World's largest no-kill animal rescue and adoption organisation
+              - paragraph [ref=e1195]: United States·animal-welfare·$55M
+          - link "One Acre Fund" [ref=e1196] [cursor=pointer]:
+            - /url: /charities/one-acre-fund
+            - generic "Verified" [ref=e1198]:
+              - img [ref=e1199]
+              - text: Verified
+            - generic [ref=e1201]:
+              - generic [ref=e1202]:
+                - generic [ref=e1203]:
+                  - img "One Acre Fund"
+                - heading "One Acre Fund" [level=3] [ref=e1204]
+              - paragraph [ref=e1205]: Bundles seed, training and finance for African smallholders
+              - paragraph [ref=e1206]: United States·poverty-reduction·$220M
+          - link "Oxfam America" [ref=e1207] [cursor=pointer]:
+            - /url: /charities/oxfam-america
+            - generic "Verified" [ref=e1209]:
+              - img [ref=e1210]
+              - text: Verified
+            - generic [ref=e1212]:
+              - generic [ref=e1213]:
+                - generic [ref=e1214]:
+                  - img "Oxfam America"
+                - heading "Oxfam America" [level=3] [ref=e1215]
+              - paragraph [ref=e1216]: US 501(c)(3) of the Oxfam confederation — fights global poverty and inequality
+              - paragraph [ref=e1217]: United States·poverty-reduction·$105M
+          - link "The Pew Charitable Trusts" [ref=e1218] [cursor=pointer]:
+            - /url: /charities/pew-charitable-trusts
+            - generic [ref=e1219]:
+              - img [ref=e1221]
+              - generic "Verified" [ref=e1225]:
+                - img [ref=e1226]
+                - text: Verified
+            - generic [ref=e1228]:
+              - generic [ref=e1229]:
+                - generic [ref=e1230]:
+                  - img "The Pew Charitable Trusts"
+                - heading "The Pew Charitable Trusts" [level=3] [ref=e1231]
+              - paragraph [ref=e1232]: Independent research and policy nonprofit on environment and beyond
+              - paragraph [ref=e1233]: United States·ocean-protection·$330M
+          - link "Reading Partners" [ref=e1234] [cursor=pointer]:
+            - /url: /charities/reading-partners
+            - generic [ref=e1235]:
+              - img [ref=e1237]
+              - generic "Verified" [ref=e1241]:
+                - img [ref=e1242]
+                - text: Verified
+            - generic [ref=e1244]:
+              - generic [ref=e1245]:
+                - generic [ref=e1246]:
+                  - img "Reading Partners"
+                - heading "Reading Partners" [level=3] [ref=e1247]
+              - paragraph [ref=e1248]: One-on-one tutoring to help K–4 students read at grade level
+              - paragraph [ref=e1249]: United States·education·$32M
+          - link "The Salvation Army National Corporation" [ref=e1250] [cursor=pointer]:
+            - /url: /charities/salvation-army-national
+            - generic "Verified" [ref=e1252]:
+              - img [ref=e1253]
+              - text: Verified
+            - generic [ref=e1255]:
+              - generic [ref=e1256]:
+                - generic [ref=e1257]:
+                  - img "The Salvation Army National Corporation"
+                - heading "The Salvation Army National Corporation" [level=3] [ref=e1258]
+              - paragraph [ref=e1259]: National HQ of the US-wide Salvation Army Christian charity
+              - paragraph [ref=e1260]: United States·faith-based·$260M
+          - link "Smile Train" [ref=e1261] [cursor=pointer]:
+            - /url: /charities/smile-train
+            - generic "Verified" [ref=e1263]:
+              - img [ref=e1264]
+              - text: Verified
+            - generic [ref=e1266]:
+              - generic [ref=e1267]:
+                - generic [ref=e1268]:
+                  - img "Smile Train"
+                - heading "Smile Train" [level=3] [ref=e1269]
+              - paragraph [ref=e1270]: Trains local surgeons to provide cleft care for children
+              - paragraph [ref=e1271]: United States·global-health·$180M
+          - link "Special Olympics" [ref=e1272] [cursor=pointer]:
+            - /url: /charities/special-olympics
+            - generic "Verified" [ref=e1274]:
+              - img [ref=e1275]
+              - text: Verified
+            - generic [ref=e1277]:
+              - generic [ref=e1278]:
+                - generic [ref=e1279]:
+                  - img "Special Olympics"
+                - heading "Special Olympics" [level=3] [ref=e1280]
+              - paragraph [ref=e1281]: Year-round sports training and competition for people with intellectual disabilities
+              - paragraph [ref=e1282]: United States·disability-services·$160M
+          - link "Susan G. Komen" [ref=e1283] [cursor=pointer]:
+            - /url: /charities/susan-g-komen
+            - generic [ref=e1284]:
+              - img [ref=e1286]
+              - generic "Verified" [ref=e1290]:
+                - img [ref=e1291]
+                - text: Verified
+            - generic [ref=e1293]:
+              - generic [ref=e1294]:
+                - generic [ref=e1295]:
+                  - img "Susan G. Komen"
+                - heading "Susan G. Komen" [level=3] [ref=e1296]
+              - paragraph [ref=e1297]: Funds breast-cancer research, screening and patient navigation
+              - paragraph [ref=e1298]: United States·cancer-research·$120M
+          - link "Teach For All" [ref=e1299] [cursor=pointer]:
+            - /url: /charities/teach-for-all
+            - generic "Verified" [ref=e1301]:
+              - img [ref=e1302]
+              - text: Verified
+            - generic [ref=e1304]:
+              - generic [ref=e1305]:
+                - generic [ref=e1306]:
+                  - img "Teach For All"
+                - heading "Teach For All" [level=3] [ref=e1307]
+              - paragraph [ref=e1308]: Global network of national Teach For X organisations in 60+ countries
+              - paragraph [ref=e1309]: United States·education·$78M
+          - link "The END Fund" [ref=e1310] [cursor=pointer]:
+            - /url: /charities/the-end-fund
+            - generic "Verified" [ref=e1312]:
+              - img [ref=e1313]
+              - text: Verified
+            - generic [ref=e1315]:
+              - generic [ref=e1316]:
+                - generic [ref=e1317]:
+                  - img "The END Fund"
+                - heading "The END Fund" [level=3] [ref=e1318]
+              - paragraph [ref=e1319]: Treats neglected tropical diseases at scale across Africa
+              - paragraph [ref=e1320]: United States·global-health·$103.2M
+          - link "Trout Unlimited" [ref=e1321] [cursor=pointer]:
+            - /url: /charities/trout-unlimited
+            - generic "Verified" [ref=e1323]:
+              - img [ref=e1324]
+              - text: Verified
+            - generic [ref=e1326]:
+              - generic [ref=e1327]:
+                - generic [ref=e1328]:
+                  - img "Trout Unlimited"
+                - heading "Trout Unlimited" [level=3] [ref=e1329]
+              - paragraph [ref=e1330]: Conserves cold-water fisheries and their watersheds
+              - paragraph [ref=e1331]: United States·rivers·$98M
+          - link "Vibrant Emotional Health (988 Lifeline)" [ref=e1332] [cursor=pointer]:
+            - /url: /charities/vibrant-emotional-health
+            - generic "Verified" [ref=e1334]:
+              - img [ref=e1335]
+              - text: Verified
+            - generic [ref=e1337]:
+              - generic [ref=e1338]:
+                - generic [ref=e1339]:
+                  - img "Vibrant Emotional Health (988 Lifeline)"
+                - heading "Vibrant Emotional Health (988 Lifeline)" [level=3] [ref=e1340]
+              - paragraph [ref=e1341]: Operates the 988 Suicide & Crisis Lifeline in the United States
+              - paragraph [ref=e1342]: United States·suicide-prevention·$550M
+          - link "VillageReach" [ref=e1343] [cursor=pointer]:
+            - /url: /charities/villagereach
+            - generic "Verified" [ref=e1345]:
+              - img [ref=e1346]
+              - text: Verified
+            - generic [ref=e1348]:
+              - generic [ref=e1349]:
+                - generic [ref=e1350]:
+                  - img "VillageReach"
+                - heading "VillageReach" [level=3] [ref=e1351]
+              - paragraph [ref=e1352]: Strengthens vaccine cold-chain and last-mile health logistics
+              - paragraph [ref=e1353]: United States·global-health·$32M
+          - link "World Animal Protection" [ref=e1354] [cursor=pointer]:
+            - /url: /charities/world-animal-protection
+            - generic "Verified" [ref=e1356]:
+              - img [ref=e1357]
+              - text: Verified
+            - generic [ref=e1359]:
+              - generic [ref=e1360]:
+                - generic [ref=e1361]:
+                  - img "World Animal Protection"
+                - heading "World Animal Protection" [level=3] [ref=e1362]
+              - paragraph [ref=e1363]: Global animal-welfare advocacy and disaster response
+              - paragraph [ref=e1364]: United States·animal-welfare·$12M
+          - link "World Central Kitchen" [ref=e1365] [cursor=pointer]:
+            - /url: /charities/world-central-kitchen
+            - generic "Verified" [ref=e1367]:
+              - img [ref=e1368]
+              - text: Verified
+            - generic [ref=e1370]:
+              - generic [ref=e1371]:
+                - generic [ref=e1372]:
+                  - img "World Central Kitchen"
+                - heading "World Central Kitchen" [level=3] [ref=e1373]
+              - paragraph [ref=e1374]: Chef-led emergency food relief in disaster and conflict zones
+              - paragraph [ref=e1375]: United States·hunger·$470M
+          - link "World Vision (US)" [ref=e1376] [cursor=pointer]:
+            - /url: /charities/world-vision-us
+            - generic "Verified" [ref=e1378]:
+              - img [ref=e1379]
+              - text: Verified
+            - generic [ref=e1381]:
+              - generic [ref=e1382]:
+                - generic [ref=e1383]:
+                  - img "World Vision (US)"
+                - heading "World Vision (US)" [level=3] [ref=e1384]
+              - paragraph [ref=e1385]: Christian humanitarian organisation working in nearly 100 countries
+              - paragraph [ref=e1386]: United States·faith-based·$1.3B
+          - link "Year Up United" [ref=e1387] [cursor=pointer]:
+            - /url: /charities/year-up
+            - generic [ref=e1388]:
+              - img [ref=e1390]
+              - generic "Verified" [ref=e1394]:
+                - img [ref=e1395]
+                - text: Verified
+            - generic [ref=e1397]:
+              - generic [ref=e1398]:
+                - generic [ref=e1399]:
+                  - img "Year Up United"
+                - heading "Year Up United" [level=3] [ref=e1400]
+              - paragraph [ref=e1401]: One-year skills training and internships for young adults
+              - paragraph [ref=e1402]: United States·education·$200M
+          - link "Project HOPE" [ref=e1403] [cursor=pointer]:
+            - /url: /charities/project-hope
+            - generic "Verified" [ref=e1405]:
+              - img [ref=e1406]
+              - text: Verified
+            - generic [ref=e1408]:
+              - generic [ref=e1409]:
+                - generic [ref=e1410]:
+                  - img "Project HOPE"
+                - heading "Project HOPE" [level=3] [ref=e1411]
+              - paragraph [ref=e1412]: Health-worker training and emergency medical aid worldwide
+              - paragraph [ref=e1413]: United States·global-health·$180M
+          - link "World Wildlife Fund (WWF-US)" [ref=e1414] [cursor=pointer]:
+            - /url: /charities/wwf-us
+            - generic "Verified" [ref=e1416]:
+              - img [ref=e1417]
+              - text: Verified
+            - generic [ref=e1419]:
+              - generic [ref=e1420]:
+                - generic [ref=e1421]:
+                  - img "World Wildlife Fund (WWF-US)"
+                - heading "World Wildlife Fund (WWF-US)" [level=3] [ref=e1422]
+              - paragraph [ref=e1423]: Conserves nature and reduces threats to biodiversity
+              - paragraph [ref=e1424]: United States·wildlife-conservation·$394.7M
+          - link "Compassion International" [ref=e1425] [cursor=pointer]:
+            - /url: /charities/compassion-international
+            - generic "Verified" [ref=e1427]:
+              - img [ref=e1428]
+              - text: Verified
+            - generic [ref=e1430]:
+              - generic [ref=e1431]:
+                - generic [ref=e1432]:
+                  - img "Compassion International"
+                - heading "Compassion International" [level=3] [ref=e1433]
+              - paragraph [ref=e1434]: Faith-based one-to-one child sponsorship in 25+ countries
+              - paragraph [ref=e1435]: United States·child-sponsorship·$1.1B
+          - link "350.org" [ref=e1436] [cursor=pointer]:
+            - /url: /charities/three-fifty-org
+            - generic "Verified" [ref=e1438]:
+              - img [ref=e1439]
+              - text: Verified
+            - generic [ref=e1441]:
+              - generic [ref=e1442]:
+                - generic [ref=e1443]:
+                  - img "350.org"
+                - heading "350.org" [level=3] [ref=e1444]
+              - paragraph [ref=e1445]: Builds a global grassroots climate movement
+              - paragraph [ref=e1446]: United States·climate·$19.8M
+          - link "Against Malaria Foundation" [ref=e1447] [cursor=pointer]:
+            - /url: /charities/against-malaria-foundation
+            - generic "Verified" [ref=e1449]:
+              - img [ref=e1450]
+              - text: Verified
+            - generic [ref=e1452]:
+              - generic [ref=e1453]:
+                - generic [ref=e1454]:
+                  - img "Against Malaria Foundation"
+                - heading "Against Malaria Foundation" [level=3] [ref=e1455]
+              - paragraph [ref=e1456]: Distributes long-lasting insecticidal nets in Africa
+              - paragraph [ref=e1457]: United Kingdom·global-health·$110.6M
+          - link "Cancer Research UK" [ref=e1458] [cursor=pointer]:
+            - /url: /charities/cancer-research-uk
+            - generic "Verified" [ref=e1460]:
+              - img [ref=e1461]
+              - text: Verified
+            - generic [ref=e1463]:
+              - generic [ref=e1464]:
+                - generic [ref=e1465]:
+                  - img "Cancer Research UK"
+                - heading "Cancer Research UK" [level=3] [ref=e1466]
+              - paragraph [ref=e1467]: World's largest independent cancer research charity
+              - paragraph [ref=e1468]: United Kingdom·cancer-research·$875M
+          - link "Macmillan Cancer Support" [ref=e1469] [cursor=pointer]:
+            - /url: /charities/macmillan-cancer-support
+            - generic "Verified" [ref=e1471]:
+              - img [ref=e1472]
+              - text: Verified
+            - generic [ref=e1474]:
+              - generic [ref=e1475]:
+                - generic [ref=e1476]:
+                  - img "Macmillan Cancer Support"
+                - heading "Macmillan Cancer Support" [level=3] [ref=e1477]
+              - paragraph [ref=e1478]: Practical, emotional and financial support for people living with cancer in the UK
+              - paragraph [ref=e1479]: United Kingdom·cancer-research·$315M
+          - link "Marie Curie" [ref=e1480] [cursor=pointer]:
+            - /url: /charities/marie-curie-uk
+            - generic "Verified" [ref=e1482]:
+              - img [ref=e1483]
+              - text: Verified
+            - generic [ref=e1485]:
+              - generic [ref=e1486]:
+                - generic [ref=e1487]:
+                  - img "Marie Curie"
+                - heading "Marie Curie" [level=3] [ref=e1488]
+              - paragraph [ref=e1489]: End-of-life care, hospice services and bereavement support across the UK
+              - paragraph [ref=e1490]: United Kingdom·hospice-palliative·$210M
+          - link "Mind" [ref=e1491] [cursor=pointer]:
+            - /url: /charities/mind-uk
+            - generic [ref=e1492]:
+              - img [ref=e1494]
+              - generic "Verified" [ref=e1498]:
+                - img [ref=e1499]
+                - text: Verified
+            - generic [ref=e1501]:
+              - generic [ref=e1502]:
+                - generic [ref=e1503]:
+                  - img "Mind"
+                - heading "Mind" [level=3] [ref=e1504]
+              - paragraph [ref=e1505]: UK's leading mental-health charity, supporting anyone with a mental health problem
+              - paragraph [ref=e1506]: United Kingdom·mental-health·$75M
+          - link "RSPCA (Royal Society for the Prevention of Cruelty to Animals)" [ref=e1507] [cursor=pointer]:
+            - /url: /charities/rspca
+            - generic "Verified" [ref=e1509]:
+              - img [ref=e1510]
+              - text: Verified
+            - generic [ref=e1512]:
+              - generic [ref=e1513]:
+                - generic [ref=e1514]:
+                  - img "RSPCA (Royal Society for the Prevention of Cruelty to Animals)"
+                - heading "RSPCA (Royal Society for the Prevention of Cruelty to Animals)" [level=3] [ref=e1515]
+              - paragraph [ref=e1516]: UK's oldest animal-welfare charity, founded 1824
+              - paragraph [ref=e1517]: United Kingdom·animal-welfare·$180M
+          - link "Samaritans" [ref=e1518] [cursor=pointer]:
+            - /url: /charities/samaritans-uk
+            - generic "Verified" [ref=e1520]:
+              - img [ref=e1521]
+              - text: Verified
+            - generic [ref=e1523]:
+              - generic [ref=e1524]:
+                - generic [ref=e1525]:
+                  - img "Samaritans"
+                - heading "Samaritans" [level=3] [ref=e1526]
+              - paragraph [ref=e1527]: 24/7 listening service for anyone in emotional distress, UK & Ireland
+              - paragraph [ref=e1528]: United Kingdom·mental-health·$32M
+          - link "Southern Poverty Law Center" [ref=e1529] [cursor=pointer]:
+            - /url: /charities/splc
+            - generic "Verified" [ref=e1531]:
+              - img [ref=e1532]
+              - text: Verified
+            - generic [ref=e1534]:
+              - generic [ref=e1535]:
+                - generic [ref=e1536]:
+                  - img "Southern Poverty Law Center"
+                - heading "Southern Poverty Law Center" [level=3] [ref=e1537]
+              - paragraph [ref=e1538]: US civil-rights org — anti-extremism research, hate-group tracking, impact litigation.
+              - paragraph [ref=e1539]: United States·race-equality·$150M
+          - link "Animal Welfare Institute" [ref=e1540] [cursor=pointer]:
+            - /url: /charities/animal-welfare-institute
+            - generic "Verified" [ref=e1542]:
+              - img [ref=e1543]
+              - text: Verified
+            - generic [ref=e1545]:
+              - generic [ref=e1546]:
+                - generic [ref=e1547]:
+                  - img "Animal Welfare Institute"
+                - heading "Animal Welfare Institute" [level=3] [ref=e1548]
+              - paragraph [ref=e1549]: Long-running US animal welfare science + policy org — humane farming standards, federal advocacy.
+              - paragraph [ref=e1550]: United States·animal-welfare·$9M
+          - link "Anthony Nolan" [ref=e1551] [cursor=pointer]:
+            - /url: /charities/anthony-nolan
+            - generic "Verified" [ref=e1553]:
+              - img [ref=e1554]
+              - text: Verified
+            - generic [ref=e1556]:
+              - generic [ref=e1557]:
+                - generic [ref=e1558]:
+                  - img "Anthony Nolan"
+                - heading "Anthony Nolan" [level=3] [ref=e1559]
+              - paragraph [ref=e1560]: Matches stem-cell donors with people in need of bone-marrow transplants
+              - paragraph [ref=e1561]: United Kingdom·blood-cancer·$65M
+          - link "Born Free Foundation" [ref=e1562] [cursor=pointer]:
+            - /url: /charities/born-free-foundation
+            - generic "Verified" [ref=e1564]:
+              - img [ref=e1565]
+              - text: Verified
+            - generic [ref=e1567]:
+              - generic [ref=e1568]:
+                - generic [ref=e1569]:
+                  - img "Born Free Foundation"
+                - heading "Born Free Foundation" [level=3] [ref=e1570]
+              - paragraph [ref=e1571]: Protects wild animals in their natural habitats
+              - paragraph [ref=e1572]: United Kingdom·wildlife-conservation·$8.4M
+          - link "Children's Tumor Foundation" [ref=e1573] [cursor=pointer]:
+            - /url: /charities/childrens-tumor-foundation
+            - generic "Verified" [ref=e1575]:
+              - img [ref=e1576]
+              - text: Verified
+            - generic [ref=e1578]:
+              - generic [ref=e1579]:
+                - generic [ref=e1580]:
+                  - img "Children's Tumor Foundation"
+                - heading "Children's Tumor Foundation" [level=3] [ref=e1581]
+              - paragraph [ref=e1582]: Funds neurofibromatosis (NF) research — venture-philanthropy model accelerating drug development.
+              - paragraph [ref=e1583]: United States·neurofibromatosis·$24M
+          - link "Cool Earth" [ref=e1584] [cursor=pointer]:
+            - /url: /charities/cool-earth
+            - generic "Verified" [ref=e1586]:
+              - img [ref=e1587]
+              - text: Verified
+            - generic [ref=e1589]:
+              - generic [ref=e1590]:
+                - generic [ref=e1591]:
+                  - img "Cool Earth"
+                - heading "Cool Earth" [level=3] [ref=e1592]
+              - paragraph [ref=e1593]: Indigenous-led protection of rainforest, by paying communities directly
+              - paragraph [ref=e1594]: United Kingdom·rainforest·$3.4M
+          - link "Earthwatch Institute" [ref=e1595] [cursor=pointer]:
+            - /url: /charities/earthwatch
+            - generic [ref=e1596]:
+              - img [ref=e1598]
+              - generic "Verified" [ref=e1602]:
+                - img [ref=e1603]
+                - text: Verified
+            - generic [ref=e1605]:
+              - generic [ref=e1606]:
+                - generic [ref=e1607]:
+                  - img "Earthwatch Institute"
+                - heading "Earthwatch Institute" [level=3] [ref=e1608]
+              - paragraph [ref=e1609]: Citizen-science-driven field conservation — volunteers join scientists on research expeditions worldwide.
+              - paragraph [ref=e1610]: United States·wildlife-conservation·$12M
+          - link "Futures Without Violence" [ref=e1611] [cursor=pointer]:
+            - /url: /charities/futures-without-violence
+            - generic [ref=e1612]:
+              - img [ref=e1614]
+              - generic "Verified" [ref=e1618]:
+                - img [ref=e1619]
+                - text: Verified
+            - generic [ref=e1621]:
+              - generic [ref=e1622]:
+                - generic [ref=e1623]:
+                  - img "Futures Without Violence"
+                - heading "Futures Without Violence" [level=3] [ref=e1624]
+              - paragraph [ref=e1625]: Health, justice and education programs to end gender-based violence in the US and globally.
+              - paragraph [ref=e1626]: United States·domestic-violence·$18M
+          - link "Help for Heroes" [ref=e1627] [cursor=pointer]:
+            - /url: /charities/help-for-heroes
+            - generic "Verified" [ref=e1629]:
+              - img [ref=e1630]
+              - text: Verified
+            - generic [ref=e1632]:
+              - generic [ref=e1633]:
+                - generic [ref=e1634]:
+                  - img "Help for Heroes"
+                - heading "Help for Heroes" [level=3] [ref=e1635]
+              - paragraph [ref=e1636]: UK veteran-services charity — recovery support for British wounded service personnel and their families.
+              - paragraph [ref=e1637]: United Kingdom·veterans·$28M
+          - link "Lutheran Immigration and Refugee Service (LIRS)" [ref=e1638] [cursor=pointer]:
+            - /url: /charities/lirs
+            - generic "Verified" [ref=e1640]:
+              - img [ref=e1641]
+              - text: Verified
+            - generic [ref=e1643]:
+              - generic [ref=e1644]:
+                - generic [ref=e1645]:
+                  - img "Lutheran Immigration and Refugee Service (LIRS)"
+                - heading "Lutheran Immigration and Refugee Service (LIRS)" [level=3] [ref=e1646]
+              - paragraph [ref=e1647]: US refugee resettlement, asylum legal services, and unaccompanied-minor case management.
+              - paragraph [ref=e1648]: United States·refugees·$80M
+          - link "National 4-H Council" [ref=e1649] [cursor=pointer]:
+            - /url: /charities/national-4-h-council
+            - generic "Verified" [ref=e1651]:
+              - img [ref=e1652]
+              - text: Verified
+            - generic [ref=e1654]:
+              - generic [ref=e1655]:
+                - generic [ref=e1656]:
+                  - img "National 4-H Council"
+                - heading "National 4-H Council" [level=3] [ref=e1657]
+              - paragraph [ref=e1658]: Largest US youth-development non-profit — STEM, healthy living, civic engagement.
+              - paragraph [ref=e1659]: United States·youth-development·$60M
+          - link "National Park Foundation" [ref=e1660] [cursor=pointer]:
+            - /url: /charities/national-park-foundation
+            - generic "Verified" [ref=e1662]:
+              - img [ref=e1663]
+              - text: Verified
+            - generic [ref=e1665]:
+              - generic [ref=e1666]:
+                - generic [ref=e1667]:
+                  - img "National Park Foundation"
+                - heading "National Park Foundation" [level=3] [ref=e1668]
+              - paragraph [ref=e1669]: Official US National Parks charity — funds park projects across all 400+ National Park sites.
+              - paragraph [ref=e1670]: United States·national-parks-us·$145M
+          - link "National Network to End Domestic Violence" [ref=e1671] [cursor=pointer]:
+            - /url: /charities/nnedv
+            - generic [ref=e1672]:
+              - img [ref=e1674]
+              - generic "Verified" [ref=e1678]:
+                - img [ref=e1679]
+                - text: Verified
+            - generic [ref=e1681]:
+              - generic [ref=e1682]:
+                - generic [ref=e1683]:
+                  - img "National Network to End Domestic Violence"
+                - heading "National Network to End Domestic Violence" [level=3] [ref=e1684]
+              - paragraph [ref=e1685]: Federation of US state DV coalitions — policy, technology safety, financial empowerment.
+              - paragraph [ref=e1686]: United States·domestic-violence·$16M
+          - link "Oxfam GB" [ref=e1687] [cursor=pointer]:
+            - /url: /charities/oxfam-gb
+            - generic "Verified" [ref=e1689]:
+              - img [ref=e1690]
+              - text: Verified
+            - generic [ref=e1692]:
+              - generic [ref=e1693]:
+                - generic [ref=e1694]:
+                  - img "Oxfam GB"
+                - heading "Oxfam GB" [level=3] [ref=e1695]
+              - paragraph [ref=e1696]: Tackles poverty in 70+ countries via aid and advocacy
+              - paragraph [ref=e1697]: United Kingdom·poverty-reduction·$459M
+          - link "Pacific Environment" [ref=e1698] [cursor=pointer]:
+            - /url: /charities/pacific-environment
+            - generic "Verified" [ref=e1700]:
+              - img [ref=e1701]
+              - text: Verified
+            - generic [ref=e1703]:
+              - generic [ref=e1704]:
+                - generic [ref=e1705]:
+                  - img "Pacific Environment"
+                - heading "Pacific Environment" [level=3] [ref=e1706]
+              - paragraph [ref=e1707]: US-based environmental advocacy on Pacific Rim — China, Russia, Arctic, shipping pollution.
+              - paragraph [ref=e1708]: United States·ocean-protection·$7.5M
+          - link "PFLAG" [ref=e1709] [cursor=pointer]:
+            - /url: /charities/pflag
+            - generic "Verified" [ref=e1711]:
+              - img [ref=e1712]
+              - text: Verified
+            - generic [ref=e1714]:
+              - generic [ref=e1715]:
+                - generic [ref=e1716]:
+                  - img "PFLAG"
+                - heading "PFLAG" [level=3] [ref=e1717]
+              - paragraph [ref=e1718]: Largest US org of LGBTQ+ people, parents, families and allies — local chapter network.
+              - paragraph [ref=e1719]: United States·lgbtq-youth·$7.5M
+          - link "Royal National Institute of Blind People (RNIB)" [ref=e1720] [cursor=pointer]:
+            - /url: /charities/rnib
+            - generic "Verified" [ref=e1722]:
+              - img [ref=e1723]
+              - text: Verified
+            - generic [ref=e1725]:
+              - generic [ref=e1726]:
+                - generic [ref=e1727]:
+                  - img "Royal National Institute of Blind People (RNIB)"
+                - heading "Royal National Institute of Blind People (RNIB)" [level=3] [ref=e1728]
+              - paragraph [ref=e1729]: UK's leading charity for blind and partially sighted people
+              - paragraph [ref=e1730]: United Kingdom·disability-services·$105M
+          - link "Sickle Cell Disease Association of America" [ref=e1731] [cursor=pointer]:
+            - /url: /charities/sickle-cell-disease-association
+            - generic [ref=e1732]:
+              - img [ref=e1734]
+              - generic "Verified" [ref=e1738]:
+                - img [ref=e1739]
+                - text: Verified
+            - generic [ref=e1741]:
+              - generic [ref=e1742]:
+                - generic [ref=e1743]:
+                  - img "Sickle Cell Disease Association of America"
+                - heading "Sickle Cell Disease Association of America" [level=3] [ref=e1744]
+              - paragraph [ref=e1745]: National federation supporting people with sickle cell disease — research, advocacy, education.
+              - paragraph [ref=e1746]: United States·sickle-cell·$5.5M
+          - link "Sightsavers" [ref=e1747] [cursor=pointer]:
+            - /url: /charities/sightsavers-uk
+            - generic "Verified" [ref=e1749]:
+              - img [ref=e1750]
+              - text: Verified
+            - generic [ref=e1752]:
+              - generic [ref=e1753]:
+                - generic [ref=e1754]:
+                  - img "Sightsavers"
+                - heading "Sightsavers" [level=3] [ref=e1755]
+              - paragraph [ref=e1756]: Prevents avoidable blindness in low-income countries
+              - paragraph [ref=e1757]: United Kingdom·global-health·$440M
+          - link "The Conservation Fund" [ref=e1758] [cursor=pointer]:
+            - /url: /charities/the-conservation-fund
+            - generic "Verified" [ref=e1760]:
+              - img [ref=e1761]
+              - text: Verified
+            - generic [ref=e1763]:
+              - generic [ref=e1764]:
+                - generic [ref=e1765]:
+                  - img "The Conservation Fund"
+                - heading "The Conservation Fund" [level=3] [ref=e1766]
+              - paragraph [ref=e1767]: Conservation-and-economic-development land-trust — protects working forests, farms, parks.
+              - paragraph [ref=e1768]: United States·conservation·$480M
+          - link "US Committee for Refugees and Immigrants (USCRI)" [ref=e1769] [cursor=pointer]:
+            - /url: /charities/uscri
+            - generic "Verified" [ref=e1771]:
+              - img [ref=e1772]
+              - text: Verified
+            - generic [ref=e1774]:
+              - generic [ref=e1775]:
+                - generic [ref=e1776]:
+                  - img "US Committee for Refugees and Immigrants (USCRI)"
+                - heading "US Committee for Refugees and Immigrants (USCRI)" [level=3] [ref=e1777]
+              - paragraph [ref=e1778]: Refugee resettlement + global advocacy via World Refugee Survey.
+              - paragraph [ref=e1779]: United States·refugees·$70M
+          - link "The Wilderness Society (US)" [ref=e1780] [cursor=pointer]:
+            - /url: /charities/wilderness-society-us
+            - generic "Verified" [ref=e1782]:
+              - img [ref=e1783]
+              - text: Verified
+            - generic [ref=e1785]:
+              - generic [ref=e1786]:
+                - generic [ref=e1787]:
+                  - img "The Wilderness Society (US)"
+                - heading "The Wilderness Society (US)" [level=3] [ref=e1788]
+              - paragraph [ref=e1789]: Protects US public wild lands — Wilderness Act of 1964 advocate, federal land-management policy.
+              - paragraph [ref=e1790]: United States·conservation·$65M
+          - link "World Vision Australia" [ref=e1791] [cursor=pointer]:
+            - /url: /charities/world-vision-australia
+            - generic [ref=e1792]:
+              - img [ref=e1794]
+              - generic "Verified" [ref=e1798]:
+                - img [ref=e1799]
+                - text: Verified
+            - generic [ref=e1801]:
+              - generic [ref=e1802]:
+                - generic [ref=e1803]:
+                  - img "World Vision Australia"
+                - heading "World Vision Australia" [level=3] [ref=e1804]
+              - paragraph [ref=e1805]: Australian arm of World Vision — child sponsorship, emergency relief, development programmes globally.
+              - paragraph [ref=e1806]: Australia·humanitarian-medicine·$280M
+          - link "World Vision Canada" [ref=e1807] [cursor=pointer]:
+            - /url: /charities/world-vision-canada
+            - generic "Verified" [ref=e1809]:
+              - img [ref=e1810]
+              - text: Verified
+            - generic [ref=e1812]:
+              - generic [ref=e1813]:
+                - generic [ref=e1814]:
+                  - img "World Vision Canada"
+                - heading "World Vision Canada" [level=3] [ref=e1815]
+              - paragraph [ref=e1816]: Canadian arm of World Vision International — child sponsorship + global emergency response.
+              - paragraph [ref=e1817]: Canada·faith-based·$380M
+          - link "World Vision New Zealand" [ref=e1818] [cursor=pointer]:
+            - /url: /charities/world-vision-nz
+            - generic [ref=e1819]:
+              - img [ref=e1821]
+              - generic "Verified" [ref=e1825]:
+                - img [ref=e1826]
+                - text: Verified
+            - generic [ref=e1828]:
+              - generic [ref=e1829]:
+                - generic [ref=e1830]:
+                  - img "World Vision New Zealand"
+                - heading "World Vision New Zealand" [level=3] [ref=e1831]
+              - paragraph [ref=e1832]: NZ arm of World Vision — child sponsorship and humanitarian aid in the Pacific and globally.
+              - paragraph [ref=e1833]: New Zealand·child-welfare·$32M
+          - link "Wounded Warrior Project" [ref=e1834] [cursor=pointer]:
+            - /url: /charities/wounded-warrior-project
+            - generic "Verified" [ref=e1836]:
+              - img [ref=e1837]
+              - text: Verified
+            - generic [ref=e1839]:
+              - generic [ref=e1840]:
+                - generic [ref=e1841]:
+                  - img "Wounded Warrior Project"
+                - heading "Wounded Warrior Project" [level=3] [ref=e1842]
+              - paragraph [ref=e1843]: Programs for post-9/11 veterans — mental health, physical health, financial wellness, peer connection.
+              - paragraph [ref=e1844]: United States·veterans·$290M
+          - link "Yellowstone Forever" [ref=e1845] [cursor=pointer]:
+            - /url: /charities/yellowstone-forever
+            - generic [ref=e1846]:
+              - img [ref=e1848]
+              - generic "Verified" [ref=e1852]:
+                - img [ref=e1853]
+                - text: Verified
+            - generic [ref=e1855]:
+              - generic [ref=e1856]:
+                - generic [ref=e1857]:
+                  - img "Yellowstone Forever"
+                - heading "Yellowstone Forever" [level=3] [ref=e1858]
+              - paragraph [ref=e1859]: Official non-profit partner of Yellowstone National Park — wildlife, trails, education.
+              - paragraph [ref=e1860]: United States·national-parks-us·$25M
+          - link "Evidence Action" [ref=e1861] [cursor=pointer]:
+            - /url: /charities/evidence-action
+            - generic "Verified" [ref=e1863]:
+              - img [ref=e1864]
+              - text: Verified
+            - generic [ref=e1866]:
+              - generic [ref=e1867]:
+                - generic [ref=e1868]:
+                  - img "Evidence Action"
+                - heading "Evidence Action" [level=3] [ref=e1869]
+              - paragraph [ref=e1870]: Scales evidence-based health and poverty programs
+              - paragraph [ref=e1871]: United States·global-health·$104.8M
+          - link "Heart & Stroke Foundation of Canada" [ref=e1872] [cursor=pointer]:
+            - /url: /charities/heart-stroke-canada
+            - generic "Verified" [ref=e1874]:
+              - img [ref=e1875]
+              - text: Verified
+            - generic [ref=e1877]:
+              - generic [ref=e1878]:
+                - generic [ref=e1879]:
+                  - img "Heart & Stroke Foundation of Canada"
+                - heading "Heart & Stroke Foundation of Canada" [level=3] [ref=e1880]
+              - paragraph [ref=e1881]: Cardiovascular disease prevention, research, and recovery support across Canada.
+              - paragraph [ref=e1882]: Canada·global-health·$130M
+          - link "Make-A-Wish Canada" [ref=e1883] [cursor=pointer]:
+            - /url: /charities/make-a-wish-canada
+            - generic "Verified" [ref=e1885]:
+              - img [ref=e1886]
+              - text: Verified
+            - generic [ref=e1888]:
+              - generic [ref=e1889]:
+                - generic [ref=e1890]:
+                  - img "Make-A-Wish Canada"
+                - heading "Make-A-Wish Canada" [level=3] [ref=e1891]
+              - paragraph [ref=e1892]: Grants wishes to Canadian children with critical illnesses.
+              - paragraph [ref=e1893]: Canada·child-welfare·$26M
+          - link "National FFA Foundation" [ref=e1894] [cursor=pointer]:
+            - /url: /charities/national-ffa-foundation
+            - generic "Verified" [ref=e1896]:
+              - img [ref=e1897]
+              - text: Verified
+            - generic [ref=e1899]:
+              - generic [ref=e1900]:
+                - generic [ref=e1901]:
+                  - img "National FFA Foundation"
+                - heading "National FFA Foundation" [level=3] [ref=e1902]
+              - paragraph [ref=e1903]: Funds US Future Farmers of America — agricultural-education youth org, ~1M members.
+              - paragraph [ref=e1904]: United States·youth-development·$26M
+          - link "National Wildlife Federation" [ref=e1905] [cursor=pointer]:
+            - /url: /charities/national-wildlife-federation
+            - generic [ref=e1906]:
+              - img [ref=e1908]
+              - generic "Verified" [ref=e1912]:
+                - img [ref=e1913]
+                - text: Verified
+            - generic [ref=e1915]:
+              - generic [ref=e1916]:
+                - generic [ref=e1917]:
+                  - img "National Wildlife Federation"
+                - heading "National Wildlife Federation" [level=3] [ref=e1918]
+              - paragraph [ref=e1919]: Largest US conservation membership org — wildlife protection, habitat, climate policy.
+              - paragraph [ref=e1920]: United States·wildlife-conservation·$145M
+          - link "Terry Fox Foundation" [ref=e1921] [cursor=pointer]:
+            - /url: /charities/terry-fox-foundation
+            - generic "Verified" [ref=e1923]:
+              - img [ref=e1924]
+              - text: Verified
+            - generic [ref=e1926]:
+              - generic [ref=e1927]:
+                - generic [ref=e1928]:
+                  - img "Terry Fox Foundation"
+                - heading "Terry Fox Foundation" [level=3] [ref=e1929]
+              - paragraph [ref=e1930]: Funds Canadian cancer research via the iconic annual Terry Fox Run.
+              - paragraph [ref=e1931]: Canada·cancer-research·$25M
+          - link "GiveDirectly" [ref=e1932] [cursor=pointer]:
+            - /url: /charities/givedirectly
+            - generic "Verified" [ref=e1934]:
+              - img [ref=e1935]
+              - text: Verified
+            - generic [ref=e1937]:
+              - generic [ref=e1938]:
+                - generic [ref=e1939]:
+                  - img "GiveDirectly"
+                - heading "GiveDirectly" [level=3] [ref=e1940]
+              - paragraph [ref=e1941]: Cash transfers to people living in extreme poverty
+              - paragraph [ref=e1942]: United States·poverty-reduction·$348.8M
+          - link "ASPCA" [ref=e1943] [cursor=pointer]:
+            - /url: /charities/aspca
+            - generic "Verified" [ref=e1945]:
+              - img [ref=e1946]
+              - text: Verified
+            - generic [ref=e1948]:
+              - generic [ref=e1949]:
+                - generic [ref=e1950]:
+                  - img "ASPCA"
+                - heading "ASPCA" [level=3] [ref=e1951]
+              - paragraph [ref=e1952]: Prevents cruelty to animals across the United States
+              - paragraph [ref=e1953]: United States·animal-welfare·$404.5M
+          - link "The Carter Center" [ref=e1954] [cursor=pointer]:
+            - /url: /charities/carter-center
+            - generic "Verified" [ref=e1956]:
+              - img [ref=e1957]
+              - text: Verified
+            - generic [ref=e1959]:
+              - generic [ref=e1960]:
+                - generic [ref=e1961]:
+                  - img "The Carter Center"
+                - heading "The Carter Center" [level=3] [ref=e1962]
+              - paragraph [ref=e1963]: Disease eradication and democracy support in 80+ countries
+              - paragraph [ref=e1964]: United States·global-health·$180M
+          - link "Mercy Corps" [ref=e1965] [cursor=pointer]:
+            - /url: /charities/mercy-corps
+            - generic "Verified" [ref=e1967]:
+              - img [ref=e1968]
+              - text: Verified
+            - generic [ref=e1970]:
+              - generic [ref=e1971]:
+                - generic [ref=e1972]:
+                  - img "Mercy Corps"
+                - heading "Mercy Corps" [level=3] [ref=e1973]
+              - paragraph [ref=e1974]: Humanitarian aid and development in 40+ countries
+              - paragraph [ref=e1975]: United States·emergency-response·$552M
+          - link "World Resources Institute" [ref=e1976] [cursor=pointer]:
+            - /url: /charities/world-resources-institute
+            - generic "Verified" [ref=e1978]:
+              - img [ref=e1979]
+              - text: Verified
+            - generic [ref=e1981]:
+              - generic [ref=e1982]:
+                - generic [ref=e1983]:
+                  - img "World Resources Institute"
+                - heading "World Resources Institute" [level=3] [ref=e1984]
+              - paragraph [ref=e1985]: Research-driven climate, food, water and forest policy
+              - paragraph [ref=e1986]: United States·climate·$210M
+          - link "Living Goods" [ref=e1987] [cursor=pointer]:
+            - /url: /charities/living-goods
+            - generic "Verified" [ref=e1989]:
+              - img [ref=e1990]
+              - text: Verified
+            - generic [ref=e1992]:
+              - generic [ref=e1993]:
+                - generic [ref=e1994]:
+                  - img "Living Goods"
+                - heading "Living Goods" [level=3] [ref=e1995]
+              - paragraph [ref=e1996]: Networks of community health workers across East Africa
+              - paragraph [ref=e1997]: United States·global-health·$48.2M
+          - link "Ocean Conservancy" [ref=e1998] [cursor=pointer]:
+            - /url: /charities/ocean-conservancy
+            - generic "Verified" [ref=e2000]:
+              - img [ref=e2001]
+              - text: Verified
+            - generic [ref=e2003]:
+              - generic [ref=e2004]:
+                - generic [ref=e2005]:
+                  - img "Ocean Conservancy"
+                - heading "Ocean Conservancy" [level=3] [ref=e2006]
+              - paragraph [ref=e2007]: Protects oceans through science-based policy and the International Coastal Cleanup
+              - paragraph [ref=e2008]: United States·oceans·$38.9M
+          - link "PETA Foundation" [ref=e2009] [cursor=pointer]:
+            - /url: /charities/peta-foundation
+            - generic "Verified" [ref=e2011]:
+              - img [ref=e2012]
+              - text: Verified
+            - generic [ref=e2014]:
+              - generic [ref=e2015]:
+                - generic [ref=e2016]:
+                  - img "PETA Foundation"
+                - heading "PETA Foundation" [level=3] [ref=e2017]
+              - paragraph [ref=e2018]: Provides legal and educational support to People for the Ethical Treatment of Animals.
+              - paragraph [ref=e2019]: United States·animal-welfare·$80M
+          - link "Australian Cancer Research Foundation (ACRF)" [ref=e2020] [cursor=pointer]:
+            - /url: /charities/acrf-australia
+            - generic [ref=e2021]:
+              - img [ref=e2023]
+              - generic "Verified" [ref=e2027]:
+                - img [ref=e2028]
+                - text: Verified
+            - generic [ref=e2030]:
+              - generic [ref=e2031]:
+                - generic [ref=e2032]:
+                  - img "Australian Cancer Research Foundation (ACRF)"
+                - heading "Australian Cancer Research Foundation (ACRF)" [level=3] [ref=e2033]
+              - paragraph [ref=e2034]: Funds Australian cancer-research infrastructure via competitive grants.
+              - paragraph [ref=e2035]: Australia·cancer-research·$12M
+          - link "American Farmland Trust" [ref=e2036] [cursor=pointer]:
+            - /url: /charities/american-farmland-trust
+            - generic "Verified" [ref=e2038]:
+              - img [ref=e2039]
+              - text: Verified
+            - generic [ref=e2041]:
+              - generic [ref=e2042]:
+                - generic [ref=e2043]:
+                  - img "American Farmland Trust"
+                - heading "American Farmland Trust" [level=3] [ref=e2044]
+              - paragraph [ref=e2045]: Protects US farmland from development — conservation easements + No Farms No Food advocacy.
+              - paragraph [ref=e2046]: United States·conservation·$23M
+          - link "American Foundation for the Blind (AFB)" [ref=e2047] [cursor=pointer]:
+            - /url: /charities/american-foundation-for-blind
+            - generic [ref=e2048]:
+              - img [ref=e2050]
+              - generic "Verified" [ref=e2054]:
+                - img [ref=e2055]
+                - text: Verified
+            - generic [ref=e2057]:
+              - generic [ref=e2058]:
+                - generic [ref=e2059]:
+                  - img "American Foundation for the Blind (AFB)"
+                - heading "American Foundation for the Blind (AFB)" [level=3] [ref=e2060]
+              - paragraph [ref=e2061]: Leading US blindness-policy organisation — Helen Keller's professional home for 44 years.
+              - paragraph [ref=e2062]: United States·blindness-low-vision·$4.5M
+          - link "American Lung Association" [ref=e2063] [cursor=pointer]:
+            - /url: /charities/american-lung-association
+            - generic "Verified" [ref=e2065]:
+              - img [ref=e2066]
+              - text: Verified
+            - generic [ref=e2068]:
+              - generic [ref=e2069]:
+                - generic [ref=e2070]:
+                  - img "American Lung Association"
+                - heading "American Lung Association" [level=3] [ref=e2071]
+              - paragraph [ref=e2072]: Lung-health research, tobacco-control advocacy, asthma & COPD patient programmes.
+              - paragraph [ref=e2073]: United States·lung-disease·$100M
+          - link "Anglicare Australia" [ref=e2074] [cursor=pointer]:
+            - /url: /charities/anglicare-australia
+            - generic "Verified" [ref=e2076]:
+              - img [ref=e2077]
+              - text: Verified
+            - generic [ref=e2079]:
+              - generic [ref=e2080]:
+                - generic [ref=e2081]:
+                  - img "Anglicare Australia"
+                - heading "Anglicare Australia" [level=3] [ref=e2082]
+              - paragraph [ref=e2083]: Federation of 36 Anglican social-service agencies — children, eldercare, housing, refugees.
+              - paragraph [ref=e2084]: Australia·faith-based·$1.5B
+          - link "Animal Legal Defense Fund (ALDF)" [ref=e2085] [cursor=pointer]:
+            - /url: /charities/animal-legal-defense-fund
+            - generic "Verified" [ref=e2087]:
+              - img [ref=e2088]
+              - text: Verified
+            - generic [ref=e2090]:
+              - generic [ref=e2091]:
+                - generic [ref=e2092]:
+                  - img "Animal Legal Defense Fund (ALDF)"
+                - heading "Animal Legal Defense Fund (ALDF)" [level=3] [ref=e2093]
+              - paragraph [ref=e2094]: Largest US animal-rights legal advocacy org — courtroom litigation against animal cruelty.
+              - paragraph [ref=e2095]: United States·animal-rights-legal·$25M
+          - link "Asylum Seeker Resource Centre (ASRC)" [ref=e2096] [cursor=pointer]:
+            - /url: /charities/asrc-refugee
+            - generic "Verified" [ref=e2098]:
+              - img [ref=e2099]
+              - text: Verified
+            - generic [ref=e2101]:
+              - generic [ref=e2102]:
+                - generic [ref=e2103]:
+                  - img "Asylum Seeker Resource Centre (ASRC)"
+                - heading "Asylum Seeker Resource Centre (ASRC)" [level=3] [ref=e2104]
+              - paragraph [ref=e2105]: Australia's largest asylum-seeker support org — Melbourne-based, ~7K people supported.
+              - paragraph [ref=e2106]: Australia·asylum-seekers·$17M
+          - link "Australian Red Cross" [ref=e2107] [cursor=pointer]:
+            - /url: /charities/australian-red-cross
+            - generic "Verified" [ref=e2109]:
+              - img [ref=e2110]
+              - text: Verified
+            - generic [ref=e2112]:
+              - generic [ref=e2113]:
+                - generic [ref=e2114]:
+                  - img "Australian Red Cross"
+                - heading "Australian Red Cross" [level=3] [ref=e2115]
+              - paragraph [ref=e2116]: Australian member of the International Red Cross — disasters, blood service, migrant support.
+              - paragraph [ref=e2117]: Australia·disaster-relief·$750M
+          - link "Beyond Blue" [ref=e2118] [cursor=pointer]:
+            - /url: /charities/beyond-blue
+            - generic "Verified" [ref=e2120]:
+              - img [ref=e2121]
+              - text: Verified
+            - generic [ref=e2123]:
+              - generic [ref=e2124]:
+                - generic [ref=e2125]:
+                  - img "Beyond Blue"
+                - heading "Beyond Blue" [level=3] [ref=e2126]
+              - paragraph [ref=e2127]: Australia's leading mental-health and depression-support organisation.
+              - paragraph [ref=e2128]: Australia·mental-health·$60M
+          - link "Big Brothers Big Sisters of Canada" [ref=e2129] [cursor=pointer]:
+            - /url: /charities/big-brothers-big-sisters-canada
+            - generic "Verified" [ref=e2131]:
+              - img [ref=e2132]
+              - text: Verified
+            - generic [ref=e2134]:
+              - generic [ref=e2135]:
+                - generic [ref=e2136]:
+                  - img "Big Brothers Big Sisters of Canada"
+                - heading "Big Brothers Big Sisters of Canada" [level=3] [ref=e2137]
+              - paragraph [ref=e2138]: 1-to-1 youth mentoring across ~100 Canadian agencies — ~31K active matches.
+              - paragraph [ref=e2139]: Canada·youth-mentoring·$4.5M
+          - link "Black Dog Institute" [ref=e2140] [cursor=pointer]:
+            - /url: /charities/black-dog-institute
+            - generic "Verified" [ref=e2142]:
+              - img [ref=e2143]
+              - text: Verified
+            - generic [ref=e2145]:
+              - generic [ref=e2146]:
+                - generic [ref=e2147]:
+                  - img "Black Dog Institute"
+                - heading "Black Dog Institute" [level=3] [ref=e2148]
+              - paragraph [ref=e2149]: Mental-health research and clinical services — affiliated with UNSW Sydney.
+              - paragraph [ref=e2150]: Australia·mental-health·$30M
+          - link "Boys & Girls Clubs of Canada" [ref=e2151] [cursor=pointer]:
+            - /url: /charities/boys-girls-clubs-canada
+            - generic "Verified" [ref=e2153]:
+              - img [ref=e2154]
+              - text: Verified
+            - generic [ref=e2156]:
+              - generic [ref=e2157]:
+                - generic [ref=e2158]:
+                  - img "Boys & Girls Clubs of Canada"
+                - heading "Boys & Girls Clubs of Canada" [level=3] [ref=e2159]
+              - paragraph [ref=e2160]: Federation of ~590 Canadian after-school clubs serving ~200K young people annually.
+              - paragraph [ref=e2161]: Canada·youth-mentoring·$5.5M
+          - link "Cancer Council NSW" [ref=e2162] [cursor=pointer]:
+            - /url: /charities/cancer-council-nsw
+            - generic [ref=e2163]:
+              - img [ref=e2165]
+              - generic "Verified" [ref=e2169]:
+                - img [ref=e2170]
+                - text: Verified
+            - generic [ref=e2172]:
+              - generic [ref=e2173]:
+                - generic [ref=e2174]:
+                  - img "Cancer Council NSW"
+                - heading "Cancer Council NSW" [level=3] [ref=e2175]
+              - paragraph [ref=e2176]: New South Wales largest cancer charity — research, prevention campaigns, patient support.
+              - paragraph [ref=e2177]: Australia·cancer-state-australia·$85M
+          - link "Cancer Council Victoria" [ref=e2178] [cursor=pointer]:
+            - /url: /charities/cancer-council-victoria
+            - generic "Verified" [ref=e2180]:
+              - img [ref=e2181]
+              - text: Verified
+            - generic [ref=e2183]:
+              - generic [ref=e2184]:
+                - generic [ref=e2185]:
+                  - img "Cancer Council Victoria"
+                - heading "Cancer Council Victoria" [level=3] [ref=e2186]
+              - paragraph [ref=e2187]: Victoria's state cancer council — runs the Australian Cancer Database and tobacco-control research.
+              - paragraph [ref=e2188]: Australia·cancer-state-australia·$75M
+          - link "CanTeen NZ" [ref=e2189] [cursor=pointer]:
+            - /url: /charities/canteen-nz
+            - generic [ref=e2190]:
+              - img [ref=e2192]
+              - generic "Verified" [ref=e2196]:
+                - img [ref=e2197]
+                - text: Verified
+            - generic [ref=e2199]:
+              - generic [ref=e2200]:
+                - generic [ref=e2201]:
+                  - img "CanTeen NZ"
+                - heading "CanTeen NZ" [level=3] [ref=e2202]
+              - paragraph [ref=e2203]: NZ charity supporting young people aged 13-24 affected by cancer.
+              - paragraph [ref=e2204]: New Zealand·cancer-research·$5M
+          - link "Caritas Australia" [ref=e2205] [cursor=pointer]:
+            - /url: /charities/caritas-australia
+            - generic "Verified" [ref=e2207]:
+              - img [ref=e2208]
+              - text: Verified
+            - generic [ref=e2210]:
+              - generic [ref=e2211]:
+                - generic [ref=e2212]:
+                  - img "Caritas Australia"
+                - heading "Caritas Australia" [level=3] [ref=e2213]
+              - paragraph [ref=e2214]: Australian Catholic agency for international aid — Project Compassion fundraising campaign.
+              - paragraph [ref=e2215]: Australia·humanitarian-medicine·$65M
+          - link "Catholic Charities USA" [ref=e2216] [cursor=pointer]:
+            - /url: /charities/catholic-charities-usa
+            - generic "Verified" [ref=e2218]:
+              - img [ref=e2219]
+              - text: Verified
+            - generic [ref=e2221]:
+              - generic [ref=e2222]:
+                - generic [ref=e2223]:
+                  - img "Catholic Charities USA"
+                - heading "Catholic Charities USA" [level=3] [ref=e2224]
+              - paragraph [ref=e2225]: National federation of US diocesan Catholic Charities — largest private US social-services network.
+              - paragraph [ref=e2226]: United States·faith-based·$240M
+          - link "Center for Victims of Torture (CVT)" [ref=e2227] [cursor=pointer]:
+            - /url: /charities/center-for-victims-of-torture
+            - generic "Verified" [ref=e2229]:
+              - img [ref=e2230]
+              - text: Verified
+            - generic [ref=e2232]:
+              - generic [ref=e2233]:
+                - generic [ref=e2234]:
+                  - img "Center for Victims of Torture (CVT)"
+                - heading "Center for Victims of Torture (CVT)" [level=3] [ref=e2235]
+              - paragraph [ref=e2236]: Largest US torture-rehabilitation org — psychological, physical, social rehab for torture survivors.
+              - paragraph [ref=e2237]: United States·torture-rehabilitation·$35M
+          - link "Common Sense Media" [ref=e2238] [cursor=pointer]:
+            - /url: /charities/commonsense-media
+            - generic "Verified" [ref=e2240]:
+              - img [ref=e2241]
+              - text: Verified
+            - generic [ref=e2243]:
+              - generic [ref=e2244]:
+                - generic [ref=e2245]:
+                  - img "Common Sense Media"
+                - heading "Common Sense Media" [level=3] [ref=e2246]
+              - paragraph [ref=e2247]: Non-profit reviewing kids' media for parents + advocacy on children's online safety.
+              - paragraph [ref=e2248]: United States·media-literacy·$60M
+          - link "Cordaid" [ref=e2249] [cursor=pointer]:
+            - /url: /charities/cordaid
+            - generic "Verified" [ref=e2251]:
+              - img [ref=e2252]
+              - text: Verified
+            - generic [ref=e2254]:
+              - generic [ref=e2255]:
+                - generic [ref=e2256]:
+                  - img "Cordaid"
+                - heading "Cordaid" [level=3] [ref=e2257]
+              - paragraph [ref=e2258]: Dutch development & humanitarian NGO — fragile states, health, livelihoods.
+              - paragraph [ref=e2259]: Netherlands·humanitarian-medicine·$110M
+          - link "Crohn's & Colitis Foundation" [ref=e2260] [cursor=pointer]:
+            - /url: /charities/crohns-colitis-foundation
+            - generic [ref=e2261]:
+              - img [ref=e2263]
+              - generic "Verified" [ref=e2267]:
+                - img [ref=e2268]
+                - text: Verified
+            - generic [ref=e2270]:
+              - generic [ref=e2271]:
+                - generic [ref=e2272]:
+                  - img "Crohn's & Colitis Foundation"
+                - heading "Crohn's & Colitis Foundation" [level=3] [ref=e2273]
+              - paragraph [ref=e2274]: Largest US IBD-focused charity — research, patient education, advocacy.
+              - paragraph [ref=e2275]: United States·rare-disease·$90M
+          - link "DAV Charitable Service Trust" [ref=e2276] [cursor=pointer]:
+            - /url: /charities/dav-charitable-trust
+            - generic [ref=e2277]:
+              - img [ref=e2279]
+              - generic "Verified" [ref=e2283]:
+                - img [ref=e2284]
+                - text: Verified
+            - generic [ref=e2286]:
+              - generic [ref=e2287]:
+                - generic [ref=e2288]:
+                  - img "DAV Charitable Service Trust"
+                - heading "DAV Charitable Service Trust" [level=3] [ref=e2289]
+              - paragraph [ref=e2290]: Funds programs for ill and injured American veterans across all eras.
+              - paragraph [ref=e2291]: United States·veterans·$90M
+          - link "Ducks Unlimited" [ref=e2292] [cursor=pointer]:
+            - /url: /charities/ducks-unlimited
+            - generic "Verified" [ref=e2294]:
+              - img [ref=e2295]
+              - text: Verified
+            - generic [ref=e2297]:
+              - generic [ref=e2298]:
+                - generic [ref=e2299]:
+                  - img "Ducks Unlimited"
+                - heading "Ducks Unlimited" [level=3] [ref=e2300]
+              - paragraph [ref=e2301]: North American waterfowl & wetland conservation — has protected ~16M acres since 1937.
+              - paragraph [ref=e2302]: United States·wildlife-conservation·$290M
+          - link "Electronic Frontier Foundation (EFF)" [ref=e2303] [cursor=pointer]:
+            - /url: /charities/electronic-frontier-foundation
+            - generic "Verified" [ref=e2305]:
+              - img [ref=e2306]
+              - text: Verified
+            - generic [ref=e2308]:
+              - generic [ref=e2309]:
+                - generic [ref=e2310]:
+                  - img "Electronic Frontier Foundation (EFF)"
+                - heading "Electronic Frontier Foundation (EFF)" [level=3] [ref=e2311]
+              - paragraph [ref=e2312]: Digital civil-liberties non-profit — privacy, free speech, encryption rights litigation.
+              - paragraph [ref=e2313]: United States·internet-freedom·$22M
+          - link "Epilepsy Foundation" [ref=e2314] [cursor=pointer]:
+            - /url: /charities/epilepsy-foundation
+            - generic [ref=e2315]:
+              - img [ref=e2317]
+              - generic "Verified" [ref=e2321]:
+                - img [ref=e2322]
+                - text: Verified
+            - generic [ref=e2324]:
+              - generic [ref=e2325]:
+                - generic [ref=e2326]:
+                  - img "Epilepsy Foundation"
+                - heading "Epilepsy Foundation" [level=3] [ref=e2327]
+              - paragraph [ref=e2328]: National US epilepsy charity — 24/7 helpline, research grants, seizure-first-aid training.
+              - paragraph [ref=e2329]: United States·epilepsy·$30M
+          - link "Family Equality" [ref=e2330] [cursor=pointer]:
+            - /url: /charities/family-equality
+            - generic "Verified" [ref=e2332]:
+              - img [ref=e2333]
+              - text: Verified
+            - generic [ref=e2335]:
+              - generic [ref=e2336]:
+                - generic [ref=e2337]:
+                  - img "Family Equality"
+                - heading "Family Equality" [level=3] [ref=e2338]
+              - paragraph [ref=e2339]: Advances equality for LGBTQ+ families through advocacy, education and community.
+              - paragraph [ref=e2340]: United States·lgbtq-youth·$4.2M
+          - link "First Book" [ref=e2341] [cursor=pointer]:
+            - /url: /charities/first-book
+            - generic "Verified" [ref=e2343]:
+              - img [ref=e2344]
+              - text: Verified
+            - generic [ref=e2346]:
+              - generic [ref=e2347]:
+                - generic [ref=e2348]:
+                  - img "First Book"
+                - heading "First Book" [level=3] [ref=e2349]
+              - paragraph [ref=e2350]: Provides free and low-cost books to educators serving children in low-income communities.
+              - paragraph [ref=e2351]: United States·education·$30M
+          - link "Foodbank Australia" [ref=e2352] [cursor=pointer]:
+            - /url: /charities/foodbank-australia
+            - generic "Verified" [ref=e2354]:
+              - img [ref=e2355]
+              - text: Verified
+            - generic [ref=e2357]:
+              - generic [ref=e2358]:
+                - generic [ref=e2359]:
+                  - img "Foodbank Australia"
+                - heading "Foodbank Australia" [level=3] [ref=e2360]
+              - paragraph [ref=e2361]: Australia's largest food-relief org — supplies surplus food to ~2,950 charity partners.
+              - paragraph [ref=e2362]: Australia·food-banks·$90M
+          - link "Forest & Bird (Royal Forest and Bird Protection Society of NZ)" [ref=e2363] [cursor=pointer]:
+            - /url: /charities/forest-and-bird-nz
+            - generic "Verified" [ref=e2365]:
+              - img [ref=e2366]
+              - text: Verified
+            - generic [ref=e2368]:
+              - generic [ref=e2369]:
+                - generic [ref=e2370]:
+                  - img "Forest & Bird (Royal Forest and Bird Protection Society of NZ)"
+                - heading "Forest & Bird (Royal Forest and Bird Protection Society of NZ)" [level=3] [ref=e2371]
+              - paragraph [ref=e2372]: New Zealand's leading independent conservation organisation — native species and habitats.
+              - paragraph [ref=e2373]: New Zealand·conservation·$8.5M
+          - link "Food Research & Action Center (FRAC)" [ref=e2374] [cursor=pointer]:
+            - /url: /charities/frac-food-policy
+            - generic "Verified" [ref=e2376]:
+              - img [ref=e2377]
+              - text: Verified
+            - generic [ref=e2379]:
+              - generic [ref=e2380]:
+                - generic [ref=e2381]:
+                  - img "Food Research & Action Center (FRAC)"
+                - heading "Food Research & Action Center (FRAC)" [level=3] [ref=e2382]
+              - paragraph [ref=e2383]: Leading US anti-hunger policy think-tank — federal SNAP, school-meals, WIC research and advocacy.
+              - paragraph [ref=e2384]: United States·food-research-policy·$12M
+          - link "The Fred Hollows Foundation" [ref=e2385] [cursor=pointer]:
+            - /url: /charities/fred-hollows-foundation
+            - generic "Verified" [ref=e2387]:
+              - img [ref=e2388]
+              - text: Verified
+            - generic [ref=e2390]:
+              - generic [ref=e2391]:
+                - generic [ref=e2392]:
+                  - img "The Fred Hollows Foundation"
+                - heading "The Fred Hollows Foundation" [level=3] [ref=e2393]
+              - paragraph [ref=e2394]: Restores sight in low-income countries via cataract surgery + trachoma elimination — $25 per surgery.
+              - paragraph [ref=e2395]: Australia·trachoma-blindness·$95M
+          - link "Garvan Institute of Medical Research" [ref=e2396] [cursor=pointer]:
+            - /url: /charities/garvan-institute
+            - generic [ref=e2397]:
+              - img [ref=e2399]
+              - generic "Verified" [ref=e2403]:
+                - img [ref=e2404]
+                - text: Verified
+            - generic [ref=e2406]:
+              - generic [ref=e2407]:
+                - generic [ref=e2408]:
+                  - img "Garvan Institute of Medical Research"
+                - heading "Garvan Institute of Medical Research" [level=3] [ref=e2409]
+              - paragraph [ref=e2410]: Sydney-based independent medical-research institute — genomics, cancer, immunology, diabetes.
+              - paragraph [ref=e2411]: Australia·medical-research-institute·$120M
+          - link "GLSEN" [ref=e2412] [cursor=pointer]:
+            - /url: /charities/glsen
+            - generic "Verified" [ref=e2414]:
+              - img [ref=e2415]
+              - text: Verified
+            - generic [ref=e2417]:
+              - generic [ref=e2418]:
+                - generic [ref=e2419]:
+                  - img "GLSEN"
+                - heading "GLSEN" [level=3] [ref=e2420]
+              - paragraph [ref=e2421]: Creates safer K-12 schools for LGBTQ+ students through research, policy and student-led GSAs.
+              - paragraph [ref=e2422]: United States·lgbtq-youth·$8.5M
+          - link "Gay Men's Health Crisis (GMHC)" [ref=e2423] [cursor=pointer]:
+            - /url: /charities/gmhc-aids
+            - generic "Verified" [ref=e2425]:
+              - img [ref=e2426]
+              - text: Verified
+            - generic [ref=e2428]:
+              - generic [ref=e2429]:
+                - generic [ref=e2430]:
+                  - img "Gay Men's Health Crisis (GMHC)"
+                - heading "Gay Men's Health Crisis (GMHC)" [level=3] [ref=e2431]
+              - paragraph [ref=e2432]: World's first HIV/AIDS service organisation — NYC-area frontline care + national advocacy.
+              - paragraph [ref=e2433]: United States·hiv-aids·$35M
+          - link "Good360" [ref=e2434] [cursor=pointer]:
+            - /url: /charities/good360
+            - generic "Verified" [ref=e2436]:
+              - img [ref=e2437]
+              - text: Verified
+            - generic [ref=e2439]:
+              - generic [ref=e2440]:
+                - generic [ref=e2441]:
+                  - img "Good360"
+                - heading "Good360" [level=3] [ref=e2442]
+              - paragraph [ref=e2443]: Largest US in-kind goods distributor for non-profits — diverts surplus merchandise from retailers.
+              - paragraph [ref=e2444]: United States·in-kind-logistics·$720M
+          - link "Hispanic Federation" [ref=e2445] [cursor=pointer]:
+            - /url: /charities/hispanic-federation
+            - generic "Verified" [ref=e2447]:
+              - img [ref=e2448]
+              - text: Verified
+            - generic [ref=e2450]:
+              - generic [ref=e2451]:
+                - generic [ref=e2452]:
+                  - img "Hispanic Federation"
+                - heading "Hispanic Federation" [level=3] [ref=e2453]
+              - paragraph [ref=e2454]: NYC-area Latino civil-rights and community-based grant-making — also Puerto Rico-Maria response.
+              - paragraph [ref=e2455]: United States·hispanic-rights·$35M
+          - link "International Fund for Animal Welfare (IFAW) UK" [ref=e2456] [cursor=pointer]:
+            - /url: /charities/ifaw-uk
+            - generic "Verified" [ref=e2458]:
+              - img [ref=e2459]
+              - text: Verified
+            - generic [ref=e2461]:
+              - generic [ref=e2462]:
+                - generic [ref=e2463]:
+                  - img "International Fund for Animal Welfare (IFAW) UK"
+                - heading "International Fund for Animal Welfare (IFAW) UK" [level=3] [ref=e2464]
+              - paragraph [ref=e2465]: UK arm of global animal welfare org — wildlife crime, marine mammals, disaster rescue.
+              - paragraph [ref=e2466]: United Kingdom·wildlife-conservation·$85M
+          - link "Independent Sector" [ref=e2467] [cursor=pointer]:
+            - /url: /charities/independent-sector
+            - generic "Verified" [ref=e2469]:
+              - img [ref=e2470]
+              - text: Verified
+            - generic [ref=e2472]:
+              - generic [ref=e2473]:
+                - generic [ref=e2474]:
+                  - img "Independent Sector"
+                - heading "Independent Sector" [level=3] [ref=e2475]
+              - paragraph [ref=e2476]: US national membership coalition for charities and grant-makers — Capitol Hill advocacy.
+              - paragraph [ref=e2477]: United States·philanthropic-infrastructure·$16M
+          - link "Innocence Project" [ref=e2478] [cursor=pointer]:
+            - /url: /charities/innocence-project
+            - generic "Verified" [ref=e2480]:
+              - img [ref=e2481]
+              - text: Verified
+            - generic [ref=e2483]:
+              - generic [ref=e2484]:
+                - generic [ref=e2485]:
+                  - img "Innocence Project"
+                - heading "Innocence Project" [level=3] [ref=e2486]
+              - paragraph [ref=e2487]: Frees wrongly-convicted people via DNA evidence and reforms criminal-justice policy.
+              - paragraph [ref=e2488]: United States·wrongful-conviction·$50M
+          - link "Breakthrough T1D (formerly JDRF)" [ref=e2489] [cursor=pointer]:
+            - /url: /charities/jdrf-breakthrough-t1d
+            - generic "Verified" [ref=e2491]:
+              - img [ref=e2492]
+              - text: Verified
+            - generic [ref=e2494]:
+              - generic [ref=e2495]:
+                - generic [ref=e2496]:
+                  - img "Breakthrough T1D (formerly JDRF)"
+                - heading "Breakthrough T1D (formerly JDRF)" [level=3] [ref=e2497]
+              - paragraph [ref=e2498]: World's largest non-profit funder of type 1 diabetes research — renamed from JDRF in 2024.
+              - paragraph [ref=e2499]: United States·type-1-diabetes·$220M
+          - link "Jewish Federations of North America" [ref=e2500] [cursor=pointer]:
+            - /url: /charities/jewish-federations-na
+            - generic [ref=e2501]:
+              - img [ref=e2503]
+              - generic "Verified" [ref=e2507]:
+                - img [ref=e2508]
+                - text: Verified
+            - generic [ref=e2510]:
+              - generic [ref=e2511]:
+                - generic [ref=e2512]:
+                  - img "Jewish Federations of North America"
+                - heading "Jewish Federations of North America" [level=3] [ref=e2513]
+              - paragraph [ref=e2514]: Umbrella for 146 local Jewish Federations across US and Canada — communal philanthropy, social services, Israel.
+              - paragraph [ref=e2515]: United States·faith-based·$250M
+          - link "Kids Helpline (yourtown)" [ref=e2516] [cursor=pointer]:
+            - /url: /charities/kids-helpline-yourtown
+            - generic "Verified" [ref=e2518]:
+              - img [ref=e2519]
+              - text: Verified
+            - generic [ref=e2521]:
+              - generic [ref=e2522]:
+                - generic [ref=e2523]:
+                  - img "Kids Helpline (yourtown)"
+                - heading "Kids Helpline (yourtown)" [level=3] [ref=e2524]
+              - paragraph [ref=e2525]: Australia's only free 24/7 phone + chat counselling service for ages 5-25.
+              - paragraph [ref=e2526]: Australia·mental-health·$80M
+          - link "Leukemia & Lymphoma Society" [ref=e2527] [cursor=pointer]:
+            - /url: /charities/leukemia-lymphoma-society
+            - generic [ref=e2528]:
+              - img [ref=e2530]
+              - generic "Verified" [ref=e2534]:
+                - img [ref=e2535]
+                - text: Verified
+            - generic [ref=e2537]:
+              - generic [ref=e2538]:
+                - generic [ref=e2539]:
+                  - img "Leukemia & Lymphoma Society"
+                - heading "Leukemia & Lymphoma Society" [level=3] [ref=e2540]
+              - paragraph [ref=e2541]: Largest US blood-cancer non-profit — research, patient assistance, policy.
+              - paragraph [ref=e2542]: United States·blood-cancer-research·$470M
+          - link "Lifeline Australia" [ref=e2543] [cursor=pointer]:
+            - /url: /charities/lifeline-australia
+            - generic "Verified" [ref=e2545]:
+              - img [ref=e2546]
+              - text: Verified
+            - generic [ref=e2548]:
+              - generic [ref=e2549]:
+                - generic [ref=e2550]:
+                  - img "Lifeline Australia"
+                - heading "Lifeline Australia" [level=3] [ref=e2551]
+              - paragraph [ref=e2552]: Australia's national crisis support and suicide prevention service — 13 11 14, 24/7.
+              - paragraph [ref=e2553]: Australia·mental-health·$85M
+          - link "Lupus Foundation of America" [ref=e2554] [cursor=pointer]:
+            - /url: /charities/lupus-foundation
+            - generic "Verified" [ref=e2556]:
+              - img [ref=e2557]
+              - text: Verified
+            - generic [ref=e2559]:
+              - generic [ref=e2560]:
+                - generic [ref=e2561]:
+                  - img "Lupus Foundation of America"
+                - heading "Lupus Foundation of America" [level=3] [ref=e2562]
+              - paragraph [ref=e2563]: Funds lupus research, advocates for patients, runs national support network.
+              - paragraph [ref=e2564]: United States·rare-disease·$13M
+          - link "Mexican American Legal Defense and Educational Fund (MALDEF)" [ref=e2565] [cursor=pointer]:
+            - /url: /charities/maldef
+            - generic [ref=e2566]:
+              - img [ref=e2568]
+              - generic "Verified" [ref=e2572]:
+                - img [ref=e2573]
+                - text: Verified
+            - generic [ref=e2575]:
+              - generic [ref=e2576]:
+                - generic [ref=e2577]:
+                  - img "Mexican American Legal Defense and Educational Fund (MALDEF)"
+                - heading "Mexican American Legal Defense and Educational Fund (MALDEF)" [level=3] [ref=e2578]
+              - paragraph [ref=e2579]: Latino civil rights legal organisation — voting rights, education access, immigrants' rights.
+              - paragraph [ref=e2580]: United States·hispanic-rights·$8M
+          - link "Mater Foundation (Australia)" [ref=e2581] [cursor=pointer]:
+            - /url: /charities/mater-foundation-au
+            - generic "Verified" [ref=e2583]:
+              - img [ref=e2584]
+              - text: Verified
+            - generic [ref=e2586]:
+              - generic [ref=e2587]:
+                - generic [ref=e2588]:
+                  - img "Mater Foundation (Australia)"
+                - heading "Mater Foundation (Australia)" [level=3] [ref=e2589]
+              - paragraph [ref=e2590]: Catholic-rooted Brisbane healthcare philanthropy — funds Mater Hospital, cancer care, women's health.
+              - paragraph [ref=e2591]: Australia·faith-based·$95M
+          - link "McGrath Foundation" [ref=e2592] [cursor=pointer]:
+            - /url: /charities/mcgrath-foundation
+            - generic "Verified" [ref=e2594]:
+              - img [ref=e2595]
+              - text: Verified
+            - generic [ref=e2597]:
+              - generic [ref=e2598]:
+                - generic [ref=e2599]:
+                  - img "McGrath Foundation"
+                - heading "McGrath Foundation" [level=3] [ref=e2600]
+              - paragraph [ref=e2601]: Funds free McGrath Breast Care Nurses across Australia.
+              - paragraph [ref=e2602]: Australia·cancer-research·$25M
+          - link "NAACP Legal Defense and Educational Fund" [ref=e2603] [cursor=pointer]:
+            - /url: /charities/naacp-legal-defense-fund
+            - generic "Verified" [ref=e2605]:
+              - img [ref=e2606]
+              - text: Verified
+            - generic [ref=e2608]:
+              - generic [ref=e2609]:
+                - generic [ref=e2610]:
+                  - img "NAACP Legal Defense and Educational Fund"
+                - heading "NAACP Legal Defense and Educational Fund" [level=3] [ref=e2611]
+              - paragraph [ref=e2612]: Civil-rights legal arm — racial-justice litigation since Thurgood Marshall (Brown v. Board of Education).
+              - paragraph [ref=e2613]: United States·race-equality·$90M
+          - link "National Domestic Violence Hotline" [ref=e2614] [cursor=pointer]:
+            - /url: /charities/national-domestic-violence-hotline
+            - generic "Verified" [ref=e2616]:
+              - img [ref=e2617]
+              - text: Verified
+            - generic [ref=e2619]:
+              - generic [ref=e2620]:
+                - generic [ref=e2621]:
+                  - img "National Domestic Violence Hotline"
+                - heading "National Domestic Violence Hotline" [level=3] [ref=e2622]
+              - paragraph [ref=e2623]: Free, confidential 24/7 US DV hotline — phone, text, chat, available in 200+ languages.
+              - paragraph [ref=e2624]: United States·dv-hotline·$28M
+          - link "Nature Conservancy of Canada" [ref=e2625] [cursor=pointer]:
+            - /url: /charities/nature-conservancy-canada
+            - generic [ref=e2626]:
+              - img [ref=e2628]
+              - generic "Verified" [ref=e2632]:
+                - img [ref=e2633]
+                - text: Verified
+            - generic [ref=e2635]:
+              - generic [ref=e2636]:
+                - generic [ref=e2637]:
+                  - img "Nature Conservancy of Canada"
+                - heading "Nature Conservancy of Canada" [level=3] [ref=e2638]
+              - paragraph [ref=e2639]: Land-trust conservation — protects ecologically significant private land across Canada.
+              - paragraph [ref=e2640]: Canada·conservation·$85M
+          - link "National Center for Lesbian Rights (NCLR)" [ref=e2641] [cursor=pointer]:
+            - /url: /charities/nclr
+            - generic "Verified" [ref=e2643]:
+              - img [ref=e2644]
+              - text: Verified
+            - generic [ref=e2646]:
+              - generic [ref=e2647]:
+                - generic [ref=e2648]:
+                  - img "National Center for Lesbian Rights (NCLR)"
+                - heading "National Center for Lesbian Rights (NCLR)" [level=3] [ref=e2649]
+              - paragraph [ref=e2650]: Legal advocacy for LGBTQ+ rights — courtroom litigation and legislative campaigns since 1977.
+              - paragraph [ref=e2651]: United States·lgbtq-youth·$9.5M
+          - link "National Council on Aging" [ref=e2652] [cursor=pointer]:
+            - /url: /charities/ncoa
+            - generic "Verified" [ref=e2654]:
+              - img [ref=e2655]
+              - text: Verified
+            - generic [ref=e2657]:
+              - generic [ref=e2658]:
+                - generic [ref=e2659]:
+                  - img "National Council on Aging"
+                - heading "National Council on Aging" [level=3] [ref=e2660]
+              - paragraph [ref=e2661]: US senior advocacy + benefits enrolment + economic-security programs.
+              - paragraph [ref=e2662]: United States·elderly-care·$36M
+          - link "Share Our Strength / No Kid Hungry" [ref=e2663] [cursor=pointer]:
+            - /url: /charities/no-kid-hungry
+            - generic [ref=e2664]:
+              - img [ref=e2666]
+              - generic "Verified" [ref=e2670]:
+                - img [ref=e2671]
+                - text: Verified
+            - generic [ref=e2673]:
+              - generic [ref=e2674]:
+                - generic [ref=e2675]:
+                  - img "Share Our Strength / No Kid Hungry"
+                - heading "Share Our Strength / No Kid Hungry" [level=3] [ref=e2676]
+              - paragraph [ref=e2677]: US childhood-hunger non-profit — federal SNAP / school-meal policy + emergency feeding programmes.
+              - paragraph [ref=e2678]: United States·child-hunger-us·$200M
+          - link "New Zealand Red Cross" [ref=e2679] [cursor=pointer]:
+            - /url: /charities/nz-red-cross
+            - generic "Verified" [ref=e2681]:
+              - img [ref=e2682]
+              - text: Verified
+            - generic [ref=e2684]:
+              - generic [ref=e2685]:
+                - generic [ref=e2686]:
+                  - img "New Zealand Red Cross"
+                - heading "New Zealand Red Cross" [level=3] [ref=e2687]
+              - paragraph [ref=e2688]: NZ national society of the International Red Cross — disaster response, refugee resettlement, first aid.
+              - paragraph [ref=e2689]: New Zealand·disaster-relief·$60M
+          - link "OzHarvest" [ref=e2690] [cursor=pointer]:
+            - /url: /charities/oz-harvest
+            - generic [ref=e2691]:
+              - img [ref=e2693]
+              - generic "Verified" [ref=e2697]:
+                - img [ref=e2698]
+                - text: Verified
+            - generic [ref=e2700]:
+              - generic [ref=e2701]:
+                - generic [ref=e2702]:
+                  - img "OzHarvest"
+                - heading "OzHarvest" [level=3] [ref=e2703]
+              - paragraph [ref=e2704]: Australia's leading food-rescue organisation — diverts 200+ tons of surplus food per week.
+              - paragraph [ref=e2705]: Australia·food-rescue·$32M
+          - link "Parkinson's Foundation" [ref=e2706] [cursor=pointer]:
+            - /url: /charities/parkinsons-foundation
+            - generic "Verified" [ref=e2708]:
+              - img [ref=e2709]
+              - text: Verified
+            - generic [ref=e2711]:
+              - generic [ref=e2712]:
+                - generic [ref=e2713]:
+                  - img "Parkinson's Foundation"
+                - heading "Parkinson's Foundation" [level=3] [ref=e2714]
+              - paragraph [ref=e2715]: Funds Parkinson's research, designates Centers of Excellence, runs national PD GENEration study.
+              - paragraph [ref=e2716]: United States·parkinsons·$50M
+          - link "Plan International Canada" [ref=e2717] [cursor=pointer]:
+            - /url: /charities/plan-international-canada
+            - generic "Verified" [ref=e2719]:
+              - img [ref=e2720]
+              - text: Verified
+            - generic [ref=e2722]:
+              - generic [ref=e2723]:
+                - generic [ref=e2724]:
+                  - img "Plan International Canada"
+                - heading "Plan International Canada" [level=3] [ref=e2725]
+              - paragraph [ref=e2726]: Canadian arm of Plan International — children's rights and gender equality globally.
+              - paragraph [ref=e2727]: Canada·child-welfare·$240M
+          - link "RAINN" [ref=e2728] [cursor=pointer]:
+            - /url: /charities/rainn
+            - generic [ref=e2729]:
+              - img [ref=e2731]
+              - generic "Verified" [ref=e2735]:
+                - img [ref=e2736]
+                - text: Verified
+            - generic [ref=e2738]:
+              - generic [ref=e2739]:
+                - generic [ref=e2740]:
+                  - img "RAINN"
+                - heading "RAINN" [level=3] [ref=e2741]
+              - paragraph [ref=e2742]: Largest US anti-sexual-violence org — operates the National Sexual Assault Hotline.
+              - paragraph [ref=e2743]: United States·domestic-violence·$22M
+          - link "Reading Is Fundamental (RIF)" [ref=e2744] [cursor=pointer]:
+            - /url: /charities/reading-is-fundamental
+            - generic [ref=e2745]:
+              - img [ref=e2747]
+              - generic "Verified" [ref=e2751]:
+                - img [ref=e2752]
+                - text: Verified
+            - generic [ref=e2754]:
+              - generic [ref=e2755]:
+                - generic [ref=e2756]:
+                  - img "Reading Is Fundamental (RIF)"
+                - heading "Reading Is Fundamental (RIF)" [level=3] [ref=e2757]
+              - paragraph [ref=e2758]: Largest US children's literacy non-profit — distributes books to children in need.
+              - paragraph [ref=e2759]: United States·education·$11M
+          - link "Royal Flying Doctor Service" [ref=e2760] [cursor=pointer]:
+            - /url: /charities/rfds-australia
+            - generic [ref=e2761]:
+              - img [ref=e2763]
+              - generic "Verified" [ref=e2767]:
+                - img [ref=e2768]
+                - text: Verified
+            - generic [ref=e2770]:
+              - generic [ref=e2771]:
+                - generic [ref=e2772]:
+                  - img "Royal Flying Doctor Service"
+                - heading "Royal Flying Doctor Service" [level=3] [ref=e2773]
+              - paragraph [ref=e2774]: Aeromedical emergency and primary care for remote Australia — 24/7.
+              - paragraph [ref=e2775]: Australia·humanitarian-medicine·$260M
+          - link "Rocky Mountain Institute (RMI)" [ref=e2776] [cursor=pointer]:
+            - /url: /charities/rocky-mountain-institute
+            - generic "Verified" [ref=e2778]:
+              - img [ref=e2779]
+              - text: Verified
+            - generic [ref=e2781]:
+              - generic [ref=e2782]:
+                - generic [ref=e2783]:
+                  - img "Rocky Mountain Institute (RMI)"
+                - heading "Rocky Mountain Institute (RMI)" [level=3] [ref=e2784]
+              - paragraph [ref=e2785]: Climate-economy strategy non-profit — drives clean-energy transition via finance, industry, policy.
+              - paragraph [ref=e2786]: United States·energy-efficiency·$110M
+          - link "RSPCA Australia" [ref=e2787] [cursor=pointer]:
+            - /url: /charities/rspca-australia
+            - generic "Verified" [ref=e2789]:
+              - img [ref=e2790]
+              - text: Verified
+            - generic [ref=e2792]:
+              - generic [ref=e2793]:
+                - generic [ref=e2794]:
+                  - img "RSPCA Australia"
+                - heading "RSPCA Australia" [level=3] [ref=e2795]
+              - paragraph [ref=e2796]: National peak body for Australian RSPCAs — animal-welfare law reform, RSPCA Australia inspectorate coordination.
+              - paragraph [ref=e2797]: Australia·animal-welfare·$12M
+          - link "Salvation Army Australia" [ref=e2798] [cursor=pointer]:
+            - /url: /charities/salvation-army-australia
+            - generic "Verified" [ref=e2800]:
+              - img [ref=e2801]
+              - text: Verified
+            - generic [ref=e2803]:
+              - generic [ref=e2804]:
+                - generic [ref=e2805]:
+                  - img "Salvation Army Australia"
+                - heading "Salvation Army Australia" [level=3] [ref=e2806]
+              - paragraph [ref=e2807]: Largest Australian community-services charity — Doorways food, addiction, family support.
+              - paragraph [ref=e2808]: Australia·faith-based·$425M
+          - link "Sandy Hook Promise" [ref=e2809] [cursor=pointer]:
+            - /url: /charities/sandy-hook-promise
+            - generic "Verified" [ref=e2811]:
+              - img [ref=e2812]
+              - text: Verified
+            - generic [ref=e2814]:
+              - generic [ref=e2815]:
+                - generic [ref=e2816]:
+                  - img "Sandy Hook Promise"
+                - heading "Sandy Hook Promise" [level=3] [ref=e2817]
+              - paragraph [ref=e2818]: School-violence prevention via 'know-the-signs' training in K-12 schools.
+              - paragraph [ref=e2819]: United States·gun-violence-prevention·$38M
+          - link "Save the Redwoods League" [ref=e2820] [cursor=pointer]:
+            - /url: /charities/save-the-redwoods
+            - generic "Verified" [ref=e2822]:
+              - img [ref=e2823]
+              - text: Verified
+            - generic [ref=e2825]:
+              - generic [ref=e2826]:
+                - generic [ref=e2827]:
+                  - img "Save the Redwoods League"
+                - heading "Save the Redwoods League" [level=3] [ref=e2828]
+              - paragraph [ref=e2829]: Protects coast redwoods and giant sequoias — California's most iconic forests.
+              - paragraph [ref=e2830]: United States·redwoods-old-growth·$28M
+          - link "Sea Shepherd Conservation Society (US)" [ref=e2831] [cursor=pointer]:
+            - /url: /charities/sea-shepherd-conservation-society
+            - generic "Verified" [ref=e2833]:
+              - img [ref=e2834]
+              - text: Verified
+            - generic [ref=e2836]:
+              - generic [ref=e2837]:
+                - generic [ref=e2838]:
+                  - img "Sea Shepherd Conservation Society (US)"
+                - heading "Sea Shepherd Conservation Society (US)" [level=3] [ref=e2839]
+              - paragraph [ref=e2840]: Direct-action marine conservation — patrol ships disrupting illegal fishing and whaling.
+              - paragraph [ref=e2841]: United States·marine-mammal-protection·$13M
+          - link "Sense" [ref=e2842] [cursor=pointer]:
+            - /url: /charities/sense-uk
+            - generic "Verified" [ref=e2844]:
+              - img [ref=e2845]
+              - text: Verified
+            - generic [ref=e2847]:
+              - generic [ref=e2848]:
+                - generic [ref=e2849]:
+                  - img "Sense"
+                - heading "Sense" [level=3] [ref=e2850]
+              - paragraph [ref=e2851]: UK charity for people with complex disabilities, including deafblindness
+              - paragraph [ref=e2852]: United Kingdom·disability-services·$85M
+          - link "Sesame Workshop" [ref=e2853] [cursor=pointer]:
+            - /url: /charities/sesame-workshop
+            - generic "Verified" [ref=e2855]:
+              - img [ref=e2856]
+              - text: Verified
+            - generic [ref=e2858]:
+              - generic [ref=e2859]:
+                - generic [ref=e2860]:
+                  - img "Sesame Workshop"
+                - heading "Sesame Workshop" [level=3] [ref=e2861]
+              - paragraph [ref=e2862]: Producer of Sesame Street + international children's educational TV in 150+ countries.
+              - paragraph [ref=e2863]: United States·childrens-media·$220M
+          - link "Brooke Action for Working Horses and Donkeys" [ref=e2864] [cursor=pointer]:
+            - /url: /charities/the-brooke
+            - generic "Verified" [ref=e2866]:
+              - img [ref=e2867]
+              - text: Verified
+            - generic [ref=e2869]:
+              - generic [ref=e2870]:
+                - generic [ref=e2871]:
+                  - img "Brooke Action for Working Horses and Donkeys"
+                - heading "Brooke Action for Working Horses and Donkeys" [level=3] [ref=e2872]
+              - paragraph [ref=e2873]: Welfare for working equines in low-income countries
+              - paragraph [ref=e2874]: United Kingdom·animal-welfare·$32M
+          - link "The Humane League" [ref=e2875] [cursor=pointer]:
+            - /url: /charities/the-humane-league
+            - generic [ref=e2876]:
+              - img [ref=e2878]
+              - generic "Verified" [ref=e2882]:
+                - img [ref=e2883]
+                - text: Verified
+            - generic [ref=e2885]:
+              - generic [ref=e2886]:
+                - generic [ref=e2887]:
+                  - img "The Humane League"
+                - heading "The Humane League" [level=3] [ref=e2888]
+              - paragraph [ref=e2889]: Corporate-campaigns farm-animal-welfare org — global network of country offices on cage-free pledges.
+              - paragraph [ref=e2890]: United States·farm-animal-welfare·$18M
+          - link "Trans Lifeline" [ref=e2891] [cursor=pointer]:
+            - /url: /charities/trans-lifeline
+            - generic [ref=e2892]:
+              - img [ref=e2894]
+              - generic "Verified" [ref=e2898]:
+                - img [ref=e2899]
+                - text: Verified
+            - generic [ref=e2901]:
+              - generic [ref=e2902]:
+                - generic [ref=e2903]:
+                  - img "Trans Lifeline"
+                - heading "Trans Lifeline" [level=3] [ref=e2904]
+              - paragraph [ref=e2905]: Peer-support crisis hotline run by and for trans people in the US and Canada.
+              - paragraph [ref=e2906]: United States·lgbtq-youth·$4.5M
+          - link "UnidosUS" [ref=e2907] [cursor=pointer]:
+            - /url: /charities/unidosus
+            - generic "Verified" [ref=e2909]:
+              - img [ref=e2910]
+              - text: Verified
+            - generic [ref=e2912]:
+              - generic [ref=e2913]:
+                - generic [ref=e2914]:
+                  - img "UnidosUS"
+                - heading "UnidosUS" [level=3] [ref=e2915]
+              - paragraph [ref=e2916]: Largest US Hispanic civil-rights & advocacy org (formerly NCLR — National Council of La Raza).
+              - paragraph [ref=e2917]: United States·hispanic-rights·$80M
+          - link "St Vincent de Paul Society Australia (Vinnies)" [ref=e2918] [cursor=pointer]:
+            - /url: /charities/vinnies-australia
+            - generic "Verified" [ref=e2920]:
+              - img [ref=e2921]
+              - text: Verified
+            - generic [ref=e2923]:
+              - generic [ref=e2924]:
+                - generic [ref=e2925]:
+                  - img "St Vincent de Paul Society Australia (Vinnies)"
+                - heading "St Vincent de Paul Society Australia (Vinnies)" [level=3] [ref=e2926]
+              - paragraph [ref=e2927]: Catholic-rooted social-services federation — homelessness, financial hardship, op-shops nationwide.
+              - paragraph [ref=e2928]: Australia·homelessness·$800M
+          - link "Volunteers of America" [ref=e2929] [cursor=pointer]:
+            - /url: /charities/volunteers-of-america
+            - generic [ref=e2930]:
+              - img [ref=e2932]
+              - generic "Verified" [ref=e2936]:
+                - img [ref=e2937]
+                - text: Verified
+            - generic [ref=e2939]:
+              - generic [ref=e2940]:
+                - generic [ref=e2941]:
+                  - img "Volunteers of America"
+                - heading "Volunteers of America" [level=3] [ref=e2942]
+              - paragraph [ref=e2943]: Faith-based US service org — homeless veterans, seniors, ex-offenders, children with disabilities.
+              - paragraph [ref=e2944]: United States·elderly-care·$1.1B
+          - link "Walter and Eliza Hall Institute of Medical Research (WEHI)" [ref=e2945] [cursor=pointer]:
+            - /url: /charities/walter-eliza-hall-institute
+            - generic "Verified" [ref=e2947]:
+              - img [ref=e2948]
+              - text: Verified
+            - generic [ref=e2950]:
+              - generic [ref=e2951]:
+                - generic [ref=e2952]:
+                  - img "Walter and Eliza Hall Institute of Medical Research (WEHI)"
+                - heading "Walter and Eliza Hall Institute of Medical Research (WEHI)" [level=3] [ref=e2953]
+              - paragraph [ref=e2954]: Australia's oldest medical research institute — Melbourne; cancer, infection, immunology.
+              - paragraph [ref=e2955]: Australia·medical-research-institute·$130M
+          - link "Whale and Dolphin Conservation (US)" [ref=e2956] [cursor=pointer]:
+            - /url: /charities/whale-dolphin-conservation-us
+            - generic [ref=e2957]:
+              - img [ref=e2959]
+              - generic "Verified" [ref=e2963]:
+                - img [ref=e2964]
+                - text: Verified
+            - generic [ref=e2966]:
+              - generic [ref=e2967]:
+                - generic [ref=e2968]:
+                  - img "Whale and Dolphin Conservation (US)"
+                - heading "Whale and Dolphin Conservation (US)" [level=3] [ref=e2969]
+              - paragraph [ref=e2970]: US arm of UK-headquartered cetacean-conservation charity — anti-captivity, anti-whaling, research.
+              - paragraph [ref=e2971]: United States·marine-mammal-protection·$4.5M
+          - link "The Wilderness Society" [ref=e2972] [cursor=pointer]:
+            - /url: /charities/wilderness-society-australia
+            - generic [ref=e2973]:
+              - img [ref=e2975]
+              - generic "Verified" [ref=e2979]:
+                - img [ref=e2980]
+                - text: Verified
+            - generic [ref=e2982]:
+              - generic [ref=e2983]:
+                - generic [ref=e2984]:
+                  - img "The Wilderness Society"
+                - heading "The Wilderness Society" [level=3] [ref=e2985]
+              - paragraph [ref=e2986]: Australia's leading wilderness-conservation advocacy NGO — forests, climate, land-clearing.
+              - paragraph [ref=e2987]: Australia·forest-protection·$13M
+          - link "Wereld Natuur Fonds (WWF Nederland)" [ref=e2988] [cursor=pointer]:
+            - /url: /charities/wnf-nl
+            - generic "Verified" [ref=e2990]:
+              - img [ref=e2991]
+              - text: Verified
+            - generic [ref=e2993]:
+              - generic [ref=e2994]:
+                - generic [ref=e2995]:
+                  - img "Wereld Natuur Fonds (WWF Nederland)"
+                - heading "Wereld Natuur Fonds (WWF Nederland)" [level=3] [ref=e2996]
+              - paragraph [ref=e2997]: Dutch national office of WWF International — climate, sustainable food, biodiversity globally.
+              - paragraph [ref=e2998]: Netherlands·conservation·$80M
+          - link "WWF-Canada" [ref=e2999] [cursor=pointer]:
+            - /url: /charities/wwf-canada
+            - generic "Verified" [ref=e3001]:
+              - img [ref=e3002]
+              - text: Verified
+            - generic [ref=e3004]:
+              - generic [ref=e3005]:
+                - generic [ref=e3006]:
+                  - img "WWF-Canada"
+                - heading "WWF-Canada" [level=3] [ref=e3007]
+              - paragraph [ref=e3008]: Canadian arm of WWF — Arctic conservation, freshwater, climate, species at risk.
+              - paragraph [ref=e3009]: Canada·conservation·$28M
+          - link "WWF Schweiz" [ref=e3010] [cursor=pointer]:
+            - /url: /charities/wwf-schweiz
+            - generic "Verified" [ref=e3012]:
+              - img [ref=e3013]
+              - text: Verified
+            - generic [ref=e3015]:
+              - generic [ref=e3016]:
+                - generic [ref=e3017]:
+                  - img "WWF Schweiz"
+                - heading "WWF Schweiz" [level=3] [ref=e3018]
+              - paragraph [ref=e3019]: Swiss national office of WWF — Alpine biodiversity, sustainable food, climate.
+              - paragraph [ref=e3020]: Switzerland·conservation·$52M
+          - link "Royal National Lifeboat Institution" [ref=e3021] [cursor=pointer]:
+            - /url: /charities/rnli
+            - generic "Verified" [ref=e3023]:
+              - img [ref=e3024]
+              - text: Verified
+            - generic [ref=e3026]:
+              - generic [ref=e3027]:
+                - generic [ref=e3028]:
+                  - img "Royal National Lifeboat Institution"
+                - heading "Royal National Lifeboat Institution" [level=3] [ref=e3029]
+              - paragraph [ref=e3030]: Volunteer maritime search-and-rescue around UK and Ireland
+              - paragraph [ref=e3031]: United Kingdom·disaster-relief·$303.4M
+          - link "Wildlife Conservation Society" [ref=e3032] [cursor=pointer]:
+            - /url: /charities/wildlife-conservation-society
+            - generic "Verified" [ref=e3034]:
+              - img [ref=e3035]
+              - text: Verified
+            - generic [ref=e3037]:
+              - generic [ref=e3038]:
+                - generic [ref=e3039]:
+                  - img "Wildlife Conservation Society"
+                - heading "Wildlife Conservation Society" [level=3] [ref=e3040]
+              - paragraph [ref=e3041]: Protects wild places and wildlife in 60+ countries
+              - paragraph [ref=e3042]: United States·wildlife-conservation·$345.5M
+          - link "New Incentives" [ref=e3043] [cursor=pointer]:
+            - /url: /charities/new-incentives
+            - generic "Verified" [ref=e3045]:
+              - img [ref=e3046]
+              - text: Verified
+            - generic [ref=e3048]:
+              - generic [ref=e3049]:
+                - generic [ref=e3050]:
+                  - img "New Incentives"
+                - heading "New Incentives" [level=3] [ref=e3051]
+              - paragraph [ref=e3052]: Conditional cash incentives for childhood vaccinations
+              - paragraph [ref=e3053]: United States·global-health·$46.5M
+          - link "National Audubon Society" [ref=e3054] [cursor=pointer]:
+            - /url: /charities/audubon-society
+            - generic "Verified" [ref=e3056]:
+              - img [ref=e3057]
+              - text: Verified
+            - generic [ref=e3059]:
+              - generic [ref=e3060]:
+                - generic [ref=e3061]:
+                  - img "National Audubon Society"
+                - heading "National Audubon Society" [level=3] [ref=e3062]
+              - paragraph [ref=e3063]: Protects birds and the places they need across the Americas
+              - paragraph [ref=e3064]: United States·bird-conservation·$156.1M
+          - link "American Red Cross" [ref=e3065] [cursor=pointer]:
+            - /url: /charities/american-red-cross
+            - generic "Verified" [ref=e3067]:
+              - img [ref=e3068]
+              - text: Verified
+            - generic [ref=e3070]:
+              - generic [ref=e3071]:
+                - generic [ref=e3072]:
+                  - img "American Red Cross"
+                - heading "American Red Cross" [level=3] [ref=e3073]
+              - paragraph [ref=e3074]: Disaster response, blood services, and emergency aid
+              - paragraph [ref=e3075]: United States·emergency-response·$3.3B
+          - link "Best Friends Animal Society" [ref=e3076] [cursor=pointer]:
+            - /url: /charities/best-friends-animal-society
+            - generic "Verified" [ref=e3078]:
+              - img [ref=e3079]
+              - text: Verified
+            - generic [ref=e3081]:
+              - generic [ref=e3082]:
+                - generic [ref=e3083]:
+                  - img "Best Friends Animal Society"
+                - heading "Best Friends Animal Society" [level=3] [ref=e3084]
+              - paragraph [ref=e3085]: Leading the no-kill movement for shelter animals in the US
+              - paragraph [ref=e3086]: United States·animal-welfare·$177.8M
+          - link "World Food Programme USA" [ref=e3087] [cursor=pointer]:
+            - /url: /charities/wfp-usa
+            - generic "Verified" [ref=e3089]:
+              - img [ref=e3090]
+              - text: Verified
+            - generic [ref=e3092]:
+              - generic [ref=e3093]:
+                - generic [ref=e3094]:
+                  - img "World Food Programme USA"
+                - heading "World Food Programme USA" [level=3] [ref=e3095]
+              - paragraph [ref=e3096]: Funds the UN World Food Programme's hunger-relief operations
+              - paragraph [ref=e3097]: United States·food-security·$110M
+          - link "ACLU Foundation" [ref=e3098] [cursor=pointer]:
+            - /url: /charities/aclu-foundation
+            - generic "Verified" [ref=e3100]:
+              - img [ref=e3101]
+              - text: Verified
+            - generic [ref=e3103]:
+              - generic [ref=e3104]:
+                - generic [ref=e3105]:
+                  - img "ACLU Foundation"
+                - heading "ACLU Foundation" [level=3] [ref=e3106]
+              - paragraph [ref=e3107]: Litigation and education on US civil liberties
+              - paragraph [ref=e3108]: United States·civil-rights·$400M
+          - link "Active Minds" [ref=e3109] [cursor=pointer]:
+            - /url: /charities/active-minds
+            - generic "Verified" [ref=e3111]:
+              - img [ref=e3112]
+              - text: Verified
+            - generic [ref=e3114]:
+              - generic [ref=e3115]:
+                - generic [ref=e3116]:
+                  - img "Active Minds"
+                - heading "Active Minds" [level=3] [ref=e3117]
+              - paragraph [ref=e3118]: Youth-led mental-health awareness on US high-school and college campuses
+              - paragraph [ref=e3119]: United States·mental-health·$9.5M
+          - link "Anxiety and Depression Association of America" [ref=e3120] [cursor=pointer]:
+            - /url: /charities/adaa
+            - generic [ref=e3121]:
+              - img [ref=e3123]
+              - generic "Verified" [ref=e3127]:
+                - img [ref=e3128]
+                - text: Verified
+            - generic [ref=e3130]:
+              - generic [ref=e3131]:
+                - generic [ref=e3132]:
+                  - img "Anxiety and Depression Association of America"
+                - heading "Anxiety and Depression Association of America" [level=3] [ref=e3133]
+              - paragraph [ref=e3134]: Patient-facing education and clinician finder for anxiety & depression
+              - paragraph [ref=e3135]: United States·mental-health·$3.2M
+          - link "Algalita Marine Research and Education" [ref=e3136] [cursor=pointer]:
+            - /url: /charities/algalita
+            - generic "Verified" [ref=e3138]:
+              - img [ref=e3139]
+              - text: Verified
+            - generic [ref=e3141]:
+              - generic [ref=e3142]:
+                - generic [ref=e3143]:
+                  - img "Algalita Marine Research and Education"
+                - heading "Algalita Marine Research and Education" [level=3] [ref=e3144]
+              - paragraph [ref=e3145]: Pioneers of plastic-gyre research and youth ocean leadership
+              - paragraph [ref=e3146]: United States·ocean-protection·$700K
+          - link "Alley Cat Allies" [ref=e3147] [cursor=pointer]:
+            - /url: /charities/alley-cat-allies
+            - generic "Verified" [ref=e3149]:
+              - img [ref=e3150]
+              - text: Verified
+            - generic [ref=e3152]:
+              - generic [ref=e3153]:
+                - generic [ref=e3154]:
+                  - img "Alley Cat Allies"
+                - heading "Alley Cat Allies" [level=3] [ref=e3155]
+              - paragraph [ref=e3156]: Champions humane policies for community cats in the US
+              - paragraph [ref=e3157]: United States·animal-welfare·$8.5M
+          - link "American Bird Conservancy" [ref=e3158] [cursor=pointer]:
+            - /url: /charities/american-bird-conservancy
+            - generic "Verified" [ref=e3160]:
+              - img [ref=e3161]
+              - text: Verified
+            - generic [ref=e3163]:
+              - generic [ref=e3164]:
+                - generic [ref=e3165]:
+                  - img "American Bird Conservancy"
+                - heading "American Bird Conservancy" [level=3] [ref=e3166]
+              - paragraph [ref=e3167]: Conserves wild birds and their habitats throughout the Americas
+              - paragraph [ref=e3168]: United States·animal-welfare·$17M
+          - link "American Forests" [ref=e3169] [cursor=pointer]:
+            - /url: /charities/american-forests
+            - generic "Verified" [ref=e3171]:
+              - img [ref=e3172]
+              - text: Verified
+            - generic [ref=e3174]:
+              - generic [ref=e3175]:
+                - generic [ref=e3176]:
+                  - img "American Forests"
+                - heading "American Forests" [level=3] [ref=e3177]
+              - paragraph [ref=e3178]: Oldest US forest-conservation org — restores forests for climate and equity
+              - paragraph [ref=e3179]: United States·sustainable-forestry·$28M
+          - link "American Indian College Fund" [ref=e3180] [cursor=pointer]:
+            - /url: /charities/american-indian-college-fund
+            - generic "Verified" [ref=e3182]:
+              - img [ref=e3183]
+              - text: Verified
+            - generic [ref=e3185]:
+              - generic [ref=e3186]:
+                - generic [ref=e3187]:
+                  - img "American Indian College Fund"
+                - heading "American Indian College Fund" [level=3] [ref=e3188]
+              - paragraph [ref=e3189]: Scholarships and programmes for Native American students
+              - paragraph [ref=e3190]: United States·indigenous-rights·$48M
+          - link "amfAR — Foundation for AIDS Research" [ref=e3191] [cursor=pointer]:
+            - /url: /charities/amfar
+            - generic "Verified" [ref=e3193]:
+              - img [ref=e3194]
+              - text: Verified
+            - generic [ref=e3196]:
+              - generic [ref=e3197]:
+                - generic [ref=e3198]:
+                  - img "amfAR — Foundation for AIDS Research"
+                - heading "amfAR — Foundation for AIDS Research" [level=3] [ref=e3199]
+              - paragraph [ref=e3200]: Funds research toward a cure for HIV/AIDS
+              - paragraph [ref=e3201]: United States·hiv-aids·$30M
+          - link "Bat Conservation International" [ref=e3202] [cursor=pointer]:
+            - /url: /charities/bat-conservation-international
+            - generic "Verified" [ref=e3204]:
+              - img [ref=e3205]
+              - text: Verified
+            - generic [ref=e3207]:
+              - generic [ref=e3208]:
+                - generic [ref=e3209]:
+                  - img "Bat Conservation International"
+                - heading "Bat Conservation International" [level=3] [ref=e3210]
+              - paragraph [ref=e3211]: Protects the world's bats and their habitats
+              - paragraph [ref=e3212]: United States·wildlife-conservation·$10M
+          - link "Best Buddies International" [ref=e3213] [cursor=pointer]:
+            - /url: /charities/best-buddies
+            - generic "Verified" [ref=e3215]:
+              - img [ref=e3216]
+              - text: Verified
+            - generic [ref=e3218]:
+              - generic [ref=e3219]:
+                - generic [ref=e3220]:
+                  - img "Best Buddies International"
+                - heading "Best Buddies International" [level=3] [ref=e3221]
+              - paragraph [ref=e3222]: Friendships, jobs and leadership for people with IDD
+              - paragraph [ref=e3223]: United States·disability-services·$70M
+          - link "Bonneville Environmental Foundation" [ref=e3224] [cursor=pointer]:
+            - /url: /charities/bonneville-environmental-foundation
+            - generic [ref=e3225]:
+              - img [ref=e3227]
+              - generic "Verified" [ref=e3231]:
+                - img [ref=e3232]
+                - text: Verified
+            - generic [ref=e3234]:
+              - generic [ref=e3235]:
+                - generic [ref=e3236]:
+                  - img "Bonneville Environmental Foundation"
+                - heading "Bonneville Environmental Foundation" [level=3] [ref=e3237]
+              - paragraph [ref=e3238]: Renewable energy, watershed restoration and STEM education in the West
+              - paragraph [ref=e3239]: United States·climate·$9M
+          - link "Center for Climate and Energy Solutions" [ref=e3240] [cursor=pointer]:
+            - /url: /charities/c2es
+            - generic "Verified" [ref=e3242]:
+              - img [ref=e3243]
+              - text: Verified
+            - generic [ref=e3245]:
+              - generic [ref=e3246]:
+                - generic [ref=e3247]:
+                  - img "Center for Climate and Energy Solutions"
+                - heading "Center for Climate and Energy Solutions" [level=3] [ref=e3248]
+              - paragraph [ref=e3249]: Independent climate-policy research and bipartisan engagement
+              - paragraph [ref=e3250]: United States·climate-policy·$6.5M
+          - link "Cancer Research Institute" [ref=e3251] [cursor=pointer]:
+            - /url: /charities/cancer-research-institute
+            - generic "Verified" [ref=e3253]:
+              - img [ref=e3254]
+              - text: Verified
+            - generic [ref=e3256]:
+              - generic [ref=e3257]:
+                - generic [ref=e3258]:
+                  - img "Cancer Research Institute"
+                - heading "Cancer Research Institute" [level=3] [ref=e3259]
+              - paragraph [ref=e3260]: Pioneers immunotherapy research for cancer
+              - paragraph [ref=e3261]: United States·cancer-research·$55M
+          - link "Carbon180" [ref=e3262] [cursor=pointer]:
+            - /url: /charities/carbon180
+            - generic "Verified" [ref=e3264]:
+              - img [ref=e3265]
+              - text: Verified
+            - generic [ref=e3267]:
+              - generic [ref=e3268]:
+                - generic [ref=e3269]:
+                  - img "Carbon180"
+                - heading "Carbon180" [level=3] [ref=e3270]
+              - paragraph [ref=e3271]: US nonprofit accelerating carbon-removal policy and innovation
+              - paragraph [ref=e3272]: United States·carbon-removal·$5.5M
+          - link "Center for Biological Diversity" [ref=e3273] [cursor=pointer]:
+            - /url: /charities/center-for-biological-diversity
+            - generic "Verified" [ref=e3275]:
+              - img [ref=e3276]
+              - text: Verified
+            - generic [ref=e3278]:
+              - generic [ref=e3279]:
+                - generic [ref=e3280]:
+                  - img "Center for Biological Diversity"
+                - heading "Center for Biological Diversity" [level=3] [ref=e3281]
+              - paragraph [ref=e3282]: Litigation-driven defense of endangered species
+              - paragraph [ref=e3283]: United States·biodiversity-defense·$28M
+          - link "Center for Climate Strategies" [ref=e3284] [cursor=pointer]:
+            - /url: /charities/center-for-climate-strategies
+            - generic "Verified" [ref=e3286]:
+              - img [ref=e3287]
+              - text: Verified
+            - generic [ref=e3289]:
+              - generic [ref=e3290]:
+                - generic [ref=e3291]:
+                  - img "Center for Climate Strategies"
+                - heading "Center for Climate Strategies" [level=3] [ref=e3292]
+              - paragraph [ref=e3293]: Helps US states design and implement climate action plans
+              - paragraph [ref=e3294]: United States·climate-policy·$3.5M
+          - link "Chesapeake Bay Foundation" [ref=e3295] [cursor=pointer]:
+            - /url: /charities/chesapeake-bay-foundation
+            - generic "Verified" [ref=e3297]:
+              - img [ref=e3298]
+              - text: Verified
+            - generic [ref=e3300]:
+              - generic [ref=e3301]:
+                - generic [ref=e3302]:
+                  - img "Chesapeake Bay Foundation"
+                - heading "Chesapeake Bay Foundation" [level=3] [ref=e3303]
+              - paragraph [ref=e3304]: Saves the largest US estuary through advocacy, education and restoration
+              - paragraph [ref=e3305]: United States·watershed-protection·$33M
+          - link "Climate Emergency Fund" [ref=e3306] [cursor=pointer]:
+            - /url: /charities/climate-emergency-fund
+            - generic "Verified" [ref=e3308]:
+              - img [ref=e3309]
+              - text: Verified
+            - generic [ref=e3311]:
+              - generic [ref=e3312]:
+                - generic [ref=e3313]:
+                  - img "Climate Emergency Fund"
+                - heading "Climate Emergency Fund" [level=3] [ref=e3314]
+              - paragraph [ref=e3315]: Resources nonviolent climate-protest movements worldwide
+              - paragraph [ref=e3316]: United States·climate·$6.5M
+          - link "Climate Justice Alliance" [ref=e3317] [cursor=pointer]:
+            - /url: /charities/climate-justice-alliance
+            - generic "Verified" [ref=e3319]:
+              - img [ref=e3320]
+              - text: Verified
+            - generic [ref=e3322]:
+              - generic [ref=e3323]:
+                - generic [ref=e3324]:
+                  - img "Climate Justice Alliance"
+                - heading "Climate Justice Alliance" [level=3] [ref=e3325]
+              - paragraph [ref=e3326]: Frontline community-led just transition from extraction to regeneration
+              - paragraph [ref=e3327]: United States·climate-policy·$4.5M
+          - link "The Climate Reality Project" [ref=e3328] [cursor=pointer]:
+            - /url: /charities/climate-reality-project
+            - generic "Verified" [ref=e3330]:
+              - img [ref=e3331]
+              - text: Verified
+            - generic [ref=e3333]:
+              - generic [ref=e3334]:
+                - generic [ref=e3335]:
+                  - img "The Climate Reality Project"
+                - heading "The Climate Reality Project" [level=3] [ref=e3336]
+              - paragraph [ref=e3337]: Climate-action training and grassroots advocacy
+              - paragraph [ref=e3338]: United States·climate·$19M
+          - link "Climate Solutions" [ref=e3339] [cursor=pointer]:
+            - /url: /charities/climate-solutions
+            - generic "Verified" [ref=e3341]:
+              - img [ref=e3342]
+              - text: Verified
+            - generic [ref=e3344]:
+              - generic [ref=e3345]:
+                - generic [ref=e3346]:
+                  - img "Climate Solutions"
+                - heading "Climate Solutions" [level=3] [ref=e3347]
+              - paragraph [ref=e3348]: Pacific Northwest clean-energy and climate advocacy
+              - paragraph [ref=e3349]: United States·climate·$4.5M
+          - link "Coalition for the Homeless (NYC)" [ref=e3350] [cursor=pointer]:
+            - /url: /charities/coalition-for-the-homeless
+            - generic "Verified" [ref=e3352]:
+              - img [ref=e3353]
+              - text: Verified
+            - generic [ref=e3355]:
+              - generic [ref=e3356]:
+                - generic [ref=e3357]:
+                  - img "Coalition for the Homeless (NYC)"
+                - heading "Coalition for the Homeless (NYC)" [level=3] [ref=e3358]
+              - paragraph [ref=e3359]: Oldest US advocacy and direct-service org for homeless people
+              - paragraph [ref=e3360]: United States·housing·$26M
+          - link "Coastal Conservation Association" [ref=e3361] [cursor=pointer]:
+            - /url: /charities/coastal-conservation-association
+            - generic [ref=e3362]:
+              - img [ref=e3364]
+              - generic "Verified" [ref=e3368]:
+                - img [ref=e3369]
+                - text: Verified
+            - generic [ref=e3371]:
+              - generic [ref=e3372]:
+                - generic [ref=e3373]:
+                  - img "Coastal Conservation Association"
+                - heading "Coastal Conservation Association" [level=3] [ref=e3374]
+              - paragraph [ref=e3375]: Largest US recreational saltwater-angling conservation org
+              - paragraph [ref=e3376]: United States·ocean-protection·$16M
+          - link "Code.org" [ref=e3377] [cursor=pointer]:
+            - /url: /charities/code-org
+            - generic "Verified" [ref=e3379]:
+              - img [ref=e3380]
+              - text: Verified
+            - generic [ref=e3382]:
+              - generic [ref=e3383]:
+                - generic [ref=e3384]:
+                  - img "Code.org"
+                - heading "Code.org" [level=3] [ref=e3385]
+              - paragraph [ref=e3386]: Expands access to computer science in K-12 schools
+              - paragraph [ref=e3387]: United States·education·$78M
+          - link "Coral Restoration Foundation" [ref=e3388] [cursor=pointer]:
+            - /url: /charities/coral-restoration-foundation
+            - generic [ref=e3389]:
+              - img [ref=e3391]
+              - generic "Verified" [ref=e3395]:
+                - img [ref=e3396]
+                - text: Verified
+            - generic [ref=e3398]:
+              - generic [ref=e3399]:
+                - generic [ref=e3400]:
+                  - img "Coral Restoration Foundation"
+                - heading "Coral Restoration Foundation" [level=3] [ref=e3401]
+              - paragraph [ref=e3402]: Largest reef-restoration organisation in the world
+              - paragraph [ref=e3403]: United States·coral-reefs·$5.5M
+          - link "Crisis Text Line" [ref=e3404] [cursor=pointer]:
+            - /url: /charities/crisis-text-line
+            - generic "Verified" [ref=e3406]:
+              - img [ref=e3407]
+              - text: Verified
+            - generic [ref=e3409]:
+              - generic [ref=e3410]:
+                - generic [ref=e3411]:
+                  - img "Crisis Text Line"
+                - heading "Crisis Text Line" [level=3] [ref=e3412]
+              - paragraph [ref=e3413]: 24/7 free text-based mental-health crisis support
+              - paragraph [ref=e3414]: United States·suicide-prevention·$25M
+          - link "CURE International" [ref=e3415] [cursor=pointer]:
+            - /url: /charities/cure-international
+            - generic "Verified" [ref=e3417]:
+              - img [ref=e3418]
+              - text: Verified
+            - generic [ref=e3420]:
+              - generic [ref=e3421]:
+                - generic [ref=e3422]:
+                  - img "CURE International"
+                - heading "CURE International" [level=3] [ref=e3423]
+              - paragraph [ref=e3424]: Free pediatric surgery in low-income countries
+              - paragraph [ref=e3425]: United States·global-health·$60M
+          - link "DonorsChoose" [ref=e3426] [cursor=pointer]:
+            - /url: /charities/donorschoose
+            - generic "Verified" [ref=e3428]:
+              - img [ref=e3429]
+              - text: Verified
+            - generic [ref=e3431]:
+              - generic [ref=e3432]:
+                - generic [ref=e3433]:
+                  - img "DonorsChoose"
+                - heading "DonorsChoose" [level=3] [ref=e3434]
+              - paragraph [ref=e3435]: Funds classroom projects for US public-school teachers
+              - paragraph [ref=e3436]: United States·education·$190M
+          - link "Disability Rights Education and Defense Fund" [ref=e3437] [cursor=pointer]:
+            - /url: /charities/dredf
+            - generic [ref=e3438]:
+              - img [ref=e3440]
+              - generic "Verified" [ref=e3444]:
+                - img [ref=e3445]
+                - text: Verified
+            - generic [ref=e3447]:
+              - generic [ref=e3448]:
+                - generic [ref=e3449]:
+                  - img "Disability Rights Education and Defense Fund"
+                - heading "Disability Rights Education and Defense Fund" [level=3] [ref=e3450]
+              - paragraph [ref=e3451]: Civil-rights law firm advancing the rights of people with disabilities
+              - paragraph [ref=e3452]: United States·disability-services·$4.5M
+          - link "Earth Island Institute" [ref=e3453] [cursor=pointer]:
+            - /url: /charities/earth-island-institute
+            - generic "Verified" [ref=e3455]:
+              - img [ref=e3456]
+              - text: Verified
+            - generic [ref=e3458]:
+              - generic [ref=e3459]:
+                - generic [ref=e3460]:
+                  - img "Earth Island Institute"
+                - heading "Earth Island Institute" [level=3] [ref=e3461]
+              - paragraph [ref=e3462]: Fiscal sponsor and incubator for environmental projects
+              - paragraph [ref=e3463]: United States·environment·$32M
+          - link "EARTHDAY.ORG" [ref=e3464] [cursor=pointer]:
+            - /url: /charities/earthday-org
+            - generic "Verified" [ref=e3466]:
+              - img [ref=e3467]
+              - text: Verified
+            - generic [ref=e3469]:
+              - generic [ref=e3470]:
+                - generic [ref=e3471]:
+                  - img "EARTHDAY.ORG"
+                - heading "EARTHDAY.ORG" [level=3] [ref=e3472]
+              - paragraph [ref=e3473]: Coordinator of Earth Day in 192 countries
+              - paragraph [ref=e3474]: United States·climate·$9.5M
+          - link "EarthRights International" [ref=e3475] [cursor=pointer]:
+            - /url: /charities/earthrights-international
+            - generic "Verified" [ref=e3477]:
+              - img [ref=e3478]
+              - text: Verified
+            - generic [ref=e3480]:
+              - generic [ref=e3481]:
+                - generic [ref=e3482]:
+                  - img "EarthRights International"
+                - heading "EarthRights International" [level=3] [ref=e3483]
+              - paragraph [ref=e3484]: Combines law, advocacy and organising for earth and human rights
+              - paragraph [ref=e3485]: United States·environment·$8M
+          - link "Earthworks" [ref=e3486] [cursor=pointer]:
+            - /url: /charities/earthworks
+            - generic "Verified" [ref=e3488]:
+              - img [ref=e3489]
+              - text: Verified
+            - generic [ref=e3491]:
+              - generic [ref=e3492]:
+                - generic [ref=e3493]:
+                  - img "Earthworks"
+                - heading "Earthworks" [level=3] [ref=e3494]
+              - paragraph [ref=e3495]: Protects communities from mining and oil & gas impacts
+              - paragraph [ref=e3496]: United States·environment·$6.5M
+          - link "Easterseals" [ref=e3497] [cursor=pointer]:
+            - /url: /charities/easterseals
+            - generic "Verified" [ref=e3499]:
+              - img [ref=e3500]
+              - text: Verified
+            - generic [ref=e3502]:
+              - generic [ref=e3503]:
+                - generic [ref=e3504]:
+                  - img "Easterseals"
+                - heading "Easterseals" [level=3] [ref=e3505]
+              - paragraph [ref=e3506]: Disability services and supports across all stages of life
+              - paragraph [ref=e3507]: United States·disability-services·$28M
+          - link "Educate Girls Globally" [ref=e3508] [cursor=pointer]:
+            - /url: /charities/educate-girls
+            - generic "Verified" [ref=e3510]:
+              - img [ref=e3511]
+              - text: Verified
+            - generic [ref=e3513]:
+              - generic [ref=e3514]:
+                - generic [ref=e3515]:
+                  - img "Educate Girls Globally"
+                - heading "Educate Girls Globally" [level=3] [ref=e3516]
+              - paragraph [ref=e3517]: Enrolls out-of-school girls in rural India
+              - paragraph [ref=e3518]: United States·education·$8.5M
+          - link "Equality Now" [ref=e3519] [cursor=pointer]:
+            - /url: /charities/equality-now
+            - generic "Verified" [ref=e3521]:
+              - img [ref=e3522]
+              - text: Verified
+            - generic [ref=e3524]:
+              - generic [ref=e3525]:
+                - generic [ref=e3526]:
+                  - img "Equality Now"
+                - heading "Equality Now" [level=3] [ref=e3527]
+              - paragraph [ref=e3528]: Legal advocacy to end violence and discrimination against women & girls
+              - paragraph [ref=e3529]: United States·womens-rights·$10M
+          - link "FINCA International" [ref=e3530] [cursor=pointer]:
+            - /url: /charities/finca-international
+            - generic "Verified" [ref=e3532]:
+              - img [ref=e3533]
+              - text: Verified
+            - generic [ref=e3535]:
+              - generic [ref=e3536]:
+                - generic [ref=e3537]:
+                  - img "FINCA International"
+                - heading "FINCA International" [level=3] [ref=e3538]
+              - paragraph [ref=e3539]: Microfinance for low-income entrepreneurs in 20 countries
+              - paragraph [ref=e3540]: United States·microfinance·$15M
+          - link "First Nations Development Institute" [ref=e3541] [cursor=pointer]:
+            - /url: /charities/first-nations-development-institute
+            - generic "Verified" [ref=e3543]:
+              - img [ref=e3544]
+              - text: Verified
+            - generic [ref=e3546]:
+              - generic [ref=e3547]:
+                - generic [ref=e3548]:
+                  - img "First Nations Development Institute"
+                - heading "First Nations Development Institute" [level=3] [ref=e3549]
+              - paragraph [ref=e3550]: Native-led economic development across Native American communities
+              - paragraph [ref=e3551]: United States·indigenous-rights·$28M
+          - link "Fisher House Foundation" [ref=e3552] [cursor=pointer]:
+            - /url: /charities/fisher-house
+            - generic "Verified" [ref=e3554]:
+              - img [ref=e3555]
+              - text: Verified
+            - generic [ref=e3557]:
+              - generic [ref=e3558]:
+                - generic [ref=e3559]:
+                  - img "Fisher House Foundation"
+                - heading "Fisher House Foundation" [level=3] [ref=e3560]
+              - paragraph [ref=e3561]: Free lodging for military and veteran families near hospitals
+              - paragraph [ref=e3562]: United States·veterans·$110M
+          - link "Fistula Foundation" [ref=e3563] [cursor=pointer]:
+            - /url: /charities/fistula-foundation
+            - generic "Verified" [ref=e3565]:
+              - img [ref=e3566]
+              - text: Verified
+            - generic [ref=e3568]:
+              - generic [ref=e3569]:
+                - generic [ref=e3570]:
+                  - img "Fistula Foundation"
+                - heading "Fistula Foundation" [level=3] [ref=e3571]
+              - paragraph [ref=e3572]: Funds free surgery for women living with obstetric fistula
+              - paragraph [ref=e3573]: United States·global-health·$19M
+          - link "5 Gyres Institute" [ref=e3574] [cursor=pointer]:
+            - /url: /charities/five-gyres
+            - generic "Verified" [ref=e3576]:
+              - img [ref=e3577]
+              - text: Verified
+            - generic [ref=e3579]:
+              - generic [ref=e3580]:
+                - generic [ref=e3581]:
+                  - img "5 Gyres Institute"
+                - heading "5 Gyres Institute" [level=3] [ref=e3582]
+              - paragraph [ref=e3583]: Science-based fight against ocean plastic pollution
+              - paragraph [ref=e3584]: United States·ocean-protection·$1.2M
+          - link "Friends of the Earth (US)" [ref=e3585] [cursor=pointer]:
+            - /url: /charities/friends-of-the-earth
+            - generic "Verified" [ref=e3587]:
+              - img [ref=e3588]
+              - text: Verified
+            - generic [ref=e3590]:
+              - generic [ref=e3591]:
+                - generic [ref=e3592]:
+                  - img "Friends of the Earth (US)"
+                - heading "Friends of the Earth (US)" [level=3] [ref=e3593]
+              - paragraph [ref=e3594]: Environmental advocacy on climate and corporate accountability
+              - paragraph [ref=e3595]: United States·environment·$18M
+          - link "Forest Stewardship Council US" [ref=e3596] [cursor=pointer]:
+            - /url: /charities/fsc-us
+            - generic "Verified" [ref=e3598]:
+              - img [ref=e3599]
+              - text: Verified
+            - generic [ref=e3601]:
+              - generic [ref=e3602]:
+                - generic [ref=e3603]:
+                  - img "Forest Stewardship Council US"
+                - heading "Forest Stewardship Council US" [level=3] [ref=e3604]
+              - paragraph [ref=e3605]: Sets and certifies responsible-forestry standards
+              - paragraph [ref=e3606]: United States·forest-protection·$4.8M
+          - link "Galapagos Conservancy" [ref=e3607] [cursor=pointer]:
+            - /url: /charities/galapagos-conservancy
+            - generic "Verified" [ref=e3609]:
+              - img [ref=e3610]
+              - text: Verified
+            - generic [ref=e3612]:
+              - generic [ref=e3613]:
+                - generic [ref=e3614]:
+                  - img "Galapagos Conservancy"
+                - heading "Galapagos Conservancy" [level=3] [ref=e3615]
+              - paragraph [ref=e3616]: Sole US 501(c)(3) dedicated to protecting the Galápagos
+              - paragraph [ref=e3617]: United States·wildlife-conservation·$7M
+          - link "GLAAD" [ref=e3618] [cursor=pointer]:
+            - /url: /charities/glaad
+            - generic "Verified" [ref=e3620]:
+              - img [ref=e3621]
+              - text: Verified
+            - generic [ref=e3623]:
+              - generic [ref=e3624]:
+                - generic [ref=e3625]:
+                  - img "GLAAD"
+                - heading "GLAAD" [level=3] [ref=e3626]
+              - paragraph [ref=e3627]: LGBTQ media advocacy organisation in the US
+              - paragraph [ref=e3628]: United States·hiv-aids·$26M
+          - link "Heifer International" [ref=e3629] [cursor=pointer]:
+            - /url: /charities/heifer-international
+            - generic "Verified" [ref=e3631]:
+              - img [ref=e3632]
+              - text: Verified
+            - generic [ref=e3634]:
+              - generic [ref=e3635]:
+                - generic [ref=e3636]:
+                  - img "Heifer International"
+                - heading "Heifer International" [level=3] [ref=e3637]
+              - paragraph [ref=e3638]: Lifts farming families out of poverty via livestock
+              - paragraph [ref=e3639]: United States·poverty-reduction·$147M
+          - link "HelpAge USA" [ref=e3640] [cursor=pointer]:
+            - /url: /charities/helpage-usa
+            - generic "Verified" [ref=e3642]:
+              - img [ref=e3643]
+              - text: Verified
+            - generic [ref=e3645]:
+              - generic [ref=e3646]:
+                - generic [ref=e3647]:
+                  - img "HelpAge USA"
+                - heading "HelpAge USA" [level=3] [ref=e3648]
+              - paragraph [ref=e3649]: US 501(c)(3) for the global rights and well-being of older people
+              - paragraph [ref=e3650]: United States·senior-care·$1.5M
+          - link "Hope For The Warriors" [ref=e3651] [cursor=pointer]:
+            - /url: /charities/hope-for-the-warriors
+            - generic "Verified" [ref=e3653]:
+              - img [ref=e3654]
+              - text: Verified
+            - generic [ref=e3656]:
+              - generic [ref=e3657]:
+                - generic [ref=e3658]:
+                  - img "Hope For The Warriors"
+                - heading "Hope For The Warriors" [level=3] [ref=e3659]
+              - paragraph [ref=e3660]: Recovery and reintegration support for US service members and families
+              - paragraph [ref=e3661]: United States·veterans·$8.5M
+          - link "International Medical Corps" [ref=e3662] [cursor=pointer]:
+            - /url: /charities/international-medical-corps
+            - generic "Verified" [ref=e3664]:
+              - img [ref=e3665]
+              - text: Verified
+            - generic [ref=e3667]:
+              - generic [ref=e3668]:
+                - generic [ref=e3669]:
+                  - img "International Medical Corps"
+                - heading "International Medical Corps" [level=3] [ref=e3670]
+              - paragraph [ref=e3671]: Emergency medical response and health-system rebuilding in conflict and disaster zones
+              - paragraph [ref=e3672]: United States·global-health·$190M
+          - link "Jane Goodall Institute" [ref=e3673] [cursor=pointer]:
+            - /url: /charities/jane-goodall-institute
+            - generic "Verified" [ref=e3675]:
+              - img [ref=e3676]
+              - text: Verified
+            - generic [ref=e3678]:
+              - generic [ref=e3679]:
+                - generic [ref=e3680]:
+                  - img "Jane Goodall Institute"
+                - heading "Jane Goodall Institute" [level=3] [ref=e3681]
+              - paragraph [ref=e3682]: Chimpanzee research and great-ape conservation in Africa
+              - paragraph [ref=e3683]: United States·primates·$18M
+          - link "The JED Foundation" [ref=e3684] [cursor=pointer]:
+            - /url: /charities/jed-foundation
+            - generic "Verified" [ref=e3686]:
+              - img [ref=e3687]
+              - text: Verified
+            - generic [ref=e3689]:
+              - generic [ref=e3690]:
+                - generic [ref=e3691]:
+                  - img "The JED Foundation"
+                - heading "The JED Foundation" [level=3] [ref=e3692]
+              - paragraph [ref=e3693]: Suicide prevention and emotional health for US teens and young adults
+              - paragraph [ref=e3694]: United States·mental-health·$18M
+          - link "Khan Academy" [ref=e3695] [cursor=pointer]:
+            - /url: /charities/khan-academy
+            - generic "Verified" [ref=e3697]:
+              - img [ref=e3698]
+              - text: Verified
+            - generic [ref=e3700]:
+              - generic [ref=e3701]:
+                - generic [ref=e3702]:
+                  - img "Khan Academy"
+                - heading "Khan Academy" [level=3] [ref=e3703]
+              - paragraph [ref=e3704]: Free world-class education for anyone, anywhere
+              - paragraph [ref=e3705]: United States·education·$80M
+          - link "Lambda Legal Defense and Education Fund" [ref=e3706] [cursor=pointer]:
+            - /url: /charities/lambda-legal
+            - generic "Verified" [ref=e3708]:
+              - img [ref=e3709]
+              - text: Verified
+            - generic [ref=e3711]:
+              - generic [ref=e3712]:
+                - generic [ref=e3713]:
+                  - img "Lambda Legal Defense and Education Fund"
+                - heading "Lambda Legal Defense and Education Fund" [level=3] [ref=e3714]
+              - paragraph [ref=e3715]: Civil-rights litigation for LGBTQ+ people and people with HIV
+              - paragraph [ref=e3716]: United States·lgbt-rights·$32M
+          - link "Land Trust Alliance" [ref=e3717] [cursor=pointer]:
+            - /url: /charities/land-trust-alliance
+            - generic "Verified" [ref=e3719]:
+              - img [ref=e3720]
+              - text: Verified
+            - generic [ref=e3722]:
+              - generic [ref=e3723]:
+                - generic [ref=e3724]:
+                  - img "Land Trust Alliance"
+                - heading "Land Trust Alliance" [level=3] [ref=e3725]
+              - paragraph [ref=e3726]: Supports the network of US land trusts protecting open space
+              - paragraph [ref=e3727]: United States·land-conservation·$23M
+          - link "Make-A-Wish America" [ref=e3728] [cursor=pointer]:
+            - /url: /charities/make-a-wish
+            - generic "Verified" [ref=e3730]:
+              - img [ref=e3731]
+              - text: Verified
+            - generic [ref=e3733]:
+              - generic [ref=e3734]:
+                - generic [ref=e3735]:
+                  - img "Make-A-Wish America"
+                - heading "Make-A-Wish America" [level=3] [ref=e3736]
+              - paragraph [ref=e3737]: Grants wishes for children with critical illnesses
+              - paragraph [ref=e3738]: United States·childhood-cancer·$440M
+  - contentinfo [ref=e68]:
+    - generic [ref=e69]:
+      - generic [ref=e71]:
+        - img [ref=e72]
+        - generic [ref=e74]: TrustGive
+      - generic [ref=e75]:
+        - generic [ref=e76]:
+          - heading "Discover" [level=3] [ref=e77]
+          - list [ref=e78]:
+            - listitem [ref=e79]:
+              - link "Full catalog" [ref=e80] [cursor=pointer]:
+                - /url: /charities
+            - listitem [ref=e81]:
+              - link "United States" [ref=e82] [cursor=pointer]:
+                - /url: /charities?country=US
+            - listitem [ref=e83]:
+              - link "United Kingdom" [ref=e84] [cursor=pointer]:
+                - /url: /charities?country=GB
+            - listitem [ref=e85]:
+              - link "Russia (curated)" [ref=e86] [cursor=pointer]:
+                - /url: /charities?country=RU
+        - generic [ref=e87]:
+          - heading "Methodology" [level=3] [ref=e88]
+          - list [ref=e89]:
+            - listitem [ref=e90]:
+              - link "How we verify" [ref=e91] [cursor=pointer]:
+                - /url: /methodology
+            - listitem [ref=e92]:
+              - link "Data sources" [ref=e93] [cursor=pointer]:
+                - /url: /methodology#sources
+            - listitem [ref=e94]:
+              - link "What we don't verify" [ref=e95] [cursor=pointer]:
+                - /url: /methodology#standards
+        - generic [ref=e96]:
+          - heading "About" [level=3] [ref=e97]
+          - list [ref=e98]:
+            - listitem [ref=e99]:
+              - link "Source on GitHub" [ref=e100] [cursor=pointer]:
+                - /url: https://github.com/AlexOpasnost/trustgive
+            - listitem [ref=e101]:
+              - link "Changelog" [ref=e102] [cursor=pointer]:
+                - /url: https://github.com/AlexOpasnost/trustgive/blob/main/CHANGELOG.md
+            - listitem [ref=e103]:
+              - link "Contact" [ref=e104] [cursor=pointer]:
+                - /url: mailto:hello@trustgive.org
+      - generic [ref=e105]:
+        - paragraph [ref=e106]: © 2026 TrustGive · We don't process donations. We never see your money.
+        - paragraph [ref=e107]: Built with Inter · Source Serif 4 · Geist Mono · Hugeicons

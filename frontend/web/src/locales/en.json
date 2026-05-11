@@ -79,7 +79,11 @@
     "sort": "Sort by",
     "noResults": "No charities match these filters",
     "tryRemoving": "Try removing a filter or broadening the cause selection.",
-    "view": "View"
+    "view": "View",
+    "loadMore": "Load more",
+    "loadingMore": "Loading…",
+    "notFound": "Charity not found",
+    "notFoundBody": "We couldn't find this charity. The link may be outdated. Browse the full catalog to find a similar organisation."
   },
   "charity": {
     "verified": "Verified",

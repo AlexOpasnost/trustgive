@@ -76,13 +76,30 @@ def test_filter_by_bucket(api_client, charity):
 
 @pytest.mark.django_db
 def test_featured_endpoint_accepts_bucket_param(api_client, charity):
-    """v3.0 §A — bucket-scoped featured for the bucket landing page."""
+    """v3.0 §A — bucket-scoped featured for the bucket landing page.
+
+    v3.15: response envelope is {featured: [...], total_count: N}.
+    """
     res = api_client.get("/api/charities/featured/?bucket=animals")
     assert res.status_code == 200
     body = res.json()
-    # Empty list is fine (no animals seeded in this fixture); the contract
-    # is just "200 + flat list, never 400".
-    assert isinstance(body, list)
+    # Empty featured list is fine (no animals seeded in this fixture); the
+    # contract is "200 + envelope shape, never 400".
+    assert isinstance(body, dict)
+    assert "featured" in body and isinstance(body["featured"], list)
+    assert "total_count" in body and isinstance(body["total_count"], int)
+
+
+@pytest.mark.django_db
+def test_featured_endpoint_total_count_matches_verified_count(api_client, charity):
+    """v3.15 — total_count is the real verified-charity total, not array length."""
+    res = api_client.get("/api/charities/featured/")
+    assert res.status_code == 200
+    body = res.json()
+    # The fixture seeds at least one verified charity, so total_count >= 1.
+    # The featured array is capped at 6 by _select_featured.
+    assert body["total_count"] >= 1
+    assert len(body["featured"]) <= 6
 
 
 @pytest.mark.django_db

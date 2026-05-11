@@ -136,3 +136,13 @@ export type Pagination = {
 export type PaginatedCharitySummary = Pagination & {
   results: CharitySummary[]
 }
+
+/**
+ * v3.15 — featured-endpoint envelope. `featured` is the up-to-6 hero cards;
+ * `total_count` is the real verified-charity total in scope (drives the
+ * homepage bucket-card "{N} verified charities" subtitle).
+ */
+export type FeaturedResponse = {
+  featured: CharitySummary[]
+  total_count: number
+}

@@ -28,7 +28,7 @@ import { DonateConfirmModal } from "@/components/charity/DonateConfirmModal"
 import { MoneyBreakdown } from "@/components/charity/MoneyBreakdown"
 import { SourceDocumentDrawer } from "@/components/charity/SourceDocumentDrawer"
 import { Button } from "@/components/ui/Button"
-import { api } from "@/lib/api"
+import { api, ApiError } from "@/lib/api"
 import { PHOTO_WIDTHS, wikimediaThumb } from "@/lib/image"
 import { usePreferences } from "@/store/preferences"
 import type { Charity, SourceDocument } from "@/types/api"
@@ -40,11 +40,18 @@ export function CharityDetailPage() {
   const [openDoc, setOpenDoc] = useState<SourceDocument | null>(null)
   const [donateOpen, setDonateOpen] = useState(false)
 
-  const { data: charity, isLoading, isError } = useQuery({
+  const { data: charity, isLoading, isError, error } = useQuery({
     queryKey: ["charity", slug],
     queryFn: ({ signal }) => api.getCharity(slug, { signal }),
     enabled: Boolean(slug),
+    // Don't auto-retry 404 — the slug is genuinely missing.
+    retry: (failureCount, err) => {
+      if (err instanceof ApiError && err.status === 404) return false
+      return failureCount < 2
+    },
   })
+
+  const isNotFound = error instanceof ApiError && error.status === 404
 
   if (isLoading) {
     return (
@@ -65,6 +72,25 @@ export function CharityDetailPage() {
   }
 
   if (isError || !charity) {
+    if (isNotFound) {
+      return (
+        <div className="max-w-(--container-narrow) mx-auto px-6 py-24 text-center">
+          <h1 className="text-h2 font-semibold text-ink mb-3">
+            {t("catalog.notFound")}
+          </h1>
+          <p className="text-body text-ink-2 mb-8 max-w-[60ch] mx-auto">
+            {t("catalog.notFoundBody")}
+          </p>
+          <Link
+            to="/charities"
+            className="inline-flex items-center gap-2 text-body text-ink underline decoration-rule decoration-1 underline-offset-4 hover:decoration-ink"
+          >
+            <HugeiconsIcon icon={ArrowLeft02Icon} size={14} aria-hidden="true" />
+            {t("charity.back")}
+          </Link>
+        </div>
+      )
+    }
     return (
       <div className="max-w-(--container-narrow) mx-auto px-6 py-24 text-center">
         <h1 className="text-h2 font-semibold text-ink mb-2">{t("common.error")}</h1>
@@ -430,9 +456,11 @@ function DetailHero({
       )}
 
       {/* Bottom-left: name + tagline */}
+      {/* v3.15: lifted from bottom-8 to bottom-14 on mobile (<md) so the photo
+          credit row below has its own 24px lane and stops overlapping. */}
       <div
         className="
-          absolute bottom-8 left-6 right-6 md:bottom-12 md:left-12 md:right-12 z-10
+          absolute bottom-14 left-6 right-6 md:bottom-12 md:left-12 md:right-12 z-10
           max-w-(--container-default) mx-auto
         "
       >
@@ -458,8 +486,15 @@ function DetailHero({
       </div>
 
       {/* Bottom-right: photo credit */}
+      {/* v3.15: full-width discrete band on mobile (<md) so the long caption
+          can wrap below the title block instead of overlaying it at 320px. */}
       {photoCredit && (
-        <div className="absolute bottom-3 right-4 md:bottom-4 md:right-6 z-10">
+        <div
+          className="
+            absolute bottom-3 left-6 right-6 md:left-auto md:bottom-4 md:right-6 z-10
+            text-right
+          "
+        >
           <span className="text-[10px] leading-tight text-white/65 font-sans">
             {caption ? `${caption} — ` : ""}
             {t("detail.hero.photoCredit", { credit: photoCredit })}

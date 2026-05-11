@@ -16,7 +16,7 @@ import type {
   Bucket,
   Cause,
   Charity,
-  CharitySummary,
+  FeaturedResponse,
   PaginatedCharitySummary,
   SourceDocument,
 } from "@/types/api"
@@ -26,6 +26,19 @@ const BASE_URL = (import.meta.env.VITE_API_BASE_URL as string | undefined) ?? ""
 type FetchOptions = {
   signal?: AbortSignal
   headers?: Record<string, string>
+}
+
+/**
+ * Thrown by apiFetch when the backend returns a non-2xx. Retains `status` so
+ * pages can branch on 404 (not-found UX) vs 5xx (retryable error UX).
+ */
+export class ApiError extends Error {
+  status: number
+  constructor(status: number, message: string) {
+    super(message)
+    this.name = "ApiError"
+    this.status = status
+  }
 }
 
 async function apiFetch<T>(path: string, opts: FetchOptions = {}): Promise<T> {
@@ -45,7 +58,7 @@ async function apiFetch<T>(path: string, opts: FetchOptions = {}): Promise<T> {
     } catch {
       // ignore — message stays generic
     }
-    throw new Error(message)
+    throw new ApiError(res.status, message)
   }
   return (await res.json()) as T
 }
@@ -103,7 +116,7 @@ export const api = {
    * Cache aligned with backend `s-maxage=3600`: TanStack staleTime = 1h.
    */
   featuredCharities(params: FeaturedParams = {}, opts?: FetchOptions) {
-    return apiFetch<CharitySummary[]>(`/api/charities/featured/${toQuery(params)}`, opts)
+    return apiFetch<FeaturedResponse>(`/api/charities/featured/${toQuery(params)}`, opts)
   },
   getCharity(slug: string, opts?: FetchOptions) {
     return apiFetch<Charity>(`/api/charities/${slug}/`, opts)

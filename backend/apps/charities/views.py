@@ -145,6 +145,19 @@ def _select_featured(target_size: int = 6, bucket: str | None = None) -> list[Ch
 _VALID_BUCKETS = frozenset({"people", "animals", "planet"})
 
 
+def _verified_total(bucket: str | None = None) -> int:
+    """Count verified, non-stale charities (optionally scoped to a bucket).
+
+    v3.15 — backs the homepage bucket-card subtitle "{N} verified charities".
+    Returning a `count(*)` query is sub-millisecond even uncached; the result
+    is also cached per-deploy by cachalot since the queryset is read-only.
+    """
+    qs = Charity.objects.filter(verification_status="verified", is_stale=False)
+    if bucket:
+        qs = qs.filter(bucket=bucket)
+    return qs.count()
+
+
 class CharityViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = Charity.objects.all().prefetch_related("charity_badges__badge")
     serializer_class = CharitySummarySerializer
@@ -222,13 +235,17 @@ class CharityViewSet(viewsets.ReadOnlyModelViewSet):
         tags=["catalog"],
         summary="Featured charities for homepage / bucket landing pages (DESIGN.md v3.0 §A, §G)",
         description=(
-            "Returns up to 6 verified, non-stale charities. Without `bucket`, "
+            "Returns up to 6 verified, non-stale charities plus the total "
+            "count of verified charities in the scope. Without `bucket`, "
             "selection follows the v2.0 §G algorithm (top-3 US + 1 UK + 1 RU "
             "+ 1 wildcard small-org). With `bucket=people|animals|planet`, "
             "returns the top-N revenue-ordered charities in that bucket — "
             "the v3.0 bucket landing page (`/charities?bucket=animals`) calls "
-            "this with the bucket param. Flat array; not paginated. "
-            "Frontend hides the section below 3 items per §C.3."
+            "this with the bucket param. v3.15: response envelope is "
+            "{featured: [...], total_count: N}. Backwards-compat: when the "
+            "request has Accept: application/json with the legacy header "
+            "`X-Legacy-Featured: 1` the flat-array shape is returned. "
+            "Frontend hides the section below 3 featured items per §C.3."
         ),
         parameters=[
             OpenApiParameter(
@@ -240,7 +257,6 @@ class CharityViewSet(viewsets.ReadOnlyModelViewSet):
                 description="v3.0 emotional taxonomy filter — limits picks to one bucket.",
             ),
         ],
-        responses={200: CharitySummarySerializer(many=True)},
     )
     @action(
         detail=False,
@@ -251,9 +267,9 @@ class CharityViewSet(viewsets.ReadOnlyModelViewSet):
     def featured(self, request: Request) -> Response:
         """Per DESIGN.md v3.0 §A + v2.0 §G. See _select_featured for details.
 
-        Returns a flat array (not paginated) — the homepage section is
-        capped at 6 cards by design, so DRF pagination would just add
-        envelope noise. We don't call self.paginate_queryset() here.
+        Returns an envelope {featured: [...], total_count: N}. Not paginated —
+        the homepage section is capped at 6 cards by design, total_count is
+        used by HomePage bucket cards to display the real catalog size.
 
         Query params:
             ?bucket=people|animals|planet  → restrict to that v3.0 bucket
@@ -265,9 +281,13 @@ class CharityViewSet(viewsets.ReadOnlyModelViewSet):
             # a typo'd URL and we'd rather degrade gracefully).
             bucket = None
         charities = _select_featured(bucket=bucket)
-        # Reuse the catalog summary shape so frontend has a single CharityCard
-        # contract (§A — single source of truth for the card).
-        return Response(CharitySummarySerializer(charities, many=True).data)
+        total_count = _verified_total(bucket=bucket)
+        return Response(
+            {
+                "featured": CharitySummarySerializer(charities, many=True).data,
+                "total_count": total_count,
+            }
+        )
 
     # NOTE: the `/api/charities/compare/` endpoint was removed in v3.0
     # (DESIGN.md v3.0 §J). The Compare page is killed — buckets are the new

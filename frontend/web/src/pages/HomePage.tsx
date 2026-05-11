@@ -63,15 +63,21 @@ function BucketSlot({ bucket }: BucketSlotProps) {
     return <HeroBucketSkeleton />
   }
 
+  // v3.15: response envelope is { featured: [], total_count: N }. Earlier
+  // versions used `count = data?.length` here — that returned the size of the
+  // featured array (max 6), not the real catalog size. Now we use the explicit
+  // total_count field from the API.
+  const featured = data?.featured ?? []
+  const count = data?.total_count ?? 0
+
   // Fail-soft: even if the featured fetch errors, render a card pointing at the
   // bucket with placeholder photo so the user still has the navigation anchor.
-  // Hide only if we got an empty (0-charity) bucket. v3.0 backend seeded all 3.
-  if (!isError && data && data.length === 0) {
+  // Hide only if we got an empty (0-charity) bucket.
+  if (!isError && featured.length === 0 && count === 0) {
     return null
   }
 
-  const first: CharitySummary | undefined = data && data.length > 0 ? data[0] : undefined
-  const count = data?.length ?? 0
+  const first: CharitySummary | undefined = featured[0]
   const rawPhoto = first?.hero_photo_url ?? null
   const photoUrl = rawPhoto ? wikimediaThumb(rawPhoto, PHOTO_WIDTHS.bucketHero) : null
 

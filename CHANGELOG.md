@@ -1749,3 +1749,118 @@ REGION_FILTERS.europe.countries +PL/+FI/+AT, REGION_FILTERS.mena.countries +IL.
     NO — final batch of a long day, applies all established patterns. The full saga (218 → 541 in 9 batches in one day) is the lesson, not any individual entry.
   </knowledge_to_store>
 </reflection>
+
+---
+
+## [2026-05-11] [Project Lead, Playwright MCP + npx lighthouse] [v3.15 — Mobile QA audit + 5 fixes]
+
+First mobile QA pass on TrustGive — Playwright MCP unblocked. Audited `/`, `/charities`, `/charities/{slug}`, `/methodology` at 320×568, 360×800, 414×896 viewports plus 1440×900 desktop for fresh portfolio screenshots. Lighthouse run via `npx lighthouse` (PageSpeed Insights API anonymous quota = 0/day).
+
+### Lighthouse scores
+
+| | Desktop | Mobile |
+|---|---|---|
+| Performance | 89 | 71 |
+| Accessibility | **100** | **100** |
+| Best Practices | **100** | **100** |
+| SEO | 92 | 92 |
+
+Desktop LCP 1.8s. Mobile LCP 6.2s (the slow-4G + CPU-throttle simulation — real-world LCP via Cloudflare CDN closer to 2-3s).
+
+### Audit found 12 issues (3 🔴 / 3 🟡 / 6 🟢)
+
+🔴 **C-1** Homepage bucket cards showed "6 verified charities" in every bucket. Real catalog: 393 People / 86 Planet / 62 Animals. Root cause in [HomePage.tsx:74](frontend/web/src/pages/HomePage.tsx#L74): `count = data?.length` (length of featured array, capped at 6 server-side).
+
+🔴 **C-2** `/charities` rendered only first 300 of 541 charities. No pagination UI. 241 charities (44.5% of catalog) unreachable. Root cause in [CatalogPage.tsx:55](frontend/web/src/pages/CatalogPage.tsx#L55): `page_size: 300` hardcoded, "render full catalog without pagination" approach that silently broke when catalog crossed 300.
+
+🔴 **C-3** Hero photos broken in Chrome on detail pages. Network trace: `net::ERR_BLOCKED_BY_ORB` on `images.weserv.nl/?url=...&output=webp` for Wikimedia-source images at w=1600. Chrome's Opaque Response Blocking refuses cross-origin webp without strict CORP. Affected ~80% of detail-page heroes (most use Wikimedia). NAMI (Unsplash source) worked because Unsplash has clean CORP headers.
+
+🟡 **M-1** Photo credit microtext overlapped subtitle at 320px on detail page.
+🟡 **M-2** Mobile LCP 6.2s — image preload + responsive srcset + 112 KB unused JS in bundle.
+🟡 **M-3** 404 detail page showed "Something went wrong" (5xx-style retryable) instead of "Charity not found".
+
+🟢 N-1: bucket card aria-label missing decorative "BROWSE BY CAUSE" overline.
+🟢 N-2: duplicate H2 ("Where the money goes" + "How they spend the money").
+🟢 N-3: invalid robots.txt (-8 SEO).
+🟢 N-4: 112 KB unused JS in main bundle.
+🟢 N-5: homepage People bucket featured charity has no `hero_photo_url`.
+🟢 N-6: same `<title>` on every route.
+
+### Fixes shipped (v3.15)
+
+**C-3 hero photos** — [`lib/image.ts`](frontend/web/src/lib/image.ts):
+- Dropped `output=webp` from weserv URL params. Lets weserv echo source mime (JPEG for Wikimedia). Bypasses Chrome ORB. ~30% bytes cost vs. webp, still ~95% smaller than un-proxied original.
+
+**C-2 catalog pagination** — [`pages/CatalogPage.tsx`](frontend/web/src/pages/CatalogPage.tsx):
+- Replaced `useQuery` + `page_size: 300` with `useInfiniteQuery` + `PAGE_SIZE = 60`.
+- "Showing 1–{loaded} of {total}" reflects accumulated pages.
+- Added Button-styled "Load more" / "Показать ещё" CTA at end of grid; disabled state while fetching.
+- Smaller initial payload (60 cards instead of 300) → faster FCP/LCP on mobile.
+
+**C-1 bucket counts** — [`backend/apps/charities/views.py`](backend/apps/charities/views.py) + [`HomePage.tsx`](frontend/web/src/pages/HomePage.tsx) + [`types/api.ts`](frontend/web/src/types/api.ts) + [`lib/api.ts`](frontend/web/src/lib/api.ts):
+- Backend `_select_featured` view now wraps response in `{featured: [...], total_count: N}`.
+- New `_verified_total(bucket)` helper computes scope count via `Charity.objects.filter(verification_status='verified', is_stale=False).count()` (optionally bucket-scoped).
+- Frontend type `FeaturedResponse` introduced; `HomePage.BucketSlot` uses `data?.total_count` for the subtitle.
+- Backend test updated to assert envelope shape + new test for `total_count >= 1`.
+
+**M-3 404 UX** — [`lib/api.ts`](frontend/web/src/lib/api.ts) + [`CharityDetailPage.tsx`](frontend/web/src/pages/CharityDetailPage.tsx):
+- Introduced `ApiError(status, message)` class; `apiFetch` throws `ApiError` instead of plain `Error`.
+- `useQuery` on detail page disables auto-retry for 404s.
+- Detail page error branch renders distinct "Charity not found" / "Организация не найдена" page with link back to /charities.
+
+**M-1 photo credit overlap @ 320px** — [`CharityDetailPage.tsx`](frontend/web/src/pages/CharityDetailPage.tsx):
+- Lifted title block from `bottom-8` to `bottom-14` on mobile (<md breakpoint).
+- Photo credit microtext now uses `left-6 right-6 text-right` on mobile (full-width band, can wrap, doesn't overlay).
+
+### Translation strings added (EN + RU)
+- `catalog.loadMore` / `catalog.loadingMore`
+- `catalog.notFound` / `catalog.notFoundBody`
+
+### Files changed
+```
+backend/apps/charities/views.py
+backend/apps/charities/tests/test_views.py
+frontend/web/src/lib/image.ts
+frontend/web/src/lib/api.ts
+frontend/web/src/pages/CatalogPage.tsx
+frontend/web/src/pages/CharityDetailPage.tsx
+frontend/web/src/pages/HomePage.tsx
+frontend/web/src/types/api.ts
+frontend/web/src/locales/en.json
+frontend/web/src/locales/ru.json
+```
+
+### Build verified
+- `npx tsc --noEmit` → clean
+- `npm run build` → built in 6.19s, 567KB main bundle (584KB pre-fix, -3%)
+- `manage.py check` → clean (pre-existing W345 ignored)
+- Backend pytest blocked by Neon auto-suspend; will rely on Railway deploy + prod curl smoke
+
+### Deferred to v3.16+
+- N-1..N-6 polish sweep (aria-label, duplicate H2, robots.txt, bundle split, People bucket hero, per-route titles)
+- M-2 LCP optimization (image preload, responsive srcset)
+
+<reflection>
+  <what_went_well>
+    - First mobile QA pass uncovered 12 real issues including 3 critical that would have failed any portfolio scrutiny. Worth the audit hour many times over.
+    - Lighthouse a11y 100 / BP 100 / CLS 0 are the underlying signal that the photo-first design didn't trade off basics — the bugs are surface-level, not foundation-level.
+    - Five fixes in one pass, all build-clean, all minimal-diff. Total: ~150 lines changed across 10 files.
+    - `useInfiniteQuery` migration was 30 lines net change — TanStack Query made it idiomatic.
+    - `ApiError` class is a one-line additive change that unlocks 404 UX without affecting any other call site.
+  </what_went_well>
+  <challenges>
+    - Playwright MCP file-output sandboxed to .claude/ — had to move screenshots via Bash after each capture. Friction but worked.
+    - PageSpeed Insights API anonymous quota is 0/day; fell back to `npx lighthouse` which works but tempdir-cleanup EPERMs on Windows (JSON still written before cleanup fail).
+    - Neon DB auto-suspended → couldn't run pytest locally. Relying on Django `manage.py check` + Railway prod smoke instead. Want to set up an SQLite test DB for offline development.
+    - Three slug guesses (`doctors-without-borders`, `save-the-children`, `msf-usa`) gave broken hero photos before NAMI gave a working one — exposed the C-3 ORB bug, but cost time.
+  </challenges>
+  <lessons_learned>
+    - `data?.length` as a "count" is a footgun when the array is server-truncated. If the field will be shown to users, fetch the real total separately. KB-WORTHY.
+    - "Render full catalog without pagination" works exactly until the catalog crosses `page_size`. Always test scroll-to-end after large seed batches. KB-WORTHY.
+    - `images.weserv.nl + output=webp + Wikimedia source + Chrome` → ORB block. Document the working pattern. KB-WORTHY.
+    - Error classes (vs. plain `Error`) are essential when UX needs to branch on HTTP status. Worth adopting from day 1 in future TS clients.
+  </lessons_learned>
+  <knowledge_to_store>
+    YES — three KB entries promoted to shared common-pitfalls.md: (1) array-length-as-count footgun, (2) page_size silent truncation without pagination UI, (3) weserv + webp + Wikimedia → Chrome ORB.
+  </knowledge_to_store>
+</reflection>

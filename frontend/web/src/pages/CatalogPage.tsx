@@ -12,16 +12,19 @@
  *     was meaningless to expose
  */
 
-import { useQuery } from "@tanstack/react-query"
+import { useInfiniteQuery } from "@tanstack/react-query"
 import { useTranslation } from "react-i18next"
 import { useSearchParams } from "react-router-dom"
 
 import { CharityCard } from "@/components/charity/CharityCard"
+import { Button } from "@/components/ui/Button"
 import { Chip } from "@/components/ui/Chip"
 import { api, type CharityListParams } from "@/lib/api"
 import { BUCKET_SUBFILTERS, REGION_FILTERS } from "@/lib/buckets"
 import { usePreferences } from "@/store/preferences"
 import type { Bucket } from "@/types/api"
+
+const PAGE_SIZE = 60
 
 const VALID_BUCKETS: Bucket[] = ["people", "animals", "planet"]
 
@@ -44,21 +47,39 @@ export function CatalogPage() {
   const region = REGION_FILTERS.find((r) => r.slug === activeRegion)
   const countryParam = region?.countries?.length ? region.countries.join(",") : undefined
 
-  const params: CharityListParams = {
+  // v3.15: useInfiniteQuery + Load-more replaces the v3.7 single-page page_size=300
+  // approach. Required because the catalog crossed 300 charities (now 541) — the
+  // old approach silently truncated 241 charities.
+  const baseParams: Omit<CharityListParams, "page" | "page_size"> = {
     cause: activeCause ? [activeCause] : [],
     country: countryParam,
     bucket,
     sort: bucket ? "largest_revenue" : "most_recent_filing",
-    page: Number(searchParams.get("page") || 1),
-    // Render the full catalog without paginate-controls UI. Bumped to 300
-    // in v3.7 to fit the 250+ charity catalog without pagination UI.
-    page_size: 300,
   }
 
-  const { data, isLoading, isError } = useQuery({
-    queryKey: ["charities", params],
-    queryFn: ({ signal }) => api.listCharities(params, { signal }),
+  const {
+    data,
+    isLoading,
+    isError,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+  } = useInfiniteQuery({
+    queryKey: ["charities", baseParams],
+    initialPageParam: 1,
+    queryFn: ({ pageParam, signal }) =>
+      api.listCharities(
+        { ...baseParams, page: pageParam as number, page_size: PAGE_SIZE },
+        { signal },
+      ),
+    getNextPageParam: (lastPage) =>
+      lastPage.next ? lastPage.page + 1 : undefined,
   })
+
+  const pages = data?.pages ?? []
+  const allResults = pages.flatMap((p) => p.results)
+  const totalCount = pages[0]?.count ?? 0
+  const loadedCount = allResults.length
 
   const setFilter = (key: string, value: string | null) => {
     const next = new URLSearchParams(searchParams)
@@ -82,12 +103,12 @@ export function CatalogPage() {
         {headerSubtitle && (
           <p className="text-body text-ink-2 mt-3 max-w-2xl">{headerSubtitle}</p>
         )}
-        {data && (
+        {data && loadedCount > 0 && (
           <p className="text-body-sm text-ink-3 mt-4">
             {t("catalog.showing", {
-              from: (data.page - 1) * data.page_size + 1,
-              to: Math.min(data.page * data.page_size, data.count),
-              count: data.count,
+              from: 1,
+              to: loadedCount,
+              count: totalCount,
             })}
           </p>
         )}
@@ -160,7 +181,7 @@ export function CatalogPage() {
           </div>
         )}
 
-        {data && data.results.length === 0 && (
+        {data && loadedCount === 0 && (
           <div className="border border-rule rounded-md p-12 text-center">
             <h2 className="text-h3 font-semibold text-ink mb-2">
               {t("catalog.noResults")}
@@ -169,12 +190,29 @@ export function CatalogPage() {
           </div>
         )}
 
-        {data && data.results.length > 0 && (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {data.results.map((charity) => (
-              <CharityCard key={charity.slug} charity={charity} />
-            ))}
-          </div>
+        {data && loadedCount > 0 && (
+          <>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+              {allResults.map((charity) => (
+                <CharityCard key={charity.slug} charity={charity} />
+              ))}
+            </div>
+
+            {hasNextPage && (
+              <div className="mt-12 flex justify-center">
+                <Button
+                  variant="secondary"
+                  size="lg"
+                  onClick={() => fetchNextPage()}
+                  disabled={isFetchingNextPage}
+                >
+                  {isFetchingNextPage
+                    ? t("catalog.loadingMore")
+                    : t("catalog.loadMore")}
+                </Button>
+              </div>
+            )}
+          </>
         )}
       </main>
     </div>
