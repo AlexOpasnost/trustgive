@@ -1839,6 +1839,16 @@ frontend/web/src/locales/ru.json
 ### Deferred to v3.16+
 - N-1..N-6 polish sweep (aria-label, duplicate H2, robots.txt, bundle split, People bucket hero, per-route titles)
 - M-2 LCP optimization (image preload, responsive srcset)
+- Image resize CDN: weserv.nl is currently rate-limited by Wikimedia. Need a proper proxy. Options ranked: (1) Cloudflare Worker fetching + caching origin (no resize, cheap), (2) Cloudflare Images ($5/mo + per-image), (3) self-hosted imgproxy on Railway. v3.15.2 ships with Wikimedia originals loaded direct (~3-8 MB each) as the stopgap — lazy-load on catalog cards mitigates impact.
+
+### Round-2 patches (v3.15.1 + v3.15.2 same-session)
+
+Verification revealed C-3 needed 3 iterations:
+- **v3.15** (commit f5cd056): dropped `output=webp` — didn't fix it; weserv responses still ORB-blocked by Chrome because of missing CORP headers.
+- **v3.15.1**: added `crossorigin="anonymous"` to all `<img>` tags consuming `wikimediaThumb()` (HeroBucketCard, CharityCard, CharityDetailPage). Forced CORS request mode; weserv's `Access-Control-Allow-Origin: *` headers now apply; ORB bypassed. But weserv responses then became 404s — weserv was reporting upstream 429 (Wikimedia rate-limit).
+- **v3.15.2**: `wikimediaThumb()` now bypasses weserv entirely for Wikimedia source URLs and returns the original URL. Wikimedia originals have working CORS+CORP headers so they load directly. Cost: page weight (~3-8 MB per image). Stopgap until a real image-resize CDN is added.
+
+Also M-1: at 320px even with lifted title block, the long descriptive caption ("A health worker provides check-ups for newborn children at a Save the Children clinic in Lebanon's Bekaa Valley") wrapped to 3-4 lines and still overlapped. Fix: hidden caption on mobile via `hidden md:inline`; keeps credit + license visible at all widths (legal requirement) but drops the editorial caption below md breakpoint.
 
 <reflection>
   <what_went_well>

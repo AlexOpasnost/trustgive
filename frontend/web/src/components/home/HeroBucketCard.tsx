@@ -68,6 +68,9 @@ export function HeroBucketCard({
       "
     >
       {/* Background photo (full-bleed). object-cover; eager load (above-the-fold). */}
+      {/* v3.15: crossorigin="anonymous" forces CORS mode so Chrome's ORB
+          (Opaque Response Blocking) doesn't kill weserv.nl responses that
+          lack a Cross-Origin-Resource-Policy header. */}
       {photoUrl ? (
         <img
           src={photoUrl}
@@ -75,6 +78,7 @@ export function HeroBucketCard({
           loading="eager"
           decoding="async"
           fetchPriority="high"
+          crossOrigin="anonymous"
           className="
             absolute inset-0 h-full w-full object-cover object-center
             transition-transform duration-300 ease-out

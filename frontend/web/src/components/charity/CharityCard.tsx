@@ -106,6 +106,7 @@ export function CharityCard({ charity }: Props) {
             alt=""
             loading="lazy"
             decoding="async"
+            crossOrigin="anonymous"
             onError={() => setPhotoErrored(true)}
             className="
               h-full w-full object-cover object-center

@@ -6,23 +6,24 @@
  * size not pre-cached by their pipeline). Loading 19 full-size originals on
  * the catalog page brought page-weight to 50+ MB.
  *
- * Solution: route all third-party images through `images.weserv.nl`, a free
- * image proxy/CDN used widely in OSS (no API key, no rate limits at our scale,
- * caches at edge).
+ * v3.15.2 — strategy is now source-dependent:
+ *   - Wikimedia originals: load **direct** (bypass weserv). weserv.nl is
+ *     currently rate-limited by Wikimedia (returns 429 upstream → 404
+ *     downstream); their thumb endpoint requires a server-side policy step
+ *     we can't comply with from the browser. Loading the original adds
+ *     page weight (~3-8 MB per image) but visibly works. lazy-loading on
+ *     catalog cards + browser caching mitigates real-world cost. Defer
+ *     a proper image-resize CDN (Cloudflare Worker or Cloudflare Images)
+ *     to v3.16.
+ *   - Everything else (Unsplash, charity-own CDNs, etc.): keep weserv
+ *     resize+proxy — it works for these sources because their origins
+ *     don't rate-limit the weserv IP and they advertise CORS headers.
  *
- * v3.15: dropped `output=webp` — Chrome's Opaque Response Blocking (ORB)
- * silently rejects cross-origin webp responses from weserv when the source
- * is wikimedia.org, breaking ~80% of detail-page heroes. Letting weserv
- * default to the source mime (JPEG/PNG) bypasses ORB at a ~30% bytes cost,
- * still ~95% smaller than the un-proxied original because of `w=` resize.
- *
- * Result on a typical 6.7 MB Wikimedia JPEG (JPEG output, q=80):
- *   - w=600 → ~55 KB (99% reduction)
- *   - w=800 → ~80 KB
- *   - w=1200 → ~140 KB
- *
- * For non-Wikimedia URLs (e.g. our own future R2 bucket), the proxy still
- * works since weserv accepts any public URL.
+ * v3.15.1 — dropped `output=webp` because Chrome's Opaque Response Blocking
+ * (ORB) silently rejects cross-origin webp from weserv when the source is
+ * wikimedia.org. Together with `crossorigin="anonymous"` on `<img>` tags,
+ * this addresses the ORB symptom — but the root weserv issue (Wikimedia
+ * rate-limit) remained, hence v3.15.2.
  *
  * SVG: pass through unchanged (already small; weserv would rasterize).
  */
@@ -39,22 +40,27 @@ export function wikimediaThumb(
   if (lower.endsWith(".svg") || lower.endsWith(".svg.png")) return url
   // Pass through anything that's already proxied (avoid double-wrap).
   if (url.startsWith(WESERV_BASE)) return url
+  // v3.15.2 — bypass weserv for Wikimedia (weserv is rate-limited by upstream).
+  // Wikimedia originals have correct CORS+CORP headers, so the browser loads
+  // them directly without ORB or 404 issues. Cost: page weight.
+  if (lower.includes("upload.wikimedia.org/")) return url
   // weserv expects the URL WITHOUT the protocol. It auto-detects http/https.
   let bare = url
   if (bare.startsWith("https://")) bare = bare.slice("https://".length)
   else if (bare.startsWith("http://")) bare = bare.slice("http://".length)
-  // weserv accepts the URL as a query param. URL-encode the whole bare URL so
-  // any embedded `&` / `?` / spaces don't break the outer query string.
+  // weserv decodes `url=` exactly once. Source URLs may already contain
+  // percent-escapes (`%2C`, `%28`, etc.). URLSearchParams re-encodes `%` to
+  // `%25`, double-encoding and breaking weserv. So escape only the characters
+  // that would break the outer query string (`&`, `#`) and leave existing
+  // percent-escapes intact.
+  const safeBare = bare.replace(/&/g, "%26").replace(/#/g, "%23")
   const params = new URLSearchParams({
-    url: bare,
     w: String(widthPx),
     q: "80",
     // Cover-fit the requested width; prevents distortion. Default is "fit=inside".
     fit: "cover",
-    // No `output=` — let weserv echo the source mime (JPEG for Wikimedia).
-    // `output=webp` triggers Chrome ORB on Wikimedia sources at large widths.
   })
-  return `${WESERV_BASE}${params.toString()}`
+  return `${WESERV_BASE}url=${safeBare}&${params.toString()}`
 }
 
 /**

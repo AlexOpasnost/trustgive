@@ -411,6 +411,7 @@ function DetailHero({
         loading="eager"
         decoding="sync"
         fetchPriority="high"
+        crossOrigin="anonymous"
         className="absolute inset-0 h-full w-full object-cover object-center"
       />
 
@@ -486,8 +487,9 @@ function DetailHero({
       </div>
 
       {/* Bottom-right: photo credit */}
-      {/* v3.15: full-width discrete band on mobile (<md) so the long caption
-          can wrap below the title block instead of overlaying it at 320px. */}
+      {/* v3.15.2: hide long descriptive caption on mobile — at 320px it wraps
+          to 3-4 lines and overlays the title. Credit + license stays (legal
+          requirement). md+ gets the full caption + credit line. */}
       {photoCredit && (
         <div
           className="
@@ -496,7 +498,9 @@ function DetailHero({
           "
         >
           <span className="text-[10px] leading-tight text-white/65 font-sans">
-            {caption ? `${caption} — ` : ""}
+            {caption && (
+              <span className="hidden md:inline">{caption} — </span>
+            )}
             {t("detail.hero.photoCredit", { credit: photoCredit })}
           </span>
         </div>
