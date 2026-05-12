@@ -2,12 +2,16 @@
   "$schema": "node_modules/wrangler/config-schema.json",
   "name": "trustgive-web",
   "compatibility_date": "2026-01-01",
-  // No "main" entry — pure static SPA, no Worker code.
-  // Cloudflare will serve files from `frontend/web/dist` directly.
+  // v3.16: Worker bundles a tiny script (handles /img/v1 image proxy) plus
+  // serves static SPA assets via the env.ASSETS binding. Worker entry is
+  // worker/index.ts at the project root; wrangler bundles it with esbuild.
+  "main": "./worker/index.ts",
   "assets": {
     "directory": "./frontend/web/dist",
-    // SPA fallback: any unknown path returns index.html so React Router
-    // can handle client-side routing (e.g. /charities/givedirectly-inc).
+    "binding": "ASSETS",
+    // SPA fallback: unknown paths return index.html so React Router can
+    // handle client-side routing. The Worker only intercepts /img/v1;
+    // everything else is delegated to env.ASSETS.fetch().
     "not_found_handling": "single-page-application"
   },
   "observability": {
