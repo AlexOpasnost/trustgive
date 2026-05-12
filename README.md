@@ -1,96 +1,74 @@
 # TrustGive
 
-> The only charity discovery tool that shows you the source documents — not a star rating you can't audit.
+> A discovery platform for verified charities. Built around one idea: instead of showing you a star rating somebody made up, link you straight to the regulator's filing.
 
-**541 verified charities across 27 countries.** Every entry links to the original IRS Form 990, UK Charity Commission filing, CRA T3010, ACNC info statement, or the org's own audited annual report. **0% platform fee.** We never see your money — donations happen on the charity's own site.
+[trustgive.org](https://trustgive.org) · [api docs](https://api.trustgive.org/api/docs) · [changelog](CHANGELOG.md)
 
-🌐 **Live**: [trustgive.org](https://trustgive.org) · 🔧 **API**: [api.trustgive.org/api/docs](https://api.trustgive.org/api/docs)
+**541 charities, 27 countries**, bilingual EN+RU. Started May 5, 2026 with 11 entries. As of v3.16 the catalog spans US, UK, Russia, Canada, Australia, New Zealand, most of continental Europe, Japan, India, Thailand, Brazil, Chile, Kenya, and Israel.
 
 ---
 
-## What's inside
+### Why this exists
+
+I went to donate, got stuck on a basic question — *who do I trust to tell me which charities are real?* — and didn't like any of the answers I found.
+
+The big aggregators (Charity Navigator, GuideStar) publish opaque scores that nonprofits learn to game. Charity Navigator quietly dropped its overhead-ratio metric in 2023 for exactly that reason. The donation platforms (JustGiving and similar) bundle 10–18 % "tips" on top of every gift before the charity ever sees it.
+
+TrustGive doesn't grade anything. It links you to the regulator's file — Form 990 for US 501(c)(3)s, the Charity Commission's accounts page for UK charities, T3010 for Canada, ACNC info statement for Australia, Минюст СОНКО for Russia, audited annual reports for everyone else. If you want to donate, you click through and donate on the charity's own site. No platform fee, no account, no nudge.
+
+### What's in there
 
 | | |
 |---|---|
-| **Charities** | **541** (started May 5 with 11) |
-| **Countries** | **27** (US/GB/RU + CA/AU/NZ + DE/NL/CH/SE/FR/IT/ES/IE/NO/BE/DK/PL/FI/AT + JP/SG/IN/TH/BR/CL/KE/IL) |
-| **Regional filters** | 8 (All / Americas / Europe / Russia / Africa / MENA / Asia / Oceania) |
-| **Buckets** | People (~370) · Planet (~95) · Animals (~75) |
-| **Cause-tags** | ~110 (mental-health, climate, refugees, LGBTQ+, veterans, anti-trafficking, deafblind, rare-disease, etc.) |
-| **Languages** | English + Russian; every visible string bilingual |
-| **Hero photos** | ~340 with real og:image from the org's own site (rest fall back to BrandedAvatar gradient) |
+| Charities  | **541** |
+| Countries  | **27** |
+| Buckets    | People `236` · Planet `64` · Animals `51` (verified tier) |
+| Cause tags | ~110 — mental health, climate, refugees, LGBTQ+, veterans, anti-trafficking, rare disease, deafblind, etc. |
+| Languages  | EN + RU end to end |
+| Hero photos| ~340 real org photos, proxied through a Cloudflare Worker (more on this below) |
+
+The Russian side of the catalog is curated. War-relief funds, foreign-agent-listed orgs, and extremist-listed orgs from the Минюст and Росфинмониторинг registries never get seeded — there's a defensive `is_blocked()` check in every seed migration so the rule is enforced at write time, not just by convention. See [`backend/apps/charities/blocklist.py`](backend/apps/charities/blocklist.py) if you want the list.
+
+### The differentiator, in one sentence
+
+One click to the source document. Most rating sites show you a score and bury the underlying filing several pages deep. TrustGive flips the order: a charity card lists what filings exist, and clicking one opens the actual document.
+
+For 339 US orgs the source link goes to ProPublica's overview page for the EIN (not the direct 990 PDF — Cloudflare blocks bot HEAD requests on those downloads). UK charities link to the Charity Commission's accounts-and-annual-returns page. Everyone else links to whatever the national regulator publishes — or, where that doesn't exist publicly, the org's own audited annual report.
+
+### Stack
+
+Backend is Django 5.1 on Python 3.13, DRF for the API, drf-spectacular for the OpenAPI schema, Postgres on Neon serverless, deployed to Railway. Search is Postgres FTS + pg_trgm trigram fuzzy. Every translated field on every model is a JSONB `{en, ru}` `LocalizedTextField`.
+
+Frontend is React 19 + TypeScript + Tailwind v4, built with Vite, deployed as a Cloudflare Worker that doubles as a static-asset host *and* runs the image proxy (more below). i18next handles language switching, TanStack Query handles all data fetching.
+
+The image proxy is the part I'm most happy with. Wikimedia Commons is the most reliable source of free, licensed charity photos, but their thumbnail endpoint is locked behind a User-Agent policy that browsers can't satisfy. So `/img/v1` is a 150-line Cloudflare Worker that fetches Wikimedia thumbs with a compliant UA, snaps requested widths to their pre-cached tier (320/480/640/800/1024/1280/1600/2048), caches at the CF edge for 30 days, and sets the `Cross-Origin-Resource-Policy: cross-origin` header Chrome needs to render the image. Net effect: a Save the Children hero photo dropped from **3.5 MB to 67 KB** (98 % reduction). All the gory detail is in [`worker/index.ts`](worker/index.ts) and the v3.16 CHANGELOG entry.
+
+Observability is Sentry + python-json-logger on the backend, with a server-side PostHog mirror for `donation_redirect` events so I can measure whether the discovery UI actually sends people somewhere.
+
+### How fast this went
+
+| Day | What |
+|----|------|
+| May 5  | 11 charities seeded. Deploy pipeline live. |
+| May 8–10 | Catalog scale push. 218 → 471 in three days. |
+| May 11 | v3.14 megabatch — single migration adding 70 charities + 4 new countries, hitting 541. Then mobile QA exposed three bugs no one had noticed (homepage bucket counts stale, `/charities` capped at 300 of 541, hero photos broken in Chrome). |
+| May 12 | v3.15 fixed the three. v3.16 shipped the image-proxy Worker. |
+
+The biggest surprise was how lopsided the work felt. The Django+React+CF infrastructure was maybe a day. The other six days were research — finding the right regulator URL for each org, copying the EIN/CC#/registration ID, writing two-sentence bilingual descriptions that don't sound like marketing copy, picking a press photo that's actually licensed. A five-line model schema is easy. Populating it honestly across 27 jurisdictions is not.
+
+### Documentation
+
+- [`SPEC.md`](SPEC.md) — user stories + Gherkin acceptance criteria from v0
+- [`DESIGN.md`](DESIGN.md) — design system (v3 is the current photo-first immersive)
+- [`MOBILE_QA.md`](MOBILE_QA.md) — Playwright + Lighthouse audit that surfaced the v3.15 bugs
+- [`API_SPEC.md`](API_SPEC.md) — OpenAPI 3.1, generated from drf-spectacular
+- [`docs/adr/`](docs/adr/) — eight Architecture Decision Records covering database, auth, API style, deployment
+- [`CHANGELOG.md`](CHANGELOG.md) — chronological. Every decision, every migration, with retrospectives
+
+### License
+
+Code: TBD — leaning MIT, still figuring out the data-license question. Catalog data is derived from public regulator filings; descriptions and translations I wrote myself.
 
 ---
 
-## Why this exists
-
-Existing charity-discovery tools fall into two camps:
-1. **Rating aggregators** like Charity Navigator and GuideStar that publish opaque scores nonprofits learn to game (Charity Navigator dropped overhead-ratio scoring in 2023 for exactly this reason).
-2. **Donation platforms** like JustGiving that bundle a default-on "tip" pulling 12.5–17.5% out of the gift before the charity sees a cent.
-
-TrustGive is neither. It's a **discovery layer** built on free public data — IRS 990 filings, UK Charity Commission register, CRA T3010, ACNC info statements, national-regulator certifications (DZI Spendensiegel, CBF Erkend, ZEWO, 90-konto), and the org's own audited annual reports — that links you straight to the source. We don't process payments. We don't publish a single number you have to trust. We show the documents.
-
----
-
-## Differentiator
-
-> **One click reveals the source document.**
-
-Click any charity → scroll to "Source documents" → see the actual Form 990 (US), Charity Commission accounts page (UK), T3010 information return (Canada), ACNC profile (Australia), Bilancio Sociale (Italy), or audited annual report (everywhere else). No paywall. No interpretation. The raw document.
-
-For 339 US 501(c)(3)s the source is ProPublica's `/organizations/{ein}` overview page (not direct PDF — Cloudflare blocks bot HEAD requests on direct downloads). For 49 UK orgs it's the Charity Commission `/charity-search/-/charity-details/{number}/accounts-and-annual-returns` page. For everything else it's the org's own transparency/financials page.
-
----
-
-## Stack
-
-- **Backend**: Python 3.13 + Django 5.1 + DRF + drf-spectacular + Postgres (Neon serverless) on Railway
-- **Frontend**: React 19 + TypeScript + Tailwind v4 + Vite — deployed as Cloudflare Worker
-- **Search**: Postgres full-text search + pg_trgm trigram fuzzy matching
-- **i18n**: i18next (English + Russian) · JSONB `{en, ru}` LocalizedTextField for every localised model field
-- **CDN**: Cloudflare (api.trustgive.org proxied to Railway · s-maxage=120s · per-deploy cache purge)
-- **Cache**: django-cachalot LocMem (per-gunicorn-worker) — invalidated on Railway redeploy
-- **Images**: weserv.nl free CDN proxy for hero photos (~99% size reduction vs. direct hot-linking)
-- **Logo backfill**: logo.uplead.com (apex-domain logos) with Google s2 favicons fallback for niche TLDs
-- **OG-image scrape**: custom `manage.py scrape_og_images` command — fetches og:image / twitter:image / image_src from each charity's homepage, throttled 2s, Neon-reconnect-aware
-- **Observability**: Sentry + python-json-logger + server-side PostHog mirror for donation_redirect events
-- **Russia legal compliance**: defensive `is_blocked()` per-seed-entry check against war-relief / foreign-agent / extremist registries (Минюст-listed orgs auto-skipped)
-
----
-
-## Status
-
-✅ **v3.14 in production** as of 2026-05-11. Built from v0 to 541 charities in 7 days; +323 charities in the final day alone via 9 hand-written seed migrations.
-
-| Phase | Status |
-|---|---|
-| 0 — Spec & intake | ✅ |
-| 1 — Market research | ✅ |
-| 2 — Design (v3 photo-first immersive) | ✅ |
-| 3 — Backend (Django + DRF + Postgres) | ✅ |
-| 4 — Frontend (React + TS + Tailwind) | ✅ |
-| 5 — Live deployment (Railway + Cloudflare) | ✅ |
-| 6 — Catalog scale (218 → 541) | ✅ |
-| 7 — Mobile QA + Lighthouse audit | 🔄 Outstanding |
-
----
-
-## Documentation
-
-- [`SPEC.md`](SPEC.md) — v1.0 spec with user stories and Gherkin acceptance criteria
-- [`MARKET_ANALYSIS.md`](MARKET_ANALYSIS.md) — competitor research (Charity Navigator, GiveWell, JustGiving), feature demand, anti-features
-- [`DESIGN.md`](DESIGN.md) — v3.1 photo-first immersive design system
-- [`API_SPEC.md`](API_SPEC.md) — OpenAPI 3.1 via drf-spectacular
-- [`docs/adr/`](docs/adr/) — 8 Architecture Decision Records (database, auth, API style, deployment, etc.)
-- [`CHANGELOG.md`](CHANGELOG.md) — every decision and migration logged in chronological order (~3500 lines)
-- [`backend/apps/charities/blocklist.py`](backend/apps/charities/blocklist.py) — Russia-law compliance blocklist
-
----
-
-## License
-
-Source code: TBD. Catalog data: derived from public regulator filings; descriptions written by Project Lead.
-
----
-
-Built solo by [Alex Diachenko](https://github.com/AlexOpasnost). Following along? Star the repo and follow on LinkedIn for build-in-public updates.
+Built solo by [Alex Diachenko](https://github.com/AlexOpasnost) in Moscow.
