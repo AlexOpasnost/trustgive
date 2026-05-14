@@ -42,9 +42,22 @@ interface Env {
   ASSETS: Fetcher
 }
 
-const ALLOWED_WIDTHS = [320, 480, 640, 800, 1024, 1280, 1600, 2048] as const
+/**
+ * Wikimedia's allowed on-demand thumbnail widths.
+ *
+ * As of the 2024 thumbnail restriction (w.wiki/GHai) Wikimedia only generates
+ * thumbnails at a fixed allowlist of widths; any other width returns HTTP 400.
+ * This exact set was found empirically (every other width in a 35-width sweep
+ * returned 400, and the set held across multiple test images):
+ *
+ *   - 400 = width not on the allowlist
+ *   - 404 = allowed width but ≥ the original's width (can't upscale) → the
+ *           proxy falls back to the original URL
+ *   - 200 = allowed, ≤ original, generated
+ */
+const ALLOWED_WIDTHS = [120, 250, 500, 960, 1280, 1920] as const
 
-/** Snap requested width up to the next standard Wikimedia thumb step. */
+/** Snap requested width up to the next allowed Wikimedia thumb step. */
 function normaliseWidth(requested: number): number {
   for (const w of ALLOWED_WIDTHS) {
     if (requested <= w) return w
@@ -87,7 +100,6 @@ const FETCH_HEADERS: HeadersInit = {
 }
 
 const RESPONSE_HEADERS = {
-  "Cache-Control": "public, max-age=2592000, immutable",
   "Access-Control-Allow-Origin": "*",
   "Cross-Origin-Resource-Policy": "cross-origin",
   "Timing-Allow-Origin": "*",
@@ -97,6 +109,13 @@ const RESPONSE_HEADERS = {
 function withProxyHeaders(upstream: Response, extra: Record<string, string> = {}): Response {
   const headers = new Headers(upstream.headers)
   for (const [k, v] of Object.entries(RESPONSE_HEADERS)) headers.set(k, v)
+  // Cache-Control is status-dependent: a 30-day immutable cache for the image
+  // itself, but `no-store` for any error so the CF edge never pins a 4xx/5xx
+  // (an earlier bug cached Wikimedia 400s for 30 days).
+  headers.set(
+    "Cache-Control",
+    upstream.ok ? "public, max-age=2592000, immutable" : "no-store",
+  )
   for (const [k, v] of Object.entries(extra)) headers.set(k, v)
   // Drop headers that confuse the browser when we re-emit them.
   headers.delete("Content-Security-Policy")
@@ -161,7 +180,13 @@ async function handleImageProxy(request: Request): Promise<Response> {
         headers: FETCH_HEADERS,
         redirect: "follow",
         cf: {
-          cacheTtl: 60 * 60 * 24 * 30, // 30 days
+          // Per-status TTL: pin 2xx for 30 days, never pin 4xx/5xx (an
+          // earlier bug cached Wikimedia 400s).
+          cacheTtlByStatus: {
+            "200-299": 60 * 60 * 24 * 30,
+            "400-499": 0,
+            "500-599": 0,
+          },
           cacheEverything: true,
         },
       } as RequestInit)
@@ -169,8 +194,12 @@ async function handleImageProxy(request: Request): Promise<Response> {
         upstream = r
         break
       }
-      // If thumb 404'd, try the original. Otherwise (e.g. 5xx) bail.
-      if (r.status === 404 && candidate === thumbUrl) {
+      // Thumb endpoint failed — fall back to the original URL. Wikimedia
+      // returns 404 when the allowed width is ≥ the original (can't upscale)
+      // and 400 if the width somehow isn't on the allowlist; in both cases
+      // the un-resized original still works. Only the original-URL attempt
+      // (or a non-thumb 5xx) is allowed to become the final response.
+      if (candidate === thumbUrl && (r.status === 404 || r.status === 400)) {
         continue
       }
       upstream = r
@@ -207,6 +236,87 @@ async function handleImageProxy(request: Request): Promise<Response> {
   return finalResponse
 }
 
+/**
+ * `/sitemap.xml` — generated on the fly from the live API.
+ *
+ * A SPA can't ship a static sitemap that stays accurate as the catalog grows
+ * (it's at 541 charities and climbing). So the Worker fetches every slug from
+ * the API and emits a fresh sitemap, cached at the edge for 6 hours.
+ *
+ * Static routes (/, /charities, /methodology) get priority 0.8-1.0; charity
+ * detail pages get 0.6. lastmod is omitted — the API summary doesn't carry a
+ * per-charity updated_at, and a wrong lastmod is worse than none.
+ */
+async function handleSitemap(): Promise<Response> {
+  const cache = (caches as unknown as { default: Cache }).default
+  const cacheKey = new Request("https://trustgive.org/sitemap.xml")
+  const cached = await cache.match(cacheKey)
+  if (cached) return cached
+
+  const base = "https://trustgive.org"
+  const staticUrls = [
+    { loc: `${base}/`, priority: "1.0" },
+    { loc: `${base}/charities`, priority: "0.9" },
+    { loc: `${base}/methodology`, priority: "0.8" },
+  ]
+
+  // Pull all slugs. The API caps page_size at 500 server-side, so we page
+  // through with `next` until exhausted (catalog is 541 and climbing). Cap at
+  // 5 pages (2500 charities) as a safety stop against a pagination bug.
+  const slugs: string[] = []
+  try {
+    let nextUrl: string | null =
+      "https://api.trustgive.org/api/charities/?page_size=500&sort=alphabetical"
+    let guard = 0
+    while (nextUrl && guard < 5) {
+      guard += 1
+      const res: Response = await fetch(nextUrl, {
+        headers: { Accept: "application/json" },
+        cf: { cacheTtl: 3600 },
+      } as RequestInit)
+      if (!res.ok) break
+      const data = (await res.json()) as {
+        results?: Array<{ slug: string }>
+        next?: string | null
+      }
+      for (const c of data.results ?? []) {
+        if (c.slug) slugs.push(c.slug)
+      }
+      nextUrl = data.next ?? null
+    }
+  } catch {
+    // If the API is down we still emit the static-route sitemap rather than 500.
+  }
+
+  const xmlEscape = (s: string) =>
+    s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")
+
+  const entries = [
+    ...staticUrls.map(
+      (u) => `  <url><loc>${xmlEscape(u.loc)}</loc><priority>${u.priority}</priority></url>`,
+    ),
+    ...slugs.map(
+      (slug) =>
+        `  <url><loc>${xmlEscape(`${base}/charities/${slug}`)}</loc><priority>0.6</priority></url>`,
+    ),
+  ]
+
+  const xml = `<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+${entries.join("\n")}
+</urlset>
+`
+
+  const response = new Response(xml, {
+    headers: {
+      "Content-Type": "application/xml; charset=utf-8",
+      "Cache-Control": "public, max-age=21600", // 6h
+    },
+  })
+  await cache.put(cacheKey, response.clone())
+  return response
+}
+
 export default {
   async fetch(request: Request, env: Env): Promise<Response> {
     const url = new URL(request.url)
@@ -220,6 +330,10 @@ export default {
         })
       }
       return handleImageProxy(request)
+    }
+
+    if (url.pathname === "/sitemap.xml") {
+      return handleSitemap()
     }
 
     // Everything else — defer to the static assets binding.

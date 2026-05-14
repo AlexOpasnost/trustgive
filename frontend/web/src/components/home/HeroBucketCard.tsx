@@ -27,6 +27,8 @@ type Props = {
   bucket: Bucket
   /** Full-bleed background photo URL. If null, a neutral gradient placeholder is used. */
   photoUrl: string | null
+  /** v3.17 — responsive srcset for the background photo. "" = no srcset (plain src). */
+  photoSrcSet?: string
   /** Bucket name in current language ("People" / "Людям" etc.). */
   label: string
   /** 1-line subtitle e.g. "8 verified charities" or "8 проверенных фондов". */
@@ -40,6 +42,7 @@ type Props = {
 export function HeroBucketCard({
   bucket,
   photoUrl,
+  photoSrcSet = "",
   label,
   subtitle,
   href,
@@ -74,6 +77,8 @@ export function HeroBucketCard({
       {photoUrl ? (
         <img
           src={photoUrl}
+          {...(photoSrcSet ? { srcSet: photoSrcSet } : {})}
+          sizes="(min-width: 1024px) 34vw, 100vw"
           alt=""
           loading="eager"
           decoding="async"
@@ -108,8 +113,12 @@ export function HeroBucketCard({
         }}
       />
 
-      {/* Top-left: overline label */}
-      <div className="absolute top-6 left-6 md:top-8 md:left-8 z-10">
+      {/* Top-left: overline label.
+          aria-hidden — the overline ("BROWSE BY CAUSE") is decorative chrome,
+          not part of the link's identity. Without this, axe flags a
+          label-content-name-mismatch because the visible text includes the
+          overline but the aria-label (label + subtitle) does not. */}
+      <div className="absolute top-6 left-6 md:top-8 md:left-8 z-10" aria-hidden="true">
         <span
           className={`text-caption font-semibold text-white/85 ${overlineClass}`}
         >

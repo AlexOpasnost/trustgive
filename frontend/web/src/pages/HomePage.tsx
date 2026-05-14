@@ -26,7 +26,7 @@ import { Link } from "react-router-dom"
 
 import { HeroBucketCard } from "@/components/home/HeroBucketCard"
 import { Reveal } from "@/components/ui/Reveal"
-import { PHOTO_WIDTHS, wikimediaThumb } from "@/lib/image"
+import { PHOTO_WIDTHS, SRCSET_WIDTHS, buildSrcSet, wikimediaThumb } from "@/lib/image"
 import { useFeaturedCharities } from "@/lib/queries"
 import type { Bucket, CharitySummary } from "@/types/api"
 
@@ -80,6 +80,7 @@ function BucketSlot({ bucket }: BucketSlotProps) {
   const first: CharitySummary | undefined = featured[0]
   const rawPhoto = first?.hero_photo_url ?? null
   const photoUrl = rawPhoto ? wikimediaThumb(rawPhoto, PHOTO_WIDTHS.bucketHero) : null
+  const photoSrcSet = rawPhoto ? buildSrcSet(rawPhoto, SRCSET_WIDTHS.bucketHero) : ""
 
   // Subtitle: count is real-data driven. We pluralize naively for EN/RU via i18n.
   const subtitleKey =
@@ -95,6 +96,7 @@ function BucketSlot({ bucket }: BucketSlotProps) {
     <HeroBucketCard
       bucket={bucket}
       photoUrl={photoUrl}
+      photoSrcSet={photoSrcSet}
       label={label}
       subtitle={subtitle}
       href={`/charities?bucket=${bucket}`}

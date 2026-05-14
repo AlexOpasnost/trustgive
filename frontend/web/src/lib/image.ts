@@ -41,16 +41,54 @@ export function wikimediaThumb(
 }
 
 /**
- * Standard widths used across the app (DESIGN.md v3.0 §D.5).
- * Values picked to match real rendered sizes on a 1440px viewport with 2x DPR
- * margin. The proxy snaps each to the next Wikimedia thumb step (320, 480,
- * 640, 800, 1024, 1280, 1600, 2048) so we always hit their pre-cached tier.
+ * v3.17 — build a `srcset` string so the browser picks the right width for
+ * the device. The Worker snaps each width to a Wikimedia thumb tier, so we
+ * pass the tiers directly. Returns "" for falsy/SVG URLs (the caller should
+ * fall back to a plain `src` in that case).
+ *
+ * Pair with a `sizes` attribute that describes how wide the image actually
+ * renders — without `sizes` the browser assumes 100vw and over-fetches.
+ */
+export function buildSrcSet(
+  url: string | null | undefined,
+  widths: readonly number[],
+): string {
+  if (!url) return ""
+  const lower = url.toLowerCase()
+  if (lower.endsWith(".svg") || lower.endsWith(".svg.png")) return ""
+  return widths
+    .map((w) => `${wikimediaThumb(url, w)} ${w}w`)
+    .join(", ")
+}
+
+/**
+ * srcset width tiers per render context. Every value is a Wikimedia-allowed
+ * width: the 2024 thumbnail restriction (w.wiki/GHai) only generates a fixed
+ * set — [120, 250, 500, 960, 1280, 1920] — and 400s anything else. This is
+ * mirrored in worker/index.ts `ALLOWED_WIDTHS`; keep the two in sync.
+ *
+ * The `sizes` attribute (set per-component) tells the browser which tier to
+ * actually fetch.
+ */
+export const SRCSET_WIDTHS = {
+  /** CharityCard 3:2 photo — full-width on mobile (~400) → ~430px in the 3-col grid. */
+  card: [250, 500, 960],
+  /** HeroBucketCard — full-bleed on mobile, ~1/3 viewport on desktop. */
+  bucketHero: [500, 960, 1280],
+  /** Detail-page hero — always full-bleed. */
+  detailHero: [960, 1280, 1920],
+} as const
+
+/**
+ * Single-width fallback for the plain `src` attribute — the tier closest to
+ * the real rendered size on a 1440px viewport at ~2x DPR. Every value is a
+ * Wikimedia-allowed width (see SRCSET_WIDTHS note).
  */
 export const PHOTO_WIDTHS = {
-  /** CharityCard 3:2 photo (3-col grid, ~430px wide @1440 viewport, 2x DPR = 860 → round to 800) */
-  card: 800,
-  /** HeroBucketCard full-bleed background (1/3 of viewport ≈ 480px @1440, 2x = 960 → 1024) */
-  bucketHero: 1024,
-  /** Detail-page hero photo (full-bleed @1440, 2x DPR = 2880 → cap at 1600 for sanity) */
-  detailHero: 1600,
+  /** CharityCard 3:2 photo (3-col grid ≈ 430px @1440, 2x ≈ 860 → 960 tier). */
+  card: 960,
+  /** HeroBucketCard full-bleed (≈ 1/3 viewport ≈ 480px @1440, 2x ≈ 960). */
+  bucketHero: 960,
+  /** Detail-page hero (full-bleed @1440, 2x ≈ 2880 → cap at 1280 for sanity). */
+  detailHero: 1280,
 } as const

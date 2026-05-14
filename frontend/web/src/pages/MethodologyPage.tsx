@@ -1,7 +1,10 @@
 import { useTranslation } from "react-i18next"
 
+import { useDocumentTitle } from "@/lib/useDocumentTitle"
+
 export function MethodologyPage() {
   const { t } = useTranslation()
+  useDocumentTitle(t("methodology.title"))
   const today = new Date().toLocaleDateString("en-US", {
     year: "numeric",
     month: "long",

@@ -21,7 +21,7 @@ import { useTranslation } from "react-i18next"
 import { Link } from "react-router-dom"
 
 import { CharityLogo } from "@/components/charity/CharityLogo"
-import { PHOTO_WIDTHS, wikimediaThumb } from "@/lib/image"
+import { PHOTO_WIDTHS, SRCSET_WIDTHS, buildSrcSet, wikimediaThumb } from "@/lib/image"
 import { formatUsd } from "@/lib/utils"
 import { usePreferences } from "@/store/preferences"
 import type { CharitySummary } from "@/types/api"
@@ -79,6 +79,7 @@ export function CharityCard({ charity }: Props) {
     (lang === "ru" ? COUNTRY_LABEL_RU : COUNTRY_LABEL_EN)[charity.country] ?? charity.country
   const isVerified = charity.verification_status === "verified"
   const photoUrl = wikimediaThumb(charity.hero_photo_url, PHOTO_WIDTHS.card)
+  const photoSrcSet = buildSrcSet(charity.hero_photo_url, SRCSET_WIDTHS.card)
   const showPhoto = photoUrl && !photoErrored
 
   const causeTag = charity.cause_tags.length > 0 ? charity.cause_tags[0] : null
@@ -103,6 +104,8 @@ export function CharityCard({ charity }: Props) {
         {showPhoto ? (
           <img
             src={photoUrl}
+            {...(photoSrcSet ? { srcSet: photoSrcSet } : {})}
+            sizes="(min-width: 1024px) 30vw, (min-width: 640px) 48vw, 92vw"
             alt=""
             loading="lazy"
             decoding="async"

@@ -21,6 +21,7 @@ import { Button } from "@/components/ui/Button"
 import { Chip } from "@/components/ui/Chip"
 import { api, type CharityListParams } from "@/lib/api"
 import { BUCKET_SUBFILTERS, REGION_FILTERS } from "@/lib/buckets"
+import { useDocumentTitle } from "@/lib/useDocumentTitle"
 import { usePreferences } from "@/store/preferences"
 import type { Bucket } from "@/types/api"
 
@@ -91,6 +92,7 @@ export function CatalogPage() {
 
   const headerTitle = bucket ? t(`bucket.${bucket}.pageTitle`) : t("catalog.title")
   const headerSubtitle = bucket ? t(`bucket.${bucket}.pageSubtitle`) : null
+  useDocumentTitle(headerTitle)
 
   const subfilters = bucket ? BUCKET_SUBFILTERS[bucket] : null
 

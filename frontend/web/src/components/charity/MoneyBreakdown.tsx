@@ -36,7 +36,9 @@ export function MoneyBreakdown({ data, totalRevenueUsd, fallbackYear }: Props) {
     return (
       <section className="bg-surface border border-rule rounded-md p-6">
         <header className="mb-6">
-          <h2 className="text-h2 font-semibold text-ink">{t("detail.moneyBreakdown")}</h2>
+          {/* h3, not h2 — this card sits inside the page's "Where the money
+              goes" <h2> section, so its own heading is a level down. */}
+          <h3 className="text-h2 font-semibold text-ink">{t("detail.moneyBreakdown")}</h3>
           {year && (
             <p className="text-body-sm text-ink-3 mt-1">{t("charity.fiscalYear", { year })}</p>
           )}
@@ -63,7 +65,8 @@ export function MoneyBreakdown({ data, totalRevenueUsd, fallbackYear }: Props) {
   return (
     <section className="bg-surface border border-rule rounded-md p-6">
       <header className="mb-4">
-        <h2 className="text-h2 font-semibold text-ink">{t("detail.moneyBreakdown")}</h2>
+        {/* h3 — nested under the page's "Where the money goes" <h2>. */}
+        <h3 className="text-h2 font-semibold text-ink">{t("detail.moneyBreakdown")}</h3>
         <p className="text-body-sm text-ink-3 mt-1">
           {t("charity.fiscalYear", { year: breakdown.year })}
         </p>

@@ -1,0 +1,7 @@
+User-agent: *
+Allow: /
+
+# TrustGive is a public charity-discovery directory — everything is
+# meant to be crawled and indexed. No private routes, no auth.
+
+Sitemap: https://trustgive.org/sitemap.xml

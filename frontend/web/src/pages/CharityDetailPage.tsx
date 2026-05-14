@@ -29,7 +29,8 @@ import { MoneyBreakdown } from "@/components/charity/MoneyBreakdown"
 import { SourceDocumentDrawer } from "@/components/charity/SourceDocumentDrawer"
 import { Button } from "@/components/ui/Button"
 import { api, ApiError } from "@/lib/api"
-import { PHOTO_WIDTHS, wikimediaThumb } from "@/lib/image"
+import { PHOTO_WIDTHS, SRCSET_WIDTHS, buildSrcSet, wikimediaThumb } from "@/lib/image"
+import { useDocumentTitle } from "@/lib/useDocumentTitle"
 import { usePreferences } from "@/store/preferences"
 import type { Charity, SourceDocument } from "@/types/api"
 
@@ -52,6 +53,16 @@ export function CharityDetailPage() {
   })
 
   const isNotFound = error instanceof ApiError && error.status === 404
+
+  // Title: charity name once loaded, "Charity not found" on a 404, otherwise
+  // null (leave the default brand title untouched while loading).
+  useDocumentTitle(
+    charity
+      ? charity.name[lang] || charity.name.en || charity.slug
+      : isNotFound
+        ? t("catalog.notFound")
+        : null,
+  )
 
   if (isLoading) {
     return (
@@ -338,6 +349,7 @@ function DetailHero({
   const { t } = useTranslation()
   const lang = usePreferences((s) => s.lang)
   const photoUrl = wikimediaThumb(charity.hero_photo_url, PHOTO_WIDTHS.detailHero)
+  const photoSrcSet = buildSrcSet(charity.hero_photo_url, SRCSET_WIDTHS.detailHero)
   const credit = charity.hero_photo_credit ?? ""
   const license = charity.hero_photo_license ?? ""
   const photoCredit = credit
@@ -407,6 +419,8 @@ function DetailHero({
     >
       <img
         src={photoUrl}
+        {...(photoSrcSet ? { srcSet: photoSrcSet } : {})}
+        sizes="100vw"
         alt=""
         loading="eager"
         decoding="sync"
