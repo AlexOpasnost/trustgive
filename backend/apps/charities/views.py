@@ -223,7 +223,12 @@ class CharityViewSet(viewsets.ReadOnlyModelViewSet):
         tags=["catalog"],
         summary="Source documents for a charity (drawer §6.7)",
     )
-    @action(detail=True, methods=["get"], url_path="source-documents", url_name="charity-source-documents")
+    # url_name is the BARE action name — the DRF router prefixes it with the
+    # viewset basename ("charity"), so the resolved name is
+    # "charity-source-documents". Passing "charity-source-documents" here would
+    # double-prefix to "charity-charity-source-documents" and silently miss the
+    # CACHE_CONTROL_MAP lookup in CacheControlMiddleware.
+    @action(detail=True, methods=["get"], url_path="source-documents", url_name="source-documents")
     def source_documents(self, request: Request, slug: str | None = None) -> Response:
         instance = get_object_or_404(Charity, slug=slug)
         set_charity_slug(slug or "")
@@ -262,7 +267,12 @@ class CharityViewSet(viewsets.ReadOnlyModelViewSet):
         detail=False,
         methods=["get"],
         url_path="featured",
-        url_name="charity-featured",
+        # Bare action name — the router prefixes the "charity" basename, giving
+        # the resolved name "charity-featured" which CACHE_CONTROL_MAP keys on.
+        # (Was "charity-featured" here, double-prefixing to
+        # "charity-charity-featured" and missing the cache header — that's why
+        # the homepage's hero-image API call was never edge-cacheable.)
+        url_name="featured",
     )
     def featured(self, request: Request) -> Response:
         """Per DESIGN.md v3.0 §A + v2.0 §G. See _select_featured for details.
