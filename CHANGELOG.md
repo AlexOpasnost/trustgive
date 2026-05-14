@@ -1974,3 +1974,106 @@ Desktop dropped because Lighthouse hit a cold CF cache (purged 5 min before the 
     YES — one KB entry: "use the upstream CDN's pre-cached width tier when proxying images, and send a real User-Agent matching the upstream's policy". Promotes from project KB to shared/common-pitfalls.md.
   </knowledge_to_store>
 </reflection>
+
+---
+
+## [2026-05-14] [Project Lead, hand-written + Playwright MCP + npx lighthouse] [v3.17 — image-CDN allowlist fix, srcset, sitemap, polish sweep]
+
+**Goal:** clear the MOBILE_QA backlog — responsive `srcset` + the People-bucket hero photo (both deferred from v3.16) plus the four remaining minor findings (N-1, N-2, N-3, N-6). What actually dominated the session was a v3.16 bug the backlog work uncovered.
+
+### The v3.16 bug: Wikimedia's thumbnail allowlist
+
+v3.16's `/img/v1` proxy snapped requested widths to what I *assumed* were Wikimedia's thumbnail steps: `[320, 480, 640, 800, 1024, 1280, 1600, 2048]`. Wrong. Wikimedia's 2024 thumbnail restriction (w.wiki/GHai) only generates a **fixed allowlist** of widths on demand; everything else returns an HTTP 400 error page. v3.16 worked in testing only because `w=800` happened to already be cached at Wikimedia's edge from prior Wikipedia article use — a per-image accident, not a guarantee.
+
+Once v3.17's `srcset` started requesting `w=640`, `w=480` etc., the proxy got 400s back — and because v3.16 set `Cache-Control: public, max-age=2592000, immutable` on *every* response including errors, the CF edge pinned those 400s for 30 days. Result caught in Playwright verification: all three homepage bucket cards rendered as dark gradients with broken-image icons.
+
+Found the real allowlist empirically — swept 35 widths against two different images:
+
+```
+allowed (non-400): 120, 250, 500, 960, 1280, 1920
+  400 = width not on the allowlist
+  404 = allowed width but ≥ the original's width (can't upscale)
+  200 = allowed, ≤ original, generated
+```
+
+The set held identically across both test images, so it's a global allowlist, not per-image.
+
+### Fixes shipped
+
+**Worker (`worker/index.ts`)**
+- `ALLOWED_WIDTHS` corrected to `[120, 250, 500, 960, 1280, 1920]`.
+- `Cache-Control` is now status-dependent: 30-day immutable for `2xx`, `no-store` for any error — a transient 400 can never pin itself at the edge again.
+- Fetch subrequests use `cacheTtlByStatus` so the CF fetch layer also refuses to cache `4xx/5xx`.
+- Thumb→original fallback now triggers on `400` as well as `404` (defensive — with the corrected allowlist the thumb shouldn't 400, but if Wikimedia changes the list again the proxy degrades to the original instead of breaking).
+- New route `GET /sitemap.xml` — generated on the fly from the live API, paginating through `next` until exhausted (the API caps `page_size` at 500; catalog is 541). 6-hour edge cache. 544 URLs (3 static + 541 charities).
+
+**Frontend**
+- `buildSrcSet()` + `SRCSET_WIDTHS` added to `lib/image.ts`, all widths drawn from the corrected Wikimedia allowlist. Applied to `CharityCard`, `HeroBucketCard`, and the detail-page `DetailHero` with honest `sizes` attributes.
+- `PHOTO_WIDTHS` (single-width `src` fallback) re-tiered onto allowed widths: card 960, bucketHero 960, detailHero 1280.
+- `useDocumentTitle` — a 12-line hook, no react-helmet dependency. Per-route titles: `How we verify · TrustGive`, `Feeding America · TrustGive`, etc. (N-6)
+- `MoneyBreakdown` heading demoted `h2` → `h3` — it nests under the page's "Where the money goes" `<h2>`, so two stacked `h2`s was wrong. (N-2)
+- `HeroBucketCard` overline ("BROWSE BY CAUSE") marked `aria-hidden` so the link's accessible name matches its visible text — clears the axe `label-content-name-mismatch`. (N-1)
+- `frontend/web/public/robots.txt` — there was no `public/` dir at all, so `/robots.txt` was served the SPA's index.html and Lighthouse flagged it invalid. (N-3)
+
+**Backend**
+- Migration `0057_backfill_v317_hero_photos.py` — backfills `hero_photo_url` for the three featured charities still on the empty-gradient fallback. `feeding-america` was the visible one (People-bucket `featured[0]` on the homepage); `catholic-relief-services` and `pew-charitable-trusts` backfilled as rotation buffer. Unsplash photos, hedged captions per the KB-015 honesty rule. (N-5)
+
+### Deploy sequence
+
+1. Frontend build + Worker deploy (version `ac28bdfa-466e-42b4-b5c7-1adc0b23e564`).
+2. `railway run migrate charities` → `[migration 0057] hero_photo_url backfilled: 3`.
+3. **`railway redeploy`** — the migration ran in a separate process from the gunicorn workers, so cachalot's per-worker LocMem cache still served the old (photo-less) `feeding-america`. A redeploy restarts the workers and clears LocMem. (This is a recurring footgun — noted for KB.)
+4. CF cache purge.
+
+### Measured impact
+
+| | v3.14.1 baseline | v3.17 |
+|---|---|---|
+| Mobile SEO | 92 | **100** |
+| Mobile A11y | 100 | 100 |
+| Mobile Best-practices | 100 | 100 |
+| Mobile Performance | 71 | ~67 |
+| Mobile LCP | 6.2 s | ~8.6 s (warm) |
+
+SEO 92→100 is the robots.txt + sitemap fix landing. A11y/BP held at 100.
+
+**Performance regressed, and I'm not going to dress it up.** Two honest reasons:
+1. **N-5 is most of it.** Before v3.17 the People bucket card had *no image* — it painted an instant dark gradient, and Lighthouse's LCP was effectively the "People" text. Now there's a real hero photo to download and paint. The "before" number was partly an artifact of a broken-looking card.
+2. **The featured endpoint is the actual bottleneck, and it's not edge-cached.** `GET /api/charities/featured/?bucket=people` takes ~0.9 s — the backend *sets* `Cache-Control: s-maxage=120` but the response reaches the browser with no Cache-Control header at all and `cf-cache-status: DYNAMIC`. So every homepage load waits ~0.9 s for an API round-trip *before the hero image URL is even known*, then loads the image. `srcset` cuts the image bytes (240–313 KB instead of ~1 MB) but can't touch the request-discovery latency.
+
+`srcset` is still correct and shipped — it measurably cuts page weight and helps real devices and data plans. It just doesn't move Lighthouse's synthetic LCP, because LCP here is gated by API latency, not image bytes.
+
+### Deferred to v3.18 (backend/infra — needs Cloudflare dashboard access)
+
+- **Make `/api/charities/featured/` actually edge-cacheable.** Diagnose why the middleware's `Cache-Control` directive isn't on the response, and add a Cloudflare Cache Rule for `api.trustgive.org/api/charities/featured/*` so it serves from the edge (~20 ms) instead of Railway+Neon (~900 ms). This is the single highest-leverage perf fix left.
+- Same for `/api/charities/` (catalog) and `/api/charities/{slug}/` (detail).
+- `<link rel="preload">` for the hero image isn't possible while the URL is only known post-API — would need the featured data inlined into `index.html` at build time, or SSR. Bigger architectural call; parked.
+
+### Live state
+
+- Latest commit: `a604bdd`. Health endpoint: `latest_migration=0057_backfill_v317_hero_photos`, `commit_sha=3bfb026` (backend code unchanged in v3.17 — only the migration + a redeploy), `db=ok`, `sentry=disabled`.
+- Worker version `ac28bdfa`. `/sitemap.xml` live, 544 URLs. `/robots.txt` valid.
+- All three homepage bucket cards now render real photos. Per-route titles verified via Playwright. `srcset` confirmed in the DOM with `/img/v1?...&w=500 500w, ...` descriptors.
+
+<reflection>
+  <what_went_well>
+    - Playwright verification caught the all-cards-broken regression *before* it sat unnoticed in production — exactly what the verify step is for. If I'd trusted the deploy and moved on, the homepage would have been three black boxes.
+    - Empirically deriving the Wikimedia allowlist (sweep 35 widths × 2 images) instead of guessing again. The two-image cross-check is what proved it's a global list, not per-image caching luck.
+    - The polish items (N-1, N-2, N-3, N-6) were genuinely small once the files were located — the recon-first step paid for itself.
+    - Caught the cachalot-LocMem staleness before assuming the migration had failed. The `featured` endpoint returning an empty `hero_photo_url` after a successful migration was confusing for a minute, but the v3.16 stack notes pointed straight at it.
+  </what_went_well>
+  <challenges>
+    - I shipped v3.16 with a guessed width allowlist and a cache-everything bug, and v3.17 inherited both. The cost was a broken homepage caught at verify-time plus an hour of debugging. The lesson isn't subtle: when proxying a third-party CDN, *verify the contract empirically before relying on it*, and *never apply a long Cache-Control to a response you didn't confirm is a success*.
+    - The Lighthouse perf number went the wrong way and the temptation was to keep pulling the thread — re-run, warm cache, analyse LCP phases. I did some of that, then stopped: the real fix is backend edge-caching, which needs dashboard access I don't have. Knowing when a thread belongs in the handoff doc instead of this session is the discipline.
+    - srcset width tiers had to be rebuilt twice — once with my guessed widths, once with the real allowlist — because the allowlist discovery came after I'd already written `SRCSET_WIDTHS`. Order of operations: verify the constraint first, then build on it.
+  </challenges>
+  <lessons_learned>
+    - **Never cache a response you haven't confirmed is a 2xx.** v3.16's `Cache-Control: immutable` on all responses turned a transient upstream 400 into a 30-day outage. Status-dependent cache headers are not optional for a proxy.
+    - **A migration run via `railway run` does not invalidate cachalot's per-worker LocMem cache** — the migration process and the gunicorn workers are separate processes. Any data migration that should be immediately visible needs a `railway redeploy` after. This is the second time this pattern has bitten; it belongs in the shared KB.
+    - **`Cache-Control` set by the app doesn't mean the CDN honours it.** Cloudflare treats `api.*` JSON as `DYNAMIC` by default — edge caching an API needs an explicit Cache Rule. Setting `s-maxage` in Django and assuming the edge caches is wishful.
+    - **Page-weight wins and Lighthouse-LCP wins are different things** (restating v3.16's lesson, now with the corollary): when LCP is gated by request-discovery latency — an SPA waiting on an API call before it knows the image URL — no amount of image optimisation moves it. That needs SSR or build-time data inlining.
+  </lessons_learned>
+  <knowledge_to_store>
+    YES — two KB entries. (1) "Proxy responses: status-dependent Cache-Control, never long-cache a non-2xx." (2) "`railway run migrate` leaves cachalot LocMem stale on the running workers — redeploy after any immediately-visible data migration." Both are HIGH severity (caused/would cause production-visible breakage) and affect backend + devops roles — flag for shared KB promotion.
+  </knowledge_to_store>
+</reflection>
