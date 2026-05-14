@@ -12,7 +12,13 @@
     // SPA fallback: unknown paths return index.html so React Router can
     // handle client-side routing. The Worker only intercepts /img/v1;
     // everything else is delegated to env.ASSETS.fetch().
-    "not_found_handling": "single-page-application"
+    "not_found_handling": "single-page-application",
+    // html_handling "none": serve files at their exact path, no .html
+    // stripping. Default behaviour 307-redirects /foo.html -> /foo, which
+    // breaks Google Search Console's verification file (it fetches the exact
+    // /google<hash>.html URL and expects a 200). "/" still resolves to
+    // index.html via not_found_handling, so SPA routing is unaffected.
+    "html_handling": "none"
   },
   "observability": {
     "enabled": true
