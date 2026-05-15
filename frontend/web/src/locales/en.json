@@ -103,7 +103,21 @@
     "loadMore": "Load more",
     "loadingMore": "Loading…",
     "notFound": "Charity not found",
-    "notFoundBody": "We couldn't find this charity. The link may be outdated. Browse the full catalog to find a similar organisation."
+    "notFoundBody": "We couldn't find this charity. The link may be outdated. Browse the full catalog to find a similar organisation.",
+    "v4": {
+      "eyebrow": "The catalog",
+      "totalHeadline": "All {{total}} charities.",
+      "bucketHeadline": "{{bucket}}.",
+      "filterLabel": "Filter",
+      "regionLabel": "Region",
+      "causeLabel": "Cause",
+      "allBuckets": "All",
+      "allRegions": "All",
+      "allCauses": "All",
+      "showMore": "Show {{n}} more",
+      "loading": "Loading…",
+      "loadedOf": "Showing {{loaded}} of {{total}}"
+    }
   },
   "charity": {
     "verified": "Verified",
