@@ -18,6 +18,12 @@ def charity(db) -> Charity:
         description={"en": "...", "ru": "..."},
         methodology_note={"en": "", "ru": ""},
         cause_tags=["poverty"],
+        # Required for /featured/ to surface this row: _verified_total() filters
+        # on (verification_status='verified', is_stale=False), _select_featured
+        # additionally requires total_revenue_usd IS NOT NULL.
+        verification_status="verified",
+        is_stale=False,
+        total_revenue_usd=1000,
     )
 
 

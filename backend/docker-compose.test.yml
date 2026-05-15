@@ -1,0 +1,29 @@
+# Throwaway Postgres for pytest. Use:
+#
+#   docker compose -f docker-compose.test.yml up -d
+#   pytest
+#   docker compose -f docker-compose.test.yml down -v   # tear down + drop data
+#
+# Port is 5433 (not 5432) so a host-side Postgres for other work doesn't
+# clash. Matches the default TEST_DATABASE_URL in trustgive/settings/test.py.
+
+services:
+  test-db:
+    image: postgres:17-alpine
+    container_name: trustgive-test-db
+    environment:
+      POSTGRES_DB: trustgive_test
+      POSTGRES_USER: trustgive
+      POSTGRES_PASSWORD: trustgive
+    ports:
+      - "5433:5432"
+    # tmpfs the data dir — tests recreate the DB every run anyway, so we'd
+    # rather not pay disk I/O for it. If you want persistent data between
+    # `down`/`up` cycles, swap this for `volumes: [test-db-data:/var/lib/...]`.
+    tmpfs:
+      - /var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U trustgive -d trustgive_test"]
+      interval: 2s
+      timeout: 5s
+      retries: 30
