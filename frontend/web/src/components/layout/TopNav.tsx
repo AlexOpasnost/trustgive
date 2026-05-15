@@ -1,17 +1,19 @@
 /**
- * TopNav — DESIGN.md v3.0 §G.
+ * TopNav — DESIGN_v4.md §5 (chrome).
  *
- * v3.0 changes:
- *   - ⌘K command-palette button REMOVED (entire palette deleted).
- *   - Compare link REMOVED (page deleted).
- *   - Lang toggle: clicking RU/EN updates Zustand prefs + i18next.
+ * v4 chrome rules: minimum weight. Thin top bar, no sticky-blur, no green
+ * accent on the brand mark, nav links as Inter ui-md with the active route
+ * underlined (not a green bottom-border). Lang toggle simplified to two
+ * Inter ui-sm buttons separated by a middot.
+ *
+ * The header is intentionally NOT sticky in v4. Editorial sites tend to let
+ * the masthead scroll off; sticky chrome competes with the lead headline.
  */
 import { HugeiconsIcon } from "@hugeicons/react"
-import { Tick02Icon, Menu01Icon } from "@hugeicons/core-free-icons"
+import { Menu01Icon } from "@hugeicons/core-free-icons"
 import { useTranslation } from "react-i18next"
 import { Link, NavLink } from "react-router-dom"
 
-import { cn } from "@/lib/utils"
 import { usePreferences } from "@/store/preferences"
 
 export function TopNav() {
@@ -24,52 +26,112 @@ export function TopNav() {
     void i18n.changeLanguage(newLang)
   }
 
-  const navLinkClass = ({ isActive }: { isActive: boolean }) =>
-    cn(
-      "text-body-sm font-medium px-2 py-1 transition-colors",
-      isActive ? "text-ink border-b-2 border-verified" : "text-ink-3 hover:text-ink"
-    )
-
   return (
-    <header className="sticky top-0 z-30 bg-paper/95 backdrop-blur border-b border-rule">
-      <div className="max-w-(--container-wide) mx-auto px-6 lg:px-12 h-16 flex items-center justify-between">
-        <Link to="/" className="flex items-center gap-2 font-semibold text-h4">
-          <HugeiconsIcon icon={Tick02Icon} size={20} className="text-verified" />
-          <span>TrustGive</span>
+    <header
+      style={{
+        background: "var(--color-paper-v4)",
+        borderBottom: "1px solid var(--color-rule-v4)",
+      }}
+    >
+      <div className="max-w-[1280px] mx-auto px-6 lg:px-12 h-14 flex items-center justify-between">
+        {/* Wordmark — Source Serif at a confident-but-modest size. The check-
+            mark icon and verified-green tint from v3 are gone. */}
+        <Link
+          to="/"
+          className="font-serif"
+          style={{
+            fontSize: "22px",
+            lineHeight: 1,
+            fontWeight: 600,
+            letterSpacing: "-0.01em",
+            color: "var(--color-ink-v4)",
+          }}
+        >
+          TrustGive
         </Link>
 
-        <nav className="hidden md:flex items-center gap-1">
-          <NavLink to="/charities" className={navLinkClass}>
+        {/* Centre nav — Inter 15px, active route underlined */}
+        <nav className="hidden md:flex items-center gap-8">
+          <NavLink
+            to="/charities"
+            className="font-sans"
+            style={({ isActive }) => ({
+              fontSize: "var(--text-ui-md)",
+              color: isActive ? "var(--color-ink-v4)" : "var(--color-ink-3-v4)",
+              fontWeight: 500,
+              textDecoration: isActive ? "underline" : "none",
+              textDecorationThickness: "1px",
+              textUnderlineOffset: "6px",
+            })}
+          >
             {t("nav.catalog")}
           </NavLink>
-          <NavLink to="/methodology" className={navLinkClass}>
+          <NavLink
+            to="/methodology"
+            className="font-sans"
+            style={({ isActive }) => ({
+              fontSize: "var(--text-ui-md)",
+              color: isActive ? "var(--color-ink-v4)" : "var(--color-ink-3-v4)",
+              fontWeight: 500,
+              textDecoration: isActive ? "underline" : "none",
+              textDecorationThickness: "1px",
+              textUnderlineOffset: "6px",
+            })}
+          >
             {t("nav.methodology")}
           </NavLink>
         </nav>
 
-        <div className="flex items-center gap-3">
-          <div className="flex items-center text-body-sm" role="group" aria-label="Language">
+        {/* Right side — lang toggle + mobile menu */}
+        <div className="flex items-center gap-4">
+          <div
+            className="flex items-center"
+            role="group"
+            aria-label="Language"
+            style={{ fontSize: "var(--text-ui-sm)" }}
+          >
             <button
               type="button"
               onClick={() => switchLang("en")}
-              className={cn("px-2 py-1", lang === "en" ? "text-ink font-medium" : "text-ink-3")}
+              className="font-sans px-1"
+              style={{
+                color:
+                  lang === "en" ? "var(--color-ink-v4)" : "var(--color-ink-3-v4)",
+                fontWeight: lang === "en" ? 600 : 500,
+              }}
               aria-pressed={lang === "en"}
             >
               EN
             </button>
-            <span className="text-ink-3">·</span>
+            <span
+              className="mx-1"
+              style={{ color: "var(--color-ink-3-v4)" }}
+              aria-hidden="true"
+            >
+              ·
+            </span>
             <button
               type="button"
               onClick={() => switchLang("ru")}
-              className={cn("px-2 py-1", lang === "ru" ? "text-ink font-medium" : "text-ink-3")}
+              className="font-sans px-1"
+              style={{
+                color:
+                  lang === "ru" ? "var(--color-ink-v4)" : "var(--color-ink-3-v4)",
+                fontWeight: lang === "ru" ? 600 : 500,
+              }}
               aria-pressed={lang === "ru"}
               aria-label={t("nav.switchLang")}
             >
               RU
             </button>
           </div>
-          <button type="button" className="md:hidden" aria-label="Open menu">
-            <HugeiconsIcon icon={Menu01Icon} size={24} />
+          <button
+            type="button"
+            className="md:hidden"
+            aria-label="Open menu"
+            style={{ color: "var(--color-ink-v4)" }}
+          >
+            <HugeiconsIcon icon={Menu01Icon} size={22} />
           </button>
         </div>
       </div>

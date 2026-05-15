@@ -1,13 +1,11 @@
 /**
- * Footer — DESIGN.md v3.0 §J.
+ * Footer — DESIGN_v4.md §5 (chrome).
  *
- * v3.0 changes:
- *   - Compare link REMOVED from Discover column.
- *   - Open Data column REMOVED entirely (per Frontend agent task spec).
- *   - 4-col → 3-col grid (Discover / Methodology / About).
+ * v4: paper-v4 background (not a separate surface), no green checkmark in
+ * the wordmark, hairline rules using rule-v4. Column heads in Inter caps,
+ * links in Inter ui-md, colophon in Geist Mono. Wordmark in Source Serif
+ * at display-md scale — same family as the page, not a banner.
  */
-import { HugeiconsIcon } from "@hugeicons/react"
-import { Tick02Icon } from "@hugeicons/core-free-icons"
 import { useTranslation } from "react-i18next"
 import { Link } from "react-router-dom"
 
@@ -16,26 +14,44 @@ export function Footer() {
   const year = new Date().getFullYear()
 
   return (
-    <footer className="border-t border-rule bg-surface">
-      <div className="max-w-(--container-wide) mx-auto px-6 lg:px-12 pt-20 pb-12">
-        {/* Wordmark + tagline row */}
-        <div className="flex items-end justify-between gap-8 mb-16 pb-12 border-b border-rule">
-          <div className="flex items-center gap-3">
-            <HugeiconsIcon icon={Tick02Icon} size={28} className="text-verified" />
-            <span
-              className="font-serif text-ink"
-              style={{ fontSize: "44px", lineHeight: 1, fontWeight: 400, letterSpacing: "-0.02em" }}
-            >
-              TrustGive
-            </span>
-          </div>
-          <p className="text-body-sm text-ink-2 max-w-md text-right hidden md:block">
+    <footer
+      style={{
+        background: "var(--color-paper-v4)",
+        borderTop: "1px solid var(--color-rule-v4)",
+      }}
+    >
+      <div className="max-w-[1280px] mx-auto px-6 lg:px-12 pt-16 pb-10">
+        {/* Wordmark + tagline */}
+        <div
+          className="flex flex-col md:flex-row md:items-end md:justify-between gap-6 pb-10 mb-10"
+          style={{ borderBottom: "1px solid var(--color-rule-v4)" }}
+        >
+          <span
+            className="font-serif"
+            style={{
+              fontSize: "44px",
+              lineHeight: 1,
+              fontWeight: 400,
+              letterSpacing: "-0.02em",
+              color: "var(--color-ink-v4)",
+            }}
+          >
+            TrustGive
+          </span>
+          <p
+            className="font-serif italic max-w-md md:text-right"
+            style={{
+              fontSize: "var(--text-body-v4)",
+              lineHeight: "var(--text-body-v4--line-height)",
+              color: "var(--color-ink-2-v4)",
+            }}
+          >
             {t("footer.tagline")}
           </p>
         </div>
 
-        {/* 3-column nav (v3.0: dropped Open Data column) */}
-        <div className="grid grid-cols-2 md:grid-cols-3 gap-y-12 gap-x-8 mb-16">
+        {/* 3-column nav */}
+        <div className="grid grid-cols-2 md:grid-cols-3 gap-y-10 gap-x-8 mb-12">
           <FooterCol title={t("footer.discover.title")}>
             <FooterLink to="/charities">{t("footer.discover.catalog")}</FooterLink>
             <FooterLink to="/charities?country=US">{t("footer.discover.us")}</FooterLink>
@@ -62,14 +78,21 @@ export function Footer() {
           </FooterCol>
         </div>
 
-        {/* Bottom row — colophon */}
-        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 pt-8 border-t border-rule text-caption text-ink-3 font-mono">
-          <p>
-            © {year} TrustGive · {t("footer.colophon")}
-          </p>
+        {/* Bottom colophon */}
+        <div
+          className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 pt-6 font-mono"
+          style={{
+            borderTop: "1px solid var(--color-rule-v4)",
+            fontSize: "var(--text-mono-sm)",
+            color: "var(--color-ink-3-v4)",
+          }}
+        >
+          <p>© {year} TrustGive · {t("footer.colophon")}</p>
           <p>
             {t("footer.builtWith")}{" "}
-            <span className="text-ink-2">Inter · Source Serif 4 · Geist Mono · Hugeicons</span>
+            <span style={{ color: "var(--color-ink-2-v4)" }}>
+              Source Serif 4 · Inter · Geist Mono
+            </span>
           </p>
         </div>
       </div>
@@ -80,7 +103,17 @@ export function Footer() {
 function FooterCol({ title, children }: { title: string; children: React.ReactNode }) {
   return (
     <div>
-      <h3 className="text-caption uppercase tracking-widest text-ink-3 font-medium mb-4">{title}</h3>
+      <h3
+        className="font-sans uppercase mb-4"
+        style={{
+          fontSize: "var(--text-ui-sm)",
+          letterSpacing: "0.16em",
+          color: "var(--color-ink-3-v4)",
+          fontWeight: 500,
+        }}
+      >
+        {title}
+      </h3>
       <ul className="space-y-3">{children}</ul>
     </div>
   )
@@ -89,7 +122,16 @@ function FooterCol({ title, children }: { title: string; children: React.ReactNo
 function FooterLink({ to, children }: { to: string; children: React.ReactNode }) {
   return (
     <li>
-      <Link to={to} className="text-body text-ink-2 hover:text-ink transition-colors">
+      <Link
+        to={to}
+        className="font-sans transition-colors duration-150"
+        style={{
+          fontSize: "var(--text-ui-md)",
+          color: "var(--color-ink-2-v4)",
+        }}
+        onMouseEnter={(e) => (e.currentTarget.style.color = "var(--color-ink-v4)")}
+        onMouseLeave={(e) => (e.currentTarget.style.color = "var(--color-ink-2-v4)")}
+      >
         {children}
       </Link>
     </li>
@@ -104,7 +146,13 @@ function FooterExternalLink({ href, children }: { href: string; children: React.
         href={href}
         target={isExternal ? "_blank" : undefined}
         rel={isExternal ? "noopener noreferrer" : undefined}
-        className="text-body text-ink-2 hover:text-ink transition-colors"
+        className="font-sans transition-colors duration-150"
+        style={{
+          fontSize: "var(--text-ui-md)",
+          color: "var(--color-ink-2-v4)",
+        }}
+        onMouseEnter={(e) => (e.currentTarget.style.color = "var(--color-ink-v4)")}
+        onMouseLeave={(e) => (e.currentTarget.style.color = "var(--color-ink-2-v4)")}
       >
         {children}
       </a>
