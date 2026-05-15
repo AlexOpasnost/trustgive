@@ -193,6 +193,28 @@ body {
   letter-spacing: 0;
 }
 
+/*
+ * v4 drop cap — flush-left two-line drop cap on the first paragraph of
+ * the detail-page body. NYT style, not Atlantic rotated-initial style.
+ * Apply by adding the `v4-drop-cap` class to a <p>. Skips when the user
+ * prefers reduced motion (defensive — drop cap can confuse some screen
+ * readers if synthesised by the layout engine).
+ */
+.v4-drop-cap::first-letter {
+  font-family: var(--font-serif);
+  font-weight: 400;
+  font-size: 4.2em;
+  line-height: 0.82;
+  float: left;
+  margin-right: 0.08em;
+  margin-top: 0.06em;
+  color: var(--color-ink-v4);
+}
+:lang(ru) .v4-drop-cap::first-letter {
+  /* Russian caps without optical letterspacing trick from §3.5. */
+  letter-spacing: 0;
+}
+
 /* Reduced motion (DESIGN.md §8) */
 @media (prefers-reduced-motion: reduce) {
   *,

@@ -84,6 +84,15 @@
     },
     "breakdown": {
       "unavailable": "Program-services breakdown not reported on this Form 990. Many charities outside the U.S. don't itemise these in their filings, and we don't infer what wasn't disclosed."
+    },
+    "v4": {
+      "backToArchive": "All charities",
+      "sourceDocsTitle": "Source documents",
+      "filedYear": "Filed {{year}}",
+      "viaSource": "via {{source}}",
+      "howToGive": "How to give",
+      "howToGiveBody": "Go directly to {{hostname}}. We don't process donations and we don't take a cut.",
+      "howToGiveCta": "Visit {{hostname}}"
     }
   },
   "catalog": {
