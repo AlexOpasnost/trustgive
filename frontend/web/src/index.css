@@ -1,12 +1,24 @@
 @import "tailwindcss";
 
 /*
- * TrustGive design tokens — per DESIGN.md v1.1 §2 (color) + §3 (typography) + §5 (spacing).
- * Semantic tokens, NOT visual (per KB-DESIGNER-INIT-003).
+ * TrustGive design tokens.
+ *
+ * v3 (DESIGN.md v1.1) tokens are in the @theme block below — components
+ * not yet migrated still reference them.
+ *
+ * v4 (DESIGN_v4.md, 2026-05-15) tokens live alongside, additive: paper-v4,
+ * ink-v4, link, link-deep, plus new type scale (display-xl/lg/md, dek,
+ * body-lg). Once every page is migrated, the v3 tokens get retired and
+ * v4 ones lose the `-v4` suffix.
+ *
+ * Verified-green is intentionally NOT extended into v4 — the v4 line drops
+ * the green accent entirely. Existing components keep it until each page
+ * is rebuilt.
  */
 
 @theme {
-  /* --- Colors: Light mode (Anthropic-inspired warm cream + clay) --- */
+  /* === v3 tokens (in use by un-migrated pages) ============================ */
+
   --color-paper: #f5f1e8;        /* warm cream — Anthropic-style background */
   --color-surface: #faf7ee;      /* lifted from paper, warm-white for cards */
   --color-surface-raised: #ffffff;
@@ -27,12 +39,11 @@
   --color-info: #3d5ab5;
   --color-info-soft: #e8ecf8;
 
-  /* --- Typography --- */
   --font-sans: "Inter", system-ui, -apple-system, sans-serif;
   --font-serif: "Source Serif 4", "Georgia", serif;
   --font-mono: "Geist Mono", "Menlo", "Consolas", monospace;
 
-  /* Type scale (per DESIGN.md §3.2) */
+  /* v3 type scale (per DESIGN.md §3.2) */
   --text-display: 56px;
   --text-display--line-height: 60px;
   --text-h1: 40px;
@@ -50,15 +61,66 @@
   --text-caption: 12px;
   --text-caption--line-height: 18px;
 
-  /* --- Radii (DESIGN.md §5.5) --- */
   --radius-sm: 4px;
   --radius-md: 8px;
   --radius-lg: 12px;
 
-  /* --- Containers --- */
   --container-narrow: 720px;
   --container-default: 1080px;
   --container-wide: 1280px;
+
+  /* === v4 tokens (DESIGN_v4.md) ========================================= */
+
+  /* Warmer paper, warmer near-black ink. The drift from v3 is small on
+     screen (~5% warmer) and is the editorial mood-shift we want. */
+  --color-paper-v4: #f6f2ea;
+  --color-paper-2-v4: #efe9dd;    /* module backgrounds, sidebar cards */
+  --color-ink-v4: #1a1714;        /* warm near-black, 16.3:1 vs paper-v4 */
+  --color-ink-2-v4: #3f3a33;      /* 9.4:1 — bylines, captions */
+  --color-ink-3-v4: #6b6358;      /* 5.0:1 — year metadata, EIN under names */
+  --color-rule-v4: #2a241d;       /* primary hairline — 13.7:1 */
+  --color-rule-soft-v4: #b9ae9d;  /* secondary hairline, modules-within-modules */
+
+  /* Brick red is the only chromatic accent in v4. Used for inline links
+     and outbound charity-site CTAs. Replaces the v3 verified green for
+     all action surfaces. */
+  --color-link: #9c3b26;
+  --color-link-deep: #6e2818;     /* hover/pressed */
+
+  /* v4 type scale — Source Serif 4 across the board for reading copy.
+     Inter only for UI labels (ui-md / ui-sm). Geist Mono for IDs. */
+  --text-display-xl: 88px;
+  --text-display-xl--line-height: 92px;
+  --text-display-lg: 64px;
+  --text-display-lg--line-height: 68px;
+  --text-display-md: 48px;
+  --text-display-md--line-height: 54px;
+  --text-heading-lg: 32px;
+  --text-heading-lg--line-height: 38px;
+  --text-heading-md: 24px;
+  --text-heading-md--line-height: 30px;
+  --text-dek: 24px;               /* italic standfirst under a headline */
+  --text-dek--line-height: 32px;
+  --text-body-lg: 20px;           /* detail-page body, long-form */
+  --text-body-lg--line-height: 32px;
+  --text-body-v4: 18px;           /* catalog descriptions, methodology body */
+  --text-body-v4--line-height: 28px;
+  --text-body-sm-v4: 16px;
+  --text-body-sm-v4--line-height: 24px;
+  --text-ui-md: 15px;             /* buttons, filter labels, nav items */
+  --text-ui-md--line-height: 22px;
+  --text-ui-sm: 13px;             /* chips, regulator badges */
+  --text-ui-sm--line-height: 18px;
+  --text-mono-sm: 13px;
+  --text-mono-sm--line-height: 18px;
+
+  /* Containers — clamps for reading-focused pages */
+  --container-reading: 720px;     /* detail-page body */
+  --container-essay: 640px;       /* methodology, about (≈58ch at 18px) */
+
+  /* v4 radii — letterpress not consumer-app: 0 for content, 2 for UI */
+  --radius-content-v4: 0px;
+  --radius-ui-v4: 2px;
 }
 
 /* Dark mode override (per DESIGN.md §2.4) — activated via .dark class on <html> */
@@ -99,11 +161,36 @@ body {
   box-sizing: border-box;
 }
 
-/* Visible focus ring (DESIGN.md §9.2) */
+/* Visible focus ring (DESIGN.md §9.2) — v3 uses verified green; once v4
+   migration is complete this switches to var(--color-link) brick. */
 :focus-visible {
   outline: 2px solid var(--color-verified);
   outline-offset: 2px;
   border-radius: var(--radius-sm);
+}
+
+/*
+ * v4 bilingual adjustments — Source Serif 4 Cyrillic has a slightly lower
+ * x-height than its Latin at the same nominal size, and Latin headline
+ * letter-spacing collapses Cyrillic optically. Two corrections:
+ *
+ *   1. RU body type ships +1px to keep visual parity with Latin body.
+ *   2. RU headlines reset letter-spacing to 0 (Latin uses -0.01em on display).
+ *
+ * Scoped to `:lang(ru)` so the browser applies them only when the document
+ * (or a subtree) is tagged Russian. Components rendering RU strings should
+ * set `lang="ru"` on the wrapping element.
+ */
+:lang(ru) {
+  --text-body-v4: 19px;
+  --text-body-lg: 21px;
+}
+:lang(ru) h1,
+:lang(ru) h2,
+:lang(ru) .display-xl,
+:lang(ru) .display-lg,
+:lang(ru) .display-md {
+  letter-spacing: 0;
 }
 
 /* Reduced motion (DESIGN.md §8) */
