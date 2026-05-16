@@ -13,26 +13,6 @@
       "title": "Star ratings get gamed. Source documents don't.",
       "p1": "TrustGive aggregates public registries — IRS Form 990, UK Charity Commission, Минюст СОНКО — and links directly to the source documents. We don't publish a trust score. We don't process payments. The job of the platform is to take you to the original record in one click.",
       "cta": "Read the full methodology"
-    },
-    "v4": {
-      "eyebrow": "A discovery archive of verified charities",
-      "headline1": "Five hundred and forty-one charities.",
-      "headline2": "Twenty-seven countries.",
-      "headline3": "No star ratings.",
-      "dek": "Browse by what they do",
-      "standfirst": "The link on every charity card opens its actual regulator filing — Form 990, Charity Commission, Минюст СОНКО, audited annual reports. We don't grade. We cite.",
-      "bucket": {
-        "people": {
-          "standfirst": "Health, education, refugees, mental health, anti-trafficking, veterans, LGBTQ+. The bucket is broad on purpose — anywhere humans are the recipients."
-        },
-        "planet": {
-          "standfirst": "Climate, conservation, ecosystems, biodiversity, rewilding. The donor is the planet itself, not the people who live on it."
-        },
-        "animals": {
-          "standfirst": "Welfare, sanctuaries, wildlife, marine life, advocacy. From legal-action funds to single-species rescues."
-        }
-      },
-      "seeAll": "See all {{count}} {{bucket}}"
     }
   },
   "homepage": {
