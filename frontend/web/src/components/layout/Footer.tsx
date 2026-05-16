@@ -6,8 +6,6 @@
  *   - Open Data column REMOVED entirely (per Frontend agent task spec).
  *   - 4-col → 3-col grid (Discover / Methodology / About).
  */
-import { HugeiconsIcon } from "@hugeicons/react"
-import { Tick02Icon } from "@hugeicons/core-free-icons"
 import { useTranslation } from "react-i18next"
 import { Link } from "react-router-dom"
 
@@ -20,11 +18,18 @@ export function Footer() {
       <div className="max-w-(--container-wide) mx-auto px-6 lg:px-12 pt-20 pb-12">
         {/* Wordmark + tagline row */}
         <div className="flex items-end justify-between gap-8 mb-16 pb-12 border-b border-rule">
-          <div className="flex items-center gap-3">
-            <HugeiconsIcon icon={Tick02Icon} size={28} className="text-verified" />
+          <div className="flex items-baseline gap-3">
+            {/* Dagger citation mark — see TopNav for rationale. */}
+            <span
+              className="font-serif text-verified"
+              style={{ fontSize: "52px", lineHeight: "1", fontWeight: 700 }}
+              aria-hidden="true"
+            >
+              †
+            </span>
             <span
               className="font-serif text-ink"
-              style={{ fontSize: "44px", lineHeight: 1, fontWeight: 400, letterSpacing: "-0.02em" }}
+              style={{ fontSize: "44px", lineHeight: 1, fontWeight: 700, letterSpacing: "-0.02em" }}
             >
               TrustGive
             </span>

@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
+  <!-- Cream paper background -->
+  <rect width="32" height="32" fill="#F5F1E8"/>
+  <!--
+    Dagger (†, U+2020) — the academic citation mark. Drawn as paths so the
+    favicon never depends on system fonts. Forest-green = TrustGive verified
+    accent. Proportions are tuned to read at 16x16 — the crossbar wider than
+    the stem keeps the silhouette clear at small sizes.
+  -->
+  <g fill="#0E7C5C">
+    <!-- Top serif cap -->
+    <rect x="13" y="4" width="6" height="1.5"/>
+    <!-- Stem above the crossbar -->
+    <rect x="15" y="5.5" width="2" height="5.5"/>
+    <!-- Horizontal crossbar -->
+    <rect x="6.5" y="11" width="19" height="2.5"/>
+    <!-- Tapering stem below crossbar to a point -->
+    <path d="M 14.5 13.5 L 17.5 13.5 L 17 25.5 L 16 28 L 15 25.5 Z"/>
+  </g>
+</svg>

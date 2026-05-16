@@ -7,7 +7,7 @@
  *   - Lang toggle: clicking RU/EN updates Zustand prefs + i18next.
  */
 import { HugeiconsIcon } from "@hugeicons/react"
-import { Tick02Icon, Menu01Icon } from "@hugeicons/core-free-icons"
+import { Menu01Icon } from "@hugeicons/core-free-icons"
 import { useTranslation } from "react-i18next"
 import { Link, NavLink } from "react-router-dom"
 
@@ -33,9 +33,26 @@ export function TopNav() {
   return (
     <header className="sticky top-0 z-30 bg-paper/95 backdrop-blur border-b border-rule">
       <div className="max-w-(--container-wide) mx-auto px-6 lg:px-12 h-16 flex items-center justify-between">
-        <Link to="/" className="flex items-center gap-2 font-semibold text-h4">
-          <HugeiconsIcon icon={Tick02Icon} size={20} className="text-verified" />
-          <span>TrustGive</span>
+        {/*
+          Brand wordmark. Dagger (†) = academic citation mark — specific to
+          what TrustGive does: cite the source filing instead of grading.
+          Wordmark in Source Serif Bold, dagger in forest-green verified
+          accent. No icon library — these are the brand.
+        */}
+        <Link to="/" className="flex items-baseline gap-1.5" aria-label="TrustGive">
+          <span
+            className="font-serif text-verified"
+            style={{ fontSize: "26px", lineHeight: "1", fontWeight: 700 }}
+            aria-hidden="true"
+          >
+            †
+          </span>
+          <span
+            className="font-serif text-ink"
+            style={{ fontSize: "22px", lineHeight: "1", fontWeight: 700, letterSpacing: "-0.01em" }}
+          >
+            TrustGive
+          </span>
         </Link>
 
         <nav className="hidden md:flex items-center gap-1">
