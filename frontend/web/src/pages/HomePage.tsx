@@ -24,7 +24,6 @@ import { Link } from "react-router-dom"
 
 import { PHOTO_WIDTHS, SRCSET_WIDTHS, buildSrcSet, wikimediaThumb } from "@/lib/image"
 import { useFeaturedCharities } from "@/lib/queries"
-import { useDocumentTitle } from "@/lib/useDocumentTitle"
 import type { Bucket, CharitySummary } from "@/types/api"
 
 const BUCKETS: Bucket[] = ["people", "planet", "animals"]
@@ -146,8 +145,6 @@ function BucketSpread({ bucket, align }: { bucket: Bucket; align: "left" | "righ
 
 export function HomePage() {
   const { t } = useTranslation()
-  // Homepage owns the brand title — every other route mounts its own.
-  useDocumentTitle("TrustGive — A discovery archive of verified charities")
 
   return (
     <main style={{ background: "var(--color-paper-v4)", color: "var(--color-ink-v4)" }}>
