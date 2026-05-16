@@ -103,21 +103,7 @@
     "loadMore": "Показать ещё",
     "loadingMore": "Загружаем…",
     "notFound": "Организация не найдена",
-    "notFoundBody": "Не нашли эту организацию. Возможно, ссылка устарела. Откройте каталог, чтобы найти похожую.",
-    "v4": {
-      "eyebrow": "Каталог",
-      "totalHeadline": "Все {{total}} организаций.",
-      "bucketHeadline": "{{bucket}}.",
-      "filterLabel": "Фильтр",
-      "regionLabel": "Регион",
-      "causeLabel": "Тема",
-      "allBuckets": "Все",
-      "allRegions": "Все",
-      "allCauses": "Все",
-      "showMore": "Показать ещё {{n}}",
-      "loading": "Загружаем…",
-      "loadedOf": "Показано {{loaded}} из {{total}}"
-    }
+    "notFoundBody": "Не нашли эту организацию. Возможно, ссылка устарела. Откройте каталог, чтобы найти похожую."
   },
   "charity": {
     "verified": "Подтверждено",
