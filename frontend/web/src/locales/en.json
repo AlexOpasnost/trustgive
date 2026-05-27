@@ -89,6 +89,8 @@
     "verified": "Verified",
     "listed": "Listed",
     "stale": "Stale",
+    "notVerified": "Not verified",
+    "notVerifiedNote": "We haven't been able to confirm this organisation's regulator filing yet, so we don't show a verified badge or financial figures for it. It stays listed for discovery — but verify it independently before giving.",
     "viewSource": "View source documents",
     "back": "Back to results",
     "moneyGoes": "Where the money goes",

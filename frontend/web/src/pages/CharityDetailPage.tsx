@@ -232,20 +232,26 @@ export function CharityDetailPage() {
       )}
 
       {/* === WHERE THE MONEY GOES === */}
-      <section className="bg-surface-raised">
-        <div className="max-w-(--container-default) mx-auto px-6 lg:px-12 py-12 lg:py-16">
-          <h2 className="font-serif text-h2 font-semibold text-ink mb-6">
-            {t("charity.moneyGoes")}
-          </h2>
-          <div className="max-w-[720px]">
-            <MoneyBreakdown
-              data={charity.money_breakdown}
-              totalRevenueUsd={charity.total_revenue_usd}
-              fallbackYear={charity.last_filed_date ? Number(charity.last_filed_date.slice(0, 4)) : null}
-            />
+      {/* Only render when there's a verified financial figure to show. When a
+          charity's source filing couldn't be verified (v3.18 audit), its
+          financials are nulled, and MoneyBreakdown would render nothing — so we
+          drop the whole section rather than leave a dangling header. */}
+      {(charity.money_breakdown || charity.total_revenue_usd != null) && (
+        <section className="bg-surface-raised">
+          <div className="max-w-(--container-default) mx-auto px-6 lg:px-12 py-12 lg:py-16">
+            <h2 className="font-serif text-h2 font-semibold text-ink mb-6">
+              {t("charity.moneyGoes")}
+            </h2>
+            <div className="max-w-[720px]">
+              <MoneyBreakdown
+                data={charity.money_breakdown}
+                totalRevenueUsd={charity.total_revenue_usd}
+                fallbackYear={charity.last_filed_date ? Number(charity.last_filed_date.slice(0, 4)) : null}
+              />
+            </div>
           </div>
-        </div>
-      </section>
+        </section>
+      )}
 
       {/* === SOURCE DOCUMENTS === */}
       {charity.source_documents.length > 0 && (
@@ -278,6 +284,21 @@ export function CharityDetailPage() {
                 </li>
               ))}
             </ul>
+          </div>
+        </section>
+      )}
+
+      {/* No source document → say so honestly, rather than silently omit the
+          section. Every charity must communicate its trust state (v3.18). */}
+      {charity.source_documents.length === 0 && (
+        <section className="bg-surface-raised border-t border-rule">
+          <div className="max-w-(--container-default) mx-auto px-6 lg:px-12 py-12 lg:py-16">
+            <h2 className="font-serif text-h2 font-semibold text-ink mb-4">
+              {t("charity.sourceDocuments")}
+            </h2>
+            <p className="text-body text-ink-2 max-w-[65ch]">
+              {t("charity.notVerifiedNote")}
+            </p>
           </div>
         </section>
       )}
@@ -394,10 +415,14 @@ function DetailHero({
                   {tagline}
                 </p>
               )}
-              {charity.verification_status === "verified" && (
+              {charity.verification_status === "verified" ? (
                 <span className="mt-4 inline-flex items-center gap-1.5 bg-verified-soft text-verified text-body-sm font-medium rounded-full px-3 py-1">
                   <HugeiconsIcon icon={Tick02Icon} size={14} aria-hidden="true" />
                   {t("charity.verified")}
+                </span>
+              ) : (
+                <span className="mt-4 inline-flex items-center gap-1.5 bg-black/5 text-ink-3 text-body-sm font-medium rounded-full px-3 py-1">
+                  {t("charity.notVerified")}
                 </span>
               )}
             </div>
@@ -452,8 +477,9 @@ function DetailHero({
         {t("charity.back")}
       </Link>
 
-      {/* Top-right: verified chip */}
-      {charity.verification_status === "verified" && (
+      {/* Top-right: verification chip — green Verified, or a muted Not verified
+          so a charity's trust state is never ambiguous (v3.18). */}
+      {charity.verification_status === "verified" ? (
         <span
           className="
             absolute top-6 right-6 md:top-8 md:right-8 z-10
@@ -467,6 +493,20 @@ function DetailHero({
         >
           <HugeiconsIcon icon={Tick02Icon} size={14} aria-hidden="true" />
           {t("charity.verified")}
+        </span>
+      ) : (
+        <span
+          className="
+            absolute top-6 right-6 md:top-8 md:right-8 z-10
+            inline-flex items-center
+            bg-white/80 backdrop-blur-sm
+            rounded-full px-4 py-1.5
+            text-body-sm font-medium text-ink-3
+            shadow-sm
+          "
+          aria-label={t("charity.notVerified")}
+        >
+          {t("charity.notVerified")}
         </span>
       )}
 

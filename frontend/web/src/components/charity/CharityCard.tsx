@@ -130,8 +130,9 @@ export function CharityCard({ charity }: Props) {
           </div>
         )}
 
-        {/* Verified chip overlay — top-right */}
-        {isVerified && (
+        {/* Status chip overlay — top-right. Green Verified, or a muted
+            Not verified so status is honest at the discovery layer too (v3.18). */}
+        {isVerified ? (
           <span
             className="
               absolute top-3 right-3
@@ -145,6 +146,20 @@ export function CharityCard({ charity }: Props) {
           >
             <HugeiconsIcon icon={Tick02Icon} size={12} aria-hidden="true" />
             {t("charity.verified")}
+          </span>
+        ) : (
+          <span
+            className="
+              absolute top-3 right-3
+              inline-flex items-center
+              bg-white/75 backdrop-blur-sm
+              rounded-full px-3 py-1
+              text-caption font-medium text-ink-3
+              shadow-sm
+            "
+            aria-label={t("charity.notVerified")}
+          >
+            {t("charity.notVerified")}
           </span>
         )}
       </div>

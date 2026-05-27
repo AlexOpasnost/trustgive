@@ -317,6 +317,198 @@ ${entries.join("\n")}
   return response
 }
 
+/**
+ * Per-charity SEO/social meta injection for `/charities/{slug}`.
+ *
+ * The frontend is a client-rendered SPA, so every charity detail URL ships the
+ * same static `<head>` from index.html: one generic title, one description, no
+ * og:image. Two consequences this fixes:
+ *   1. Social crawlers (LinkedIn, Twitter, Telegram, Facebook) read og:* from
+ *      raw HTML and never run JS, so every shared charity link previewed as the
+ *      generic homepage card with no image.
+ *   2. Google sees 541 detail pages with duplicate descriptions and no
+ *      structured data — weaker ranking, no rich results.
+ *
+ * This handler fetches the SPA shell from ASSETS and the charity record from
+ * the API, then uses HTMLRewriter to rewrite the existing title/description/og
+ * tags and append canonical + twitter + JSON-LD (schema.org NGO). The SPA still
+ * hydrates and renders normally — we only enrich the `<head>` the crawler sees.
+ *
+ * Failure-safe: any API error or 404 falls through to the untouched SPA shell,
+ * so a flaky API can never blank the page. Successful renders are edge-cached
+ * for 1h, keyed by the canonical URL; failures are never cached (v3.16 lesson).
+ */
+
+const API_BASE = "https://api.trustgive.org"
+const SITE_BASE = "https://trustgive.org"
+const COUNTRY_LABEL: Record<string, string> = { US: "US", UK: "UK", RU: "Russian" }
+
+interface LocalisedText {
+  en?: string
+  ru?: string
+}
+interface CharityDetail {
+  slug: string
+  name: LocalisedText
+  tagline?: LocalisedText
+  description?: LocalisedText
+  logo_url?: string | null
+  hero_photo_url?: string | null
+  country?: string
+  registration_id?: string
+  founded_year?: number | null
+  verification_status?: string
+  donation_url?: string
+  source_documents?: Array<{ url?: string; source_label?: string; label?: LocalisedText }>
+}
+
+function escapeAttr(s: string): string {
+  return s
+    .replace(/&/g, "&amp;")
+    .replace(/"/g, "&quot;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+}
+
+/** Truncate to a clean length at a word boundary, with an ellipsis. */
+function clamp(s: string, max: number): string {
+  const flat = s.replace(/\s+/g, " ").trim()
+  if (flat.length <= max) return flat
+  const cut = flat.slice(0, max - 1)
+  const lastSpace = cut.lastIndexOf(" ")
+  return (lastSpace > max * 0.6 ? cut.slice(0, lastSpace) : cut).trimEnd() + "…"
+}
+
+/** og:image routes through our own proxy so Wikimedia (UA-gated) images and
+ * any origin are reliably fetchable by social crawlers at a fixed width. */
+function ogImageUrl(photo: string): string {
+  return `${SITE_BASE}/img/v1?url=${encodeURIComponent(photo)}&w=1280`
+}
+
+function buildJsonLd(c: CharityDetail, name: string, description: string, canonical: string): string {
+  const ld: Record<string, unknown> = {
+    "@context": "https://schema.org",
+    "@type": "NGO",
+    name,
+    url: canonical,
+    description,
+  }
+  if (c.logo_url) ld.logo = c.logo_url
+  if (c.hero_photo_url) ld.image = c.hero_photo_url
+  if (c.founded_year) ld.foundingDate = String(c.founded_year)
+  if (c.country && COUNTRY_LABEL[c.country]) ld.areaServed = COUNTRY_LABEL[c.country]
+  if (c.registration_id) ld.taxID = c.registration_id
+  if (c.donation_url) {
+    ld.potentialAction = { "@type": "DonateAction", target: c.donation_url }
+  }
+  const docs = (c.source_documents ?? []).filter((d) => d.url)
+  if (docs.length) {
+    ld.subjectOf = docs.map((d) => ({
+      "@type": "CreativeWork",
+      name: d.source_label || d.label?.en || "Source document",
+      url: d.url,
+    }))
+  }
+  // Escape `<` so a stray "</script>" in any string can't break out of the tag.
+  return JSON.stringify(ld).replace(/</g, "\\u003c")
+}
+
+async function handleCharityMeta(request: Request, env: Env, slug: string): Promise<Response> {
+  const canonical = `${SITE_BASE}/charities/${slug}`
+  const cache = (caches as unknown as { default: Cache }).default
+  const cacheKey = new Request(canonical)
+  const cached = await cache.match(cacheKey)
+  if (cached) return cached
+
+  // Always have the SPA shell ready — it's our fallback on any failure.
+  const shell = await env.ASSETS.fetch(request)
+
+  let charity: CharityDetail | null = null
+  try {
+    const res = await fetch(`${API_BASE}/api/charities/${encodeURIComponent(slug)}/`, {
+      headers: { Accept: "application/json" },
+      cf: { cacheTtl: 3600 } as RequestInit["cf"],
+    })
+    if (res.ok) charity = (await res.json()) as CharityDetail
+  } catch {
+    // API unreachable — fall through to the untouched shell.
+  }
+
+  if (!charity || !charity.name) return shell // 404 or API down → plain SPA
+
+  const name = charity.name.en || charity.name.ru || slug
+  const countryLabel = (charity.country && COUNTRY_LABEL[charity.country]) || ""
+  const title = `${name} — ${countryLabel ? countryLabel + " " : ""}charity profile · TrustGive`
+  const rawDesc =
+    charity.description?.en || charity.tagline?.en || `${name} — verified charity profile on TrustGive.`
+  const description = clamp(rawDesc, 160)
+  const photo = charity.hero_photo_url || charity.logo_url || ""
+  const ogImage = photo ? ogImageUrl(photo) : ""
+  const jsonLd = buildJsonLd(charity, name, description, canonical)
+
+  // Tags appended to <head>: canonical, the og:image we never had, twitter
+  // card, and the JSON-LD block. Existing title/description/og:title/
+  // og:description are rewritten in place below.
+  const headExtras =
+    `<link rel="canonical" href="${escapeAttr(canonical)}">` +
+    `<meta property="og:url" content="${escapeAttr(canonical)}">` +
+    (ogImage ? `<meta property="og:image" content="${escapeAttr(ogImage)}">` : "") +
+    `<meta name="twitter:title" content="${escapeAttr(title)}">` +
+    `<meta name="twitter:description" content="${escapeAttr(description)}">` +
+    (ogImage ? `<meta name="twitter:image" content="${escapeAttr(ogImage)}">` : "") +
+    `<script type="application/ld+json">${jsonLd}</script>`
+
+  const rewriter = new HTMLRewriter()
+    .on("title", {
+      element(el) {
+        el.setInnerContent(title)
+      },
+    })
+    .on('meta[name="description"]', {
+      element(el) {
+        el.setAttribute("content", description)
+      },
+    })
+    .on('meta[property="og:title"]', {
+      element(el) {
+        el.setAttribute("content", title)
+      },
+    })
+    .on('meta[property="og:description"]', {
+      element(el) {
+        el.setAttribute("content", description)
+      },
+    })
+    .on('meta[property="og:type"]', {
+      element(el) {
+        el.setAttribute("content", "profile")
+      },
+    })
+    .on("head", {
+      element(el) {
+        el.append(headExtras, { html: true })
+      },
+    })
+
+  // Buffer the rewritten HTML so we can both return and cache it. index.html is
+  // small; streaming isn't worth the complexity here.
+  const transformed = rewriter.transform(shell)
+  const html = await transformed.text()
+  const response = new Response(html, {
+    status: 200,
+    headers: {
+      "Content-Type": "text/html; charset=utf-8",
+      // Browser revalidates; edge holds 1h. Charity data changes rarely and the
+      // sitemap already drives crawl freshness.
+      "Cache-Control": "public, max-age=0, s-maxage=3600, must-revalidate",
+    },
+  })
+  await cache.put(cacheKey, response.clone())
+  return response
+}
+
+const CHARITY_DETAIL = /^\/charities\/([^/]+)\/?$/
+
 export default {
   async fetch(request: Request, env: Env): Promise<Response> {
     const url = new URL(request.url)
@@ -334,6 +526,14 @@ export default {
 
     if (url.pathname === "/sitemap.xml") {
       return handleSitemap()
+    }
+
+    // Charity detail pages (`/charities/{slug}`, GET only) get per-charity
+    // <head> meta + JSON-LD injected at the edge. `/charities` (the catalog)
+    // and asset paths don't match and fall through to the SPA shell.
+    const detailMatch = request.method === "GET" && CHARITY_DETAIL.exec(url.pathname)
+    if (detailMatch) {
+      return handleCharityMeta(request, env, decodeURIComponent(detailMatch[1]))
     }
 
     // Everything else — defer to the static assets binding.

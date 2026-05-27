@@ -2077,3 +2077,166 @@ SEO 92→100 is the robots.txt + sitemap fix landing. A11y/BP held at 100.
     YES — two KB entries. (1) "Proxy responses: status-dependent Cache-Control, never long-cache a non-2xx." (2) "`railway run migrate` leaves cachalot LocMem stale on the running workers — redeploy after any immediately-visible data migration." Both are HIGH severity (caused/would cause production-visible breakage) and affect backend + devops roles — flag for shared KB promotion.
   </knowledge_to_store>
 </reflection>
+
+---
+
+## [2026-05-23] [Frontend/Worker] [v3.18 — edge SEO/social meta for charity pages]
+
+**Goal: increase organic + social reach.** The frontend is a client-rendered SPA, so all 541 `/charities/{slug}` pages shipped identical static `<head>` from index.html — duplicate meta descriptions, JS-only `<title>`, and **no `og:image` at all**. Social crawlers (LinkedIn/Twitter/Telegram/FB) don't run JS, so every shared charity link previewed as the generic homepage card with no picture; Google saw 541 thin-metadata pages with no structured data.
+
+### Shipped (worker/index.ts)
+- New `handleCharityMeta()` route on `GET /charities/{slug}` (regex `^/charities/([^/]+)/?$` — the `/charities` catalog and asset paths don't match). Fetches the SPA shell from `env.ASSETS` + the charity record from `api.trustgive.org`, then rewrites the `<head>` with `HTMLRewriter` (idiomatic streaming transform, no SSR framework):
+  - `<title>` → `{name} — {country} charity profile · TrustGive`
+  - `meta description` + `og:description` → charity description clamped to 160 chars at a word boundary
+  - `og:type` → `profile`; appended `og:url`, `og:image`, `twitter:title/description/image`, `<link rel="canonical">`
+  - **og:image routes through the existing `/img/v1` proxy at w=1280** — guarantees Wikimedia (UA-gated) and any origin are fetchable by social crawlers, reusing v3.16 infra
+  - `JSON-LD` `schema.org/NGO`: name, url, description, logo, image, foundingDate, areaServed, taxID (registration_id), `DonateAction`, and `subjectOf[]` linking each source document (IRS 990 etc.) — an E-E-A-T signal that mirrors the product's "show the source documents" thesis
+- **Failure-safe**: API 404 or any error → falls through to the untouched SPA shell, so a flaky API can never blank a page. Successful renders edge-cached 1h keyed by canonical URL; failures never cached (carries forward the v3.16 "never long-cache a non-2xx" lesson). JSON-LD `<` escaped to `<` to prevent `</script>` breakout.
+
+### Verified locally (wrangler dev, port 8799)
+- `/charities/feeding-america` → full enriched head + valid JSON-LD ✅
+- 404 slug → 200 plain shell, generic title, 0 JSON-LD blocks ✅
+- `/charities` catalog → not intercepted, generic title ✅
+- `/` homepage → 200 ✅
+- Worker `tsc -p worker/tsconfig.json` clean; `npm run build` clean.
+
+### Pending
+- **Deploy blocked**: no Cloudflare auth in this environment (`wrangler deploy` needs `CLOUDFLARE_API_TOKEN` or interactive login). Code is committed-ready; user to run `npx wrangler deploy` from an authenticated shell, then validate the LinkedIn Post Inspector / Twitter Card Validator preview on a live charity URL and request a GSC re-crawl.
+- Not committed to git (per repo convention — awaiting user).
+
+<reflection>
+  <what_went_well>
+    - Reused the existing `/img/v1` proxy for og:image instead of pointing crawlers at raw Wikimedia URLs — one line, and it sidesteps Wikimedia's UA gate that would otherwise 403 a social crawler. Building on infra already verified in v3.16.
+    - HTMLRewriter was the right tool over string-replacement or a full SSR migration: streaming, scoped to `<head>`, leaves SPA hydration untouched. The change is ~150 lines and additive — the SPA still renders identically.
+    - Verified all four paths (hit, 404, catalog, home) locally before reporting done, including the negative cases (no JSON-LD leak on non-charity routes). The 404→200-shell behaviour is intentional and confirmed, not assumed.
+  </what_went_well>
+  <challenges>
+    - Couldn't deploy: this environment has no cached wrangler OAuth and runs non-interactively. Recognised it as a true handoff boundary rather than trying to work around auth. The honest state is "built + locally verified, not live."
+  </challenges>
+  <lessons_learned>
+    - For a client-rendered SPA on a Worker, per-page `<head>` injection via HTMLRewriter at the edge gives ~90% of SSR's SEO/social value (crawlable title/description, real social cards, JSON-LD) at a fraction of the cost — no framework migration, no hydration risk. This is the default move for SPA programmatic-SEO on Cloudflare.
+    - Social-share previews are a raw-HTML concern, fully separate from in-app `document.title`. A site can have perfect client-side titles and still share as a blank generic card. Worth checking og:* in `curl`, never in the browser devtools (which show post-JS DOM).
+  </lessons_learned>
+  <knowledge_to_store>
+    YES — KB entry (frontend/devops, MEDIUM): "SPA on Cloudflare Worker → inject per-page title/description/og/JSON-LD via HTMLRewriter at the edge for SEO + social cards; og:image should route through your own image proxy so UA-gated origins (Wikimedia) stay crawler-fetchable."
+  </knowledge_to_store>
+</reflection>
+
+---
+
+## [2026-05-23] [Backend/Frontend] [v3.18 — source-link integrity audit + honest demotion]
+
+**Critical data-integrity bug, found by the user post-launch.** The Ducks Unlimited detail page linked its "IRS Form 990" source to `propublica.org/.../135613815` which 404s — the EIN is fabricated. Investigation showed this is systemic.
+
+### Scope (measured, not estimated)
+Audited the live source-document link of all 541 charities against the real registries:
+
+| | charities | working source | broken |
+|---|---|---|---|
+| GB | 77 | 77 | 0 (Charity Commission — ingested via real API) |
+| US | 296 | 180 | 116 (ProPublica — real ingest OK, seed-migration EINs fabricated) |
+| CA | 28 | 0 | 28 (T3010 — all dead) |
+| AU | 25 | 4 | 21 |
+| rest (EU/other, ~115) | — | ~14 | ~101 (almost all dead) |
+| **TOTAL** | **541** | **280 (51%)** | **261 (48%)** |
+
+Root cause: ~48% of the catalogue was seeded via hand/AI-authored expansion migrations (`0015_…`, `…_v3xx_expansion`, `0055_megabatch`) whose registry IDs were never verified — the IDs have valid formats but don't resolve. The financial figures attached to those fake IDs are therefore unverifiable too.
+
+**Auto-correction rejected.** Tested resolving real EINs from ProPublica search by name: unreliable. It mismatched `rainn`→"Carys Rainn Foundation", `pflag`→a Bismarck ND chapter, `the-end-fund`→"Development Fund Of The West End", `epilepsy-foundation`→the Arizona chapter. Replacing a dead link (honest 404) with a live link to the *wrong* org's filing is strictly worse for a product whose whole promise is "this is the real document." Not doing it.
+
+**Decision (user):** hide the false signals, keep the charities listed.
+
+### Shipped
+- **`apps/charities/management/commands/audit_source_links.py`** — data-driven, re-runnable, `--dry-run` default-safe. Probes each charity's source URLs (retries to absorb transient registry blips) and, per charity:
+  - ≥1 working link → keep; prune only individually-404'd links.
+  - 0 working + a definitive 404 (proven fake) → demote `verified`→`listed`, delete dead docs, null `total_revenue_usd`/`program_expense_pct`, delete `Financial` rows.
+  - 0 working but only timeouts/5xx (no 404) → demote badge only, **destroy nothing**, flag `[REVIEW]` — a registry outage can't delete possibly-real data.
+- **Frontend** `CharityDetailPage.tsx` — the "Where the money goes" section is now conditional (`money_breakdown || total_revenue_usd != null`); previously it always rendered, so a nulled charity would show a dangling header over an empty `MoneyBreakdown` (which returns null). Source-docs section + verified chip were already conditional, so they hide cleanly.
+
+### Verified
+- `--dry-run` against the live DB (read-only, rolls back): `healthy=280 demoted=261 docs_pruned=242 financials_cleaned=242 manual_review=19 no_source=0` — matches the independent audit exactly.
+- `py_compile` clean; frontend `tsc --noEmit` clean; `npm run build` clean.
+
+### Pending deploy (user — needs Railway + Cloudflare auth)
+1. `npx wrangler deploy` (frontend dist + worker: corrected meta, v3.18 social cards, conditional money section).
+2. `railway run python manage.py audit_source_links --dry-run` → confirm, then without `--dry-run` to apply.
+3. **`railway redeploy`** — clears cachalot LocMem so the API serves the demoted data (the recurring v3.17 footgun: a `railway run` migration/command runs in a separate process from the gunicorn workers).
+4. Purge Cloudflare cache (worker edge-caches `/charities/{slug}` 1h).
+
+### Honesty note carried to launch
+The HN/PH/LinkedIn copy claims "links straight to the regulator's file: IRS 990, Charity Commission, **T3010 for Canada**, audited annual reports **everywhere else**." That is currently false (CA 0/28, "everywhere else" almost all dead). Do not re-promote with that wording until re-sourcing lands — soften to "regulator filings for the US and UK; more countries being verified."
+
+<reflection>
+  <what_went_well>
+    - The user's bug report was one dead link; measuring before fixing turned it into a quantified 261/541 systemic finding instead of a one-off patch. The full-catalogue audit was the highest-value 5 minutes here.
+    - Refusing auto-correction. The name-match resolver looked tempting (it produced confident-looking EINs) but spot-checking proved it would attach real filings to the wrong orgs. For a verification product that failure mode is catastrophic, and the resolver's own output was the evidence that killed the idea.
+    - The destructive-only-on-definitive-404 rule. Demotion is reversible (a status field); deletion isn't. Gating deletion on a proven 404 — and merely flagging the 19 timeout cases — means a transient registry outage during the run can't vaporise real data.
+  </what_went_well>
+  <challenges>
+    - Windows console cp1251 crashed the first dry-run on a `→` in the output. Non-ASCII in management-command stdout isn't portable; switched to ASCII + forced PYTHONIOENCODING locally. On Railway (UTF-8) it was a non-issue, which is exactly the trap.
+    - Deciding hide-vs-delete-vs-unpublish is a brand call, not a technical one — correctly pushed it to the user rather than assuming.
+  </challenges>
+  <lessons_learned>
+    - **Seed/expansion data authored without a verification step is a latent integrity bomb.** Plausible-format identifiers (EINs, registry IDs) pass every schema check and look fine in the UI, but ~half didn't resolve. Any ingest that invents identifiers must verify them against the live registry at write time, or mark them unverified.
+    - **For a trust/verification product, a dead link is honest; a confidently-wrong link is fraud.** Automated entity-resolution must clear a far higher bar than "name looks similar" before it can touch a source-of-truth claim.
+    - **Demote reversibly, delete only on proof.** Reserve destructive cleanup for definitively-disproven data (404), demote on mere absence of proof.
+  </lessons_learned>
+  <knowledge_to_store>
+    YES — shared KB (HIGH, backend + ingestion + any data-seeding role): "Never seed registry/external identifiers without verifying them against the live source at write time — fabricated-but-valid-format IDs pass schema checks and surface as dead 'source' links later. When auditing, demote reversibly on absence of proof; delete only on a definitive 404."
+  </knowledge_to_store>
+</reflection>
+
+---
+
+## [2026-05-23] [Backend] [v3.18 — US EIN re-sourcing toolkit]
+
+Follow-up to the source-link audit, per user directive "accurate verified data everywhere." Built the *restore* side (audit only demotes):
+
+- **Resolver** (throwaway): for the 115 broken US EINs, searched ProPublica and split by confidence. **57 auto-confident** (unique exact normalized-name match, link verified 200) + **58 need manual review** (0 or >1 exact match — the chapter/namesake cases: PFLAG, Folds of Honor (25 namesakes), HIAS, Bob Woodruff "Family" Foundation, etc.). Output: `US_EIN_REVIEW.md` (human-readable, candidate EINs + ProPublica links) and `us_auto_eins.json` (the confirmed mapping). `creative-commons` and `save-the-elephants-usa` were demoted from auto→review after dry-run showed their unique-match resolves to a filing-less namesake.
+- **`apps/charities/management/commands/fix_us_eins.py`** — curation-safe apply: reads slug→EIN JSON, re-verifies each EIN against ProPublica, swaps `registration_id`, pulls real revenue/exec-comp from `filings_with_data`, rebuilds the `Financial` row + IRS-990 `SourceDocument` with the working URL, sets `verification_status=verified`. Touches ONLY verifiable fields — never the curated name/tagline/description/photo/bucket. `--dry-run` default-safe. Guards the `uniq_country_registration` constraint and skips EINs that don't resolve.
+- **Dry-run validated** on the 57: real FY2023/24 revenue pulled for all (Khan Academy→261544963 $98M, National MS Society $149M, Helen Keller Intl $145M, etc.).
+
+Recovery outlook for the 261 unverifiable: ~57 US auto + ~58 US manual + CA(28)/AU(25) via their APIs ≈ 130-170 restorable with real data; the ~90 EU/other with no registry API stay honestly `listed`.
+
+Pending (user, Railway): after `audit_source_links`, run `fix_us_eins --file=us_auto_eins.json --dry-run` then apply, then `railway redeploy` + CF purge. Review `US_EIN_REVIEW.md` to extend the mapping with the 58 manual ones.
+
+---
+
+## [2026-05-23] [Backend/Frontend] [v3.18 — applied data fix + honest status UI]
+
+Applied to production DB (run locally against prod via `.env`, the agent env has no Railway/CF auth):
+
+- **`fix_us_eins --file=us_auto_eins.json`**: applied=56, skipped=1. 56 US charities now carry their real EIN + genuine ProPublica financials (Khan Academy 261544963 $98.3M, National MS Society $149M, etc.), curated content untouched.
+- **`audit_source_links`**: demoted=203, financials_cleaned=187, docs_pruned=187, manual_review=16. Every remaining charity with a dead/unverifiable source dropped its false `verified` badge + fabricated financials.
+- **DB state now: 333 verified (real, working source doc) · 208 listed (honest, no false claim).** Verified spot-checks pass; ducks-unlimited + pflag correctly `listed` with no doc.
+
+**Frontend — honest status on every charity (the user's ask: "at least show whether it's verified and honest"):**
+- Detail page + catalog card: where there was only a green "Verified" chip (shown for verified, nothing otherwise — ambiguous), now renders a muted **"Not verified"** chip for non-verified, so trust state is never blank.
+- Detail page: when a charity has no source document, instead of silently omitting the section, shows an honest note (`charity.notVerifiedNote`): "We haven't been able to confirm this organisation's regulator filing yet… verify it independently before giving."
+- i18n keys `charity.notVerified` + `charity.notVerifiedNote` added (en + ru). `tsc` + build clean.
+
+**Still pending deploy (user):** `npx wrangler deploy` (frontend + worker) and `railway redeploy` (clear cachalot LocMem so the API serves the corrected data). Until then the live site shows stale pre-fix data.
+
+Recovery so far: 333/541 verified. Next reliable batch: Canada (CRA) + Australia (ACNC) registries (~53) to push toward ~386.
+
+---
+
+## [2026-05-23] [Backend] [v3.18 — Australia (ACNC) re-sourcing]
+
+Matched our 25 AU charities against the ACNC Register (data.gov.au datastore) by **website domain** (stronger signal than name — ACNC exposes Charity_Website). 19/25 matched; of those, 15 were unambiguously the head organisation. The other 4 matched a sub-entity sharing the domain (Salvation Army → "Salvation Army Housing", Vinnies → "St Vincent de Paul NSW", Foodbank → "Foodbank of South Australia", Wilderness → "Wilderness Society Sydney") and were NOT applied — same wrong-entity trap as the US chapters; left for review. 6 didn't surface in search.
+
+- New command `fix_au_abns.py` (curation-safe, --dry-run): sets the confirmed ABN as registration_id, marks verified, attaches a working ABR record (`abr.business.gov.au/ABN/View?abn=…`, verified 200) as the STATE-kind source document. ACNC register has no per-charity revenue, so financials left as-is (the conditional money section hides cleanly).
+- Applied 15. **DB now: 346 verified · 195 listed** (was 333/208).
+
+Pending: one more `railway redeploy` to clear cachalot LocMem and surface the AU batch on the live API. Remaining recovery: 4 AU sub-entity + 6 unmatched (review), Canada (CRA bulk data), US-manual 58 (US_EIN_REVIEW.md).
+
+---
+
+## [2026-05-23] [Backend] [v3.18 — methodology_note contradiction fix]
+
+User caught it: a demoted ("listed") charity still showed a curated `methodology_note` opening with "Verified: 501(c)(3)… Form 990 on file" — contradicting its "Not verified" chip and the empty-source note. `audit_source_links` had cleared status/docs/financials but not this text.
+
+- One-off: blanked `methodology_note` ({"en":"","ru":""}) on all 195 `listed` charities (187 of them still asserted "Verified: …"). Verified charities untouched. Detail page hides an empty methodology section, so it disappears cleanly. Result: 0 listed charities still claim Verified.
+- Patched `audit_source_links.py` so future demotions also blank `methodology_note` (added to the CLEAN branch + update_fields).
+
+Cache note: API cache is LocMemCache, CACHALOT_TIMEOUT=1h, per-entry. After a local DB write the live API self-refreshes within ≤1h per record (confirmed: anglicare-australia already live as verified+ABR after its entry expired; ducks methodology will clear on its entry's expiry). No Railway auth is reachable from the agent env (whoami Unauthorized in both bash and the user's PowerShell profile), so an instant redeploy needs the user's `railway login` or a RAILWAY_TOKEN.
