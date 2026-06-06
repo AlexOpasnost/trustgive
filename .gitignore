@@ -2,6 +2,10 @@
 .env
 .env.*
 !.env.example
+# frontend/web/.env.production is committed: it holds non-secret build-time
+# config (API base URL + PostHog public client key, both visible in the JS
+# bundle anyway). Per-machine overrides go in .env.production.local (gitignored).
+!frontend/web/.env.production
 *.pem
 *.key
 secrets/
