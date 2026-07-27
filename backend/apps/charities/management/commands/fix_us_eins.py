@@ -23,6 +23,7 @@ Usage:
 """
 from __future__ import annotations
 
+import calendar
 import json
 import re
 import urllib.request
@@ -65,6 +66,21 @@ def _latest_filing(filings: list[dict[str, Any]]) -> dict[str, Any] | None:
     if not usable:
         return None
     return max(usable, key=lambda f: int(f.get("tax_prd_yr") or 0))
+
+
+def _period_end(filing: dict[str, Any]) -> date | None:
+    """Real fiscal-period end from ProPublica's `tax_prd` (YYYYMM).
+
+    202312 -> 2023-12-31. Returns None when the field is missing or malformed,
+    so callers store null instead of a synthesised date.
+    """
+    raw = str(filing.get("tax_prd") or "").strip()
+    if not re.fullmatch(r"\d{6}", raw):
+        return None
+    year, month = int(raw[:4]), int(raw[4:])
+    if not (1 <= month <= 12) or not (1900 <= year <= 2100):
+        return None
+    return date(year, month, calendar.monthrange(year, month)[1])
 
 
 def _bucket_for(revenue: float) -> str:
@@ -150,12 +166,19 @@ class Command(BaseCommand):
                     # Part IX 3-way split isn't reliable from ProPublica (see
                     # ingest_propublica H-002) -- leave pct NULL, never invent it.
                     charity.program_expense_pct = None
-                    if year:
-                        try:
-                            charity.last_filed_date = date(year + 1, 1, 1)
-                            charity.is_stale = (date.today() - charity.last_filed_date).days > 730
-                        except ValueError:
-                            pass
+                    # Real fiscal-period end from ProPublica's `tax_prd` (YYYYMM).
+                    # NEVER synthesise this date. An earlier version stored
+                    # date(year + 1, 1, 1), which put a fabricated "2024-01-01"
+                    # on 68 charities and the UI rendered it as a factual filing
+                    # date. When tax_prd is absent we leave the field null rather
+                    # than invent day precision.
+                    period_end = _period_end(filing)
+                    if period_end:
+                        charity.last_filed_date = period_end
+                        charity.is_stale = (date.today() - period_end).days > 730
+                    else:
+                        charity.last_filed_date = None
+                        charity.is_stale = True
                     # Rebuild source-of-truth rows for this charity from scratch so
                     # no stale (fabricated-EIN) row survives.
                     charity.financial_history.all().delete()

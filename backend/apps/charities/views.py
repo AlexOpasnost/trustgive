@@ -20,7 +20,7 @@ from rest_framework.request import Request
 from rest_framework.response import Response
 
 from apps.charities.filters import CharityFilter
-from apps.charities.models import Cause, Charity, CharitySlugAlias
+from apps.charities.models import Cause, Charity, CharitySlugAlias, VerificationStatus
 from apps.charities.serializers import (
     CauseSerializer,
     CharityDetailSerializer,
@@ -40,9 +40,23 @@ SORT_MAP = {
 }
 
 
+# Verified-only catalogue (2026-07-27 product decision).
+#
+# TrustGive's claim is "every organisation here is backed by a regulator filing
+# you can open". Publishing entries we could not confirm — even labelled
+# "not verified" — weakens that claim, so the public API serves ONLY charities
+# whose verification survived the source-document audit.
+#
+# This is a *visibility* filter, not a deletion: unverified rows stay in the
+# database untouched and reappear the moment they are verified (they are still
+# reachable via Django admin and every management command). To publish the full
+# catalogue again, drop `.filter(**PUBLISHED)` from the three call sites below.
+PUBLISHED = {"verification_status": VerificationStatus.VERIFIED}
+
+
 def _resolve_slug(slug: str) -> Charity:
     try:
-        return Charity.objects.prefetch_related(
+        return Charity.objects.filter(**PUBLISHED).prefetch_related(
             "financial_history",
             "source_documents",
             "news_mentions",
@@ -159,7 +173,7 @@ def _verified_total(bucket: str | None = None) -> int:
 
 
 class CharityViewSet(viewsets.ReadOnlyModelViewSet):
-    queryset = Charity.objects.all().prefetch_related("charity_badges__badge")
+    queryset = Charity.objects.filter(**PUBLISHED).prefetch_related("charity_badges__badge")
     serializer_class = CharitySummarySerializer
     filterset_class = CharityFilter
     lookup_field = "slug"
@@ -325,7 +339,7 @@ class NewCharitiesFeed(Feed):
     description = "Verified charities newly added to TrustGive."
 
     def items(self):
-        return Charity.objects.order_by("-created_at")[:50]
+        return Charity.objects.filter(**PUBLISHED).order_by("-created_at")[:50]
 
     def item_title(self, item: Charity) -> str:
         name = item.name or {}

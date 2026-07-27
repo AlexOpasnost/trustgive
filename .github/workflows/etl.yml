@@ -1,4 +1,20 @@
-name: Nightly ETL
+name: Nightly data refresh
+
+# Keeps the catalogue's factual layer current without manual work:
+#   1. refresh_us_filings — re-reads ProPublica for every US charity, stores the
+#      real fiscal-period end (never a synthesised date), pulls newer financials,
+#      recomputes is_stale, and stamps updated_at so the public
+#      "Re-checked by TrustGive {date}" line stays truthful.
+#   2. audit_source_links — re-checks every source document and demotes any
+#      charity whose regulator link has rotted, so a "Verified" badge can never
+#      outlive its evidence.
+#
+# Both commands are idempotent and safe to re-run.
+#
+# NOTE (2026-07-27): this workflow previously called `ingest_propublica --since=24h`,
+# a command that does not exist in apps/charities/management/commands — so the
+# nightly job had been failing without ever refreshing anything. Replaced with the
+# commands that are actually implemented.
 
 on:
   schedule:
@@ -10,8 +26,8 @@ permissions:
   contents: read
 
 jobs:
-  ingest-propublica:
-    name: ingest_propublica --since=24h
+  refresh:
+    name: Refresh filings + re-audit source links
     runs-on: ubuntu-latest
     timeout-minutes: 60
     steps:
@@ -21,10 +37,16 @@ jobs:
           node-version: '20'
       - name: Install Railway CLI
         run: npm install -g @railway/cli@latest
-      - name: Run ingestion via Railway
+
+      - name: Refresh US filings from ProPublica
         env:
           RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
-        run: |
-          railway run --service backend python manage.py ingest_propublica --since=24h
-        # Note: ingest_every_org and ingest_charitybase are stubs (BACKEND.md §9)
-        # Add their `railway run` calls here once implemented
+        run: railway run --service backend python manage.py refresh_us_filings
+
+      - name: Re-audit source links
+        # Runs even if the refresh step fails — link rot is the higher-severity
+        # check: it is what removes an unsupported "Verified" badge.
+        if: always()
+        env:
+          RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
+        run: railway run --service backend python manage.py audit_source_links

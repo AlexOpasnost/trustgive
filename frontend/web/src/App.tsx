@@ -5,6 +5,7 @@ import { Layout } from "./components/layout/Layout"
 import { CatalogPage } from "./pages/CatalogPage"
 import { CharityDetailPage } from "./pages/CharityDetailPage"
 import { HomePage } from "./pages/HomePage"
+import { LegitPage } from "./pages/LegitPage"
 import { MethodologyPage } from "./pages/MethodologyPage"
 import { NotFoundPage } from "./pages/NotFoundPage"
 
@@ -27,6 +28,7 @@ export function App() {
             <Route index element={<HomePage />} />
             <Route path="charities" element={<CatalogPage />} />
             <Route path="charities/:slug" element={<CharityDetailPage />} />
+            <Route path="charities/:slug/legit" element={<LegitPage />} />
             {/* /compare route removed in v3.0 */}
             <Route path="compare" element={<Navigate to="/charities" replace />} />
             <Route path="methodology" element={<MethodologyPage />} />

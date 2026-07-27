@@ -18,6 +18,7 @@ import type {
   Charity,
   FeaturedResponse,
   PaginatedCharitySummary,
+  SeoCharityPayload,
   SourceDocument,
 } from "@/types/api"
 
@@ -120,6 +121,13 @@ export const api = {
   },
   getCharity(slug: string, opts?: FetchOptions) {
     return apiFetch<Charity>(`/api/charities/${slug}/`, opts)
+  },
+  /**
+   * "Is X legitimate?" SEO landing payload (v3.19). `lang` selects the language
+   * of the rendered `h1`/`answer`; the evidence summary comes back bilingual.
+   */
+  getSeoCharity(slug: string, lang: "en" | "ru", opts?: FetchOptions) {
+    return apiFetch<SeoCharityPayload>(`/api/seo/charities/${slug}/?lang=${lang}`, opts)
   },
   listSourceDocuments(slug: string, opts?: FetchOptions) {
     return apiFetch<SourceDocument[]>(`/api/charities/${slug}/source-documents/`, opts)

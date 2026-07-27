@@ -57,8 +57,13 @@ class SeoCharityView(APIView):
         ],
     )
     def get(self, request: Request, slug: str) -> Response:
+        # Verified-only, matching the public catalogue (see views.PUBLISHED).
+        # An unverified charity has no "Is X legitimate?" answer we can stand
+        # behind, so the landing page 404s rather than asserting anything.
         charity = get_object_or_404(
-            Charity.objects.prefetch_related(
+            Charity.objects.filter(
+                verification_status=VerificationStatus.VERIFIED
+            ).prefetch_related(
                 "financial_history", "source_documents", "news_mentions", "charity_badges__badge"
             ),
             slug=slug,

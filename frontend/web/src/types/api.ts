@@ -138,6 +138,29 @@ export type PaginatedCharitySummary = Pagination & {
 }
 
 /**
+ * v3.19 — "Is X legitimate?" SEO landing payload.
+ * Backend: GET /api/seo/charities/{slug}/?lang={en|ru}
+ * `h1` and `answer` are rendered in the requested `lang`; `evidence_summary`
+ * carries both languages so a client-side lang toggle re-renders the body copy
+ * from a single fetch. `charity` is the full detail object (reused to render the
+ * source-document proof list without a second request).
+ */
+export type SeoCharityPayload = {
+  slug: string
+  h1: string
+  answer: string
+  evidence_summary: LocalizedString
+  meta: {
+    title: string
+    description: string
+    canonical_url: string
+    og_image_url: string
+    structured_data: Record<string, unknown>
+  }
+  charity: Charity
+}
+
+/**
  * v3.15 — featured-endpoint envelope. `featured` is the up-to-6 hero cards;
  * `total_count` is the real verified-charity total in scope (drives the
  * homepage bucket-card "{N} verified charities" subtitle).

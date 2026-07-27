@@ -105,11 +105,18 @@
     "description": "Description",
     "press": "Press mentions",
     "methodology": "Methodology",
-    "staleWarning": "Last filing {{date}}. Older than 24 months — review with caution.",
+    "fiscalYearEnding": "Fiscal year ending {{date}}",
+    "lastChecked": "Re-checked by TrustGive {{date}}",
+    "staleWarning": "Latest published filing covers the fiscal year ending {{date}}. Regulators typically publish 1–2 years in arrears, so a gap here usually reflects the filing cycle rather than anything about this organisation.",
     "leavingTitle": "You're leaving TrustGive",
     "leavingBody": "Your donation will go directly to {{name}} on their own website. We don't process payments.",
     "continueTo": "Continue to {{site}}",
     "cancel": "Cancel"
+  },
+  "legit": {
+    "evidenceHeading": "The evidence",
+    "viewProfile": "See the full profile",
+    "fromProfileLink": "Is {{name}} a legitimate charity?"
   },
   "methodology": {
     "title": "How we verify",

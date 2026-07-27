@@ -153,13 +153,32 @@ export function CharityDetailPage() {
                     </>
                   )}
                 </p>
+                <Link
+                  to={`/charities/${charity.slug}/legit`}
+                  className="inline-block mt-2 text-body-sm text-ink underline decoration-rule decoration-1 underline-offset-4 hover:decoration-ink"
+                >
+                  {t("legit.fromProfileLink", { name })}
+                </Link>
               </div>
             </div>
-            {charity.last_filed_date && (
-              <p className="text-caption text-ink-3 font-mono">
-                Last filed {charity.last_filed_date}
-              </p>
-            )}
+            {/* The stored date is the fiscal-period end reported on the filing
+                (ProPublica `tax_prd`), not the day the return was submitted —
+                so it is labelled for exactly what it is. Alongside it we show
+                when TrustGive last re-checked the record, because a site that
+                asks you to trust its verification should say how fresh that
+                verification is. */}
+            <div className="text-caption text-ink-3 font-mono text-right">
+              {charity.last_filed_date && (
+                <p>{t("charity.fiscalYearEnding", { date: charity.last_filed_date })}</p>
+              )}
+              {charity.data_freshness?.last_synced_at && (
+                <p className="mt-1">
+                  {t("charity.lastChecked", {
+                    date: charity.data_freshness.last_synced_at.slice(0, 10),
+                  })}
+                </p>
+              )}
+            </div>
           </div>
         </div>
       </section>

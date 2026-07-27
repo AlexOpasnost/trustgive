@@ -299,6 +299,13 @@ async function handleSitemap(): Promise<Response> {
       (slug) =>
         `  <url><loc>${xmlEscape(`${base}/charities/${slug}`)}</loc><priority>0.6</priority></url>`,
     ),
+    // "Is X legitimate?" landing pages (v3.19). Lower priority than the profile
+    // itself — they target a specific long-tail query rather than the canonical
+    // charity record.
+    ...slugs.map(
+      (slug) =>
+        `  <url><loc>${xmlEscape(`${base}/charities/${slug}/legit`)}</loc><priority>0.5</priority></url>`,
+    ),
   ]
 
   const xml = `<?xml version="1.0" encoding="UTF-8"?>
@@ -507,11 +514,192 @@ async function handleCharityMeta(request: Request, env: Env, slug: string): Prom
   return response
 }
 
+/**
+ * Per-charity "Is X legitimate?" landing page meta for `/charities/{slug}/legit`.
+ *
+ * Same edge-render strategy as handleCharityMeta, but the payload comes from the
+ * SEO endpoint (apps/seo) — which already frames the charity as a question +
+ * verdict + evidence — and the structured data is a schema.org **FAQPage**. That
+ * FAQPage is the point: it makes the page eligible for the "People also ask" /
+ * rich-result answer box on queries like "is {name} a legitimate charity", which
+ * the plain NGO profile can't win. og:type is `article` (a Q&A page, not a
+ * profile). Failure-safe: any API error falls through to the untouched SPA shell.
+ */
+interface SeoPayload {
+  h1?: string
+  answer?: string
+  evidence_summary?: LocalisedText
+  meta?: { title?: string; description?: string }
+  charity?: CharityDetail
+}
+
+async function handleLegitMeta(request: Request, env: Env, slug: string): Promise<Response> {
+  const canonical = `${SITE_BASE}/charities/${slug}/legit`
+  const cache = (caches as unknown as { default: Cache }).default
+  const cacheKey = new Request(canonical)
+  const cached = await cache.match(cacheKey)
+  if (cached) return cached
+
+  const shell = await env.ASSETS.fetch(request)
+
+  let payload: SeoPayload | null = null
+  try {
+    const res = await fetch(`${API_BASE}/api/seo/charities/${encodeURIComponent(slug)}/?lang=en`, {
+      headers: { Accept: "application/json" },
+      cf: { cacheTtl: 3600 } as RequestInit["cf"],
+    })
+    if (res.ok) payload = (await res.json()) as SeoPayload
+  } catch {
+    // API unreachable — fall through to the untouched shell.
+  }
+
+  if (!payload || !payload.h1) return shell // 404 or API down → plain SPA
+
+  const question = payload.h1
+  const evidence = payload.evidence_summary?.en ?? ""
+  const answerText = clamp(`${payload.answer ?? ""} ${evidence}`.trim(), 500)
+  const title = payload.meta?.title || `${question} · TrustGive`
+  const description = clamp(`${payload.answer ?? ""} ${evidence}`.trim(), 160)
+  const photo = payload.charity?.hero_photo_url || payload.charity?.logo_url || ""
+  const ogImage = photo ? ogImageUrl(photo) : ""
+
+  const faqLd = JSON.stringify({
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    mainEntity: [
+      {
+        "@type": "Question",
+        name: question,
+        acceptedAnswer: { "@type": "Answer", text: answerText },
+      },
+    ],
+  }).replace(/</g, "\\u003c")
+
+  const headExtras =
+    `<link rel="canonical" href="${escapeAttr(canonical)}">` +
+    `<meta property="og:url" content="${escapeAttr(canonical)}">` +
+    (ogImage ? `<meta property="og:image" content="${escapeAttr(ogImage)}">` : "") +
+    `<meta name="twitter:title" content="${escapeAttr(title)}">` +
+    `<meta name="twitter:description" content="${escapeAttr(description)}">` +
+    (ogImage ? `<meta name="twitter:image" content="${escapeAttr(ogImage)}">` : "") +
+    `<script type="application/ld+json">${faqLd}</script>`
+
+  const rewriter = new HTMLRewriter()
+    .on("title", {
+      element(el) {
+        el.setInnerContent(title)
+      },
+    })
+    .on('meta[name="description"]', {
+      element(el) {
+        el.setAttribute("content", description)
+      },
+    })
+    .on('meta[property="og:title"]', {
+      element(el) {
+        el.setAttribute("content", title)
+      },
+    })
+    .on('meta[property="og:description"]', {
+      element(el) {
+        el.setAttribute("content", description)
+      },
+    })
+    .on('meta[property="og:type"]', {
+      element(el) {
+        el.setAttribute("content", "article")
+      },
+    })
+    .on("head", {
+      element(el) {
+        el.append(headExtras, { html: true })
+      },
+    })
+
+  const transformed = rewriter.transform(shell)
+  const html = await transformed.text()
+  const response = new Response(html, {
+    status: 200,
+    headers: {
+      "Content-Type": "text/html; charset=utf-8",
+      "Cache-Control": "public, max-age=0, s-maxage=3600, must-revalidate",
+    },
+  })
+  await cache.put(cacheKey, response.clone())
+  return response
+}
+
+// Order matters: the legit page adds a `/legit` segment, so it's matched before
+// the single-segment detail regex below.
+const LEGIT_DETAIL = /^\/charities\/([^/]+)\/legit\/?$/
 const CHARITY_DETAIL = /^\/charities\/([^/]+)\/?$/
+
+/**
+ * IndexNow auto-indexing (v3.20).
+ *
+ * IndexNow lets us instantly notify Bing + Yandex (and any participating engine)
+ * about our URLs instead of waiting for a crawl. Ownership is proven by hosting
+ * `{key}.txt` at the site root. A daily Cron Trigger (see wrangler.jsonc) calls
+ * submitIndexNow(), which reads our own sitemap and submits every URL — so new
+ * charities, legit pages, and future SEO pages get picked up without any manual
+ * Search-Console work. Yandex coverage is a bonus for the RU side of the catalog.
+ */
+const INDEXNOW_KEY = "3eba784fdefc58deb12405d6ca68bdf7"
+
+async function submitIndexNow(): Promise<{ submitted: number; status: number }> {
+  let urls: string[] = []
+  try {
+    // Build the sitemap in-process rather than fetching our own public URL —
+    // a Worker subrequest to its own hostname doesn't re-enter this handler and
+    // came back empty. handleSitemap() hits the (different-host) API directly.
+    const xml = await (await handleSitemap()).text()
+    urls = [...xml.matchAll(/<loc>([^<]+)<\/loc>/g)].map((m) =>
+      m[1].replace(/&amp;/g, "&"),
+    )
+  } catch {
+    // Sitemap build failed — nothing to submit this run.
+  }
+  if (!urls.length) return { submitted: 0, status: 0 }
+
+  // IndexNow accepts up to 10,000 URLs per request.
+  const payload = {
+    host: "trustgive.org",
+    key: INDEXNOW_KEY,
+    keyLocation: `${SITE_BASE}/${INDEXNOW_KEY}.txt`,
+    urlList: urls.slice(0, 10000),
+  }
+  try {
+    const resp = await fetch("https://api.indexnow.org/indexnow", {
+      method: "POST",
+      headers: { "Content-Type": "application/json; charset=utf-8" },
+      body: JSON.stringify(payload),
+    })
+    return { submitted: payload.urlList.length, status: resp.status }
+  } catch {
+    return { submitted: 0, status: 0 }
+  }
+}
 
 export default {
   async fetch(request: Request, env: Env): Promise<Response> {
     const url = new URL(request.url)
+
+    // IndexNow ownership proof: the engine fetches this file and checks it
+    // contains the key. Served verbatim as text.
+    if (url.pathname === `/${INDEXNOW_KEY}.txt`) {
+      return new Response(INDEXNOW_KEY, {
+        headers: { "Content-Type": "text/plain; charset=utf-8", "Cache-Control": "public, max-age=86400" },
+      })
+    }
+
+    // On-demand submit (same work the daily cron does) — handy for a manual
+    // re-ping after a big catalogue update. Only ever submits our own sitemap URLs.
+    if (url.pathname === "/_indexnow") {
+      const r = await submitIndexNow()
+      return new Response(JSON.stringify(r), {
+        headers: { "Content-Type": "application/json", "Cache-Control": "no-store" },
+      })
+    }
 
     if (url.pathname === "/img/v1") {
       // Image proxy. Only GET is allowed (and HEAD by convention).
@@ -528,6 +716,14 @@ export default {
       return handleSitemap()
     }
 
+    // "Is X legitimate?" landing (`/charities/{slug}/legit`, GET only) gets its
+    // own FAQPage meta. Checked before the detail regex — it has an extra path
+    // segment the single-segment detail pattern wouldn't match anyway.
+    const legitMatch = request.method === "GET" && LEGIT_DETAIL.exec(url.pathname)
+    if (legitMatch) {
+      return handleLegitMeta(request, env, decodeURIComponent(legitMatch[1]))
+    }
+
     // Charity detail pages (`/charities/{slug}`, GET only) get per-charity
     // <head> meta + JSON-LD injected at the edge. `/charities` (the catalog)
     // and asset paths don't match and fall through to the SPA shell.
@@ -538,5 +734,12 @@ export default {
 
     // Everything else — defer to the static assets binding.
     return env.ASSETS.fetch(request)
+  },
+
+  // Daily Cron Trigger (wrangler.jsonc → triggers.crons): re-submit every
+  // sitemap URL to IndexNow so Bing/Yandex pick up new + changed pages
+  // automatically, with zero manual Search-Console work.
+  async scheduled(_event: ScheduledController, _env: Env, ctx: ExecutionContext): Promise<void> {
+    ctx.waitUntil(submitIndexNow())
   },
 } satisfies ExportedHandler<Env>

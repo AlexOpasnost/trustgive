@@ -22,5 +22,10 @@
   },
   "observability": {
     "enabled": true
+  },
+  // v3.20: daily IndexNow submit (worker/index.ts → scheduled()) so Bing/Yandex
+  // auto-discover new + changed pages. 06:00 UTC.
+  "triggers": {
+    "crons": ["0 6 * * *"]
   }
 }
