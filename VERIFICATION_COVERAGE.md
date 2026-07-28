@@ -2,7 +2,12 @@
 
 > Worldwide catalogue coverage: how many charities carry a **confirmation**
 > (verified status) backed by a **report** (a live regulator source document).
-> Generated from the production API (`api.trustgive.org`) on 2026-07-12.
+> Generated from the production API (`api.trustgive.org`); last updated 2026-07-27.
+>
+> **The catalogue is verified-only as of 2026-07-27.** Rows that could not be
+> confirmed are hidden from the public API rather than shown with a caveat, and
+> stay in the database so they return automatically once verified. The numbers
+> below therefore describe what is *published*, not what exists in storage.
 
 ---
 
@@ -10,9 +15,10 @@
 
 | Metric | Value |
 |---|---|
-| Total charities | **541** |
-| Verified (confirmed + live source document) | **351** → **366** after applying this session's US batch |
-| Listed (no confirmed source yet) | **190** → **175** |
+| Rows in the database | **541** |
+| **Published** (verified + live regulator document) | **371** |
+| Hidden (no confirmed source yet — retained, not deleted) | **170** |
+| Published without a source document | **0** |
 | Countries | 27 |
 
 The catalogue is genuinely worldwide, but **35% of it (190 orgs) had no confirmed
