@@ -36,6 +36,25 @@ export function MethodologyPage() {
 
       <hr className="border-rule my-12" />
 
+      {/* The catalogue policy. Stated here because it is the one editorial rule
+          that changes what a visitor sees: organisations we could not confirm are
+          absent entirely, so an empty search result may mean "not verified yet"
+          rather than "does not exist". Leaving that unsaid would be its own kind
+          of misdirection. */}
+      <section className="mb-16">
+        <h2 className="text-h2 font-semibold text-ink mb-4 font-sans">
+          {t("methodology.catalogueTitle")}
+        </h2>
+        <p className="text-body leading-relaxed text-ink-2" style={{ fontSize: "19px", lineHeight: "32px" }}>
+          {t("methodology.catalogueBody")}
+        </p>
+        <p className="text-body leading-relaxed text-ink-2 mt-4" style={{ fontSize: "19px", lineHeight: "32px" }}>
+          {t("methodology.catalogueBody2")}
+        </p>
+      </section>
+
+      <hr className="border-rule my-12" />
+
       <section className="mb-16">
         <h2 className="text-h2 font-semibold text-ink mb-4 font-sans">
           {t("methodology.doNotVerifyTitle")}
