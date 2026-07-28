@@ -2,19 +2,27 @@ name: Nightly data refresh
 
 # Keeps the catalogue's factual layer current without manual work:
 #   1. refresh_us_filings — re-reads ProPublica for every US charity, stores the
-#      real fiscal-period end (never a synthesised date), pulls newer financials,
-#      recomputes is_stale, and stamps updated_at so the public
-#      "Re-checked by TrustGive {date}" line stays truthful.
+#      real fiscal-period end (never a synthesised date), pulls newer financials
+#      and recomputes is_stale.
 #   2. audit_source_links — re-checks every source document and demotes any
 #      charity whose regulator link has rotted, so a "Verified" badge can never
-#      outlive its evidence.
+#      outlive its evidence. Since the catalogue is verified-only, a demotion
+#      also removes the charity from public view — which is the intended
+#      behaviour: no evidence, no listing.
 #
 # Both commands are idempotent and safe to re-run.
 #
-# NOTE (2026-07-27): this workflow previously called `ingest_propublica --since=24h`,
-# a command that does not exist in apps/charities/management/commands — so the
-# nightly job had been failing without ever refreshing anything. Replaced with the
-# commands that are actually implemented.
+# History — this job silently failed every night until 2026-07-28. Four separate
+# defects, each sufficient on its own:
+#   * it called `ingest_propublica`, a command that does not exist;
+#   * `secrets.RAILWAY_TOKEN` was never created, so auth failed in ~15s;
+#   * it targeted `--service backend`, but the services are `trustgive` and
+#     `Postgres`;
+#   * it installed Node only, then ran `python manage.py` with no Python, no
+#     dependencies and the wrong working directory.
+# The lesson worth keeping: a scheduled job that fails is indistinguishable from
+# one that never runs. This workflow now reports failure loudly (see the final
+# step) rather than rotting quietly.
 
 on:
   schedule:
@@ -30,18 +38,32 @@ jobs:
     name: Refresh filings + re-audit source links
     runs-on: ubuntu-latest
     timeout-minutes: 60
+    defaults:
+      run:
+        working-directory: backend
+
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+
+      - uses: actions/setup-python@v5
         with:
-          node-version: '20'
+          python-version: '3.13'
+          cache: pip
+          cache-dependency-path: backend/requirements.txt
+
+      - name: Install backend dependencies
+        run: pip install -r requirements.txt
+
       - name: Install Railway CLI
         run: npm install -g @railway/cli@latest
 
+      # `railway run` executes locally with the project's environment variables
+      # injected (DATABASE_URL, SECRET_KEY, …) — it does not run on Railway's
+      # machines, which is why the dependencies above are required here.
       - name: Refresh US filings from ProPublica
         env:
           RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
-        run: railway run --service backend python manage.py refresh_us_filings
+        run: railway run --service trustgive python manage.py refresh_us_filings
 
       - name: Re-audit source links
         # Runs even if the refresh step fails — link rot is the higher-severity
@@ -49,4 +71,4 @@ jobs:
         if: always()
         env:
           RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
-        run: railway run --service backend python manage.py audit_source_links
+        run: railway run --service trustgive python manage.py audit_source_links
