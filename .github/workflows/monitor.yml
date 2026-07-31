@@ -50,17 +50,21 @@ jobs:
           [ -n "$asset" ] || { echo "::error::homepage references no JS bundle"; exit 1; }
           echo "bundle: $asset"
 
-          # Stream straight into grep. Buffering the bundle in a shell variable
-          # and echoing it back reported a false negative on the first run: the
-          # file is ~590 KB on a single line, and `echo "$var"` does not survive
-          # that. A monitor that cries wolf gets ignored, so this reads from the
-          # pipe instead of memory.
+          # Download, then grep the file. Two earlier attempts produced false
+          # alarms against a bundle that was in fact correct:
+          #   1. buffering ~590 KB of single-line JS in a shell variable and
+          #      echoing it back into grep;
+          #   2. piping curl into `grep -q`, where grep exits on first match,
+          #      curl takes SIGPIPE, and `pipefail` turns the success into a
+          #      failure.
+          # A monitor that cannot substantiate its own alerts is worse than none:
+          # it teaches you to ignore the one that eventually matters.
           #
           # The defect being guarded: an API base that is not an absolute URL, so
           # every call resolves against the site origin and is answered by the
           # SPA fallback with HTTP 200.
-          curl -fsS --max-time 60 "https://trustgive.org${asset}" \
-            | grep -qF 'https://api.trustgive.org' \
+          curl -fsS --max-time 60 -o /tmp/bundle.js "https://trustgive.org${asset}"
+          grep -qF 'https://api.trustgive.org' /tmp/bundle.js \
             || { echo "::error::bundle has no absolute API base — the homepage will render empty"; exit 1; }
 
       - name: Featured endpoint returns cards and an honest count
