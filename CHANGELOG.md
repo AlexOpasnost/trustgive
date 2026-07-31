@@ -2282,10 +2282,24 @@ Fixed by versioning the key (`SITEMAP_VERSION`, part of the cache-key URL); bump
 
 Bundle `index-B6TEypOw.js` matches the local build · `/charities` ships 60 charity `<a href>` + 6 page links in the raw HTML · `/charities?page=7` → 10 charities, self-canonical, `rel=prev` · `/charities/registry/irs-990` → 60 charity links, 53 hub-directory links, `rel=next`, canonical · `/charities/country/es` → 6 · `/charities/country/it` (4 charities, below threshold) → untouched shell, no fabricated page · `/charities?q=givewell` → `noindex, follow` · sitemap 812 URLs (61 hub, 6 catalogue pages, `/about`, `/data-sources`), valid XML.
 
+### 5. Block B leftovers — evidence above the fold
+
+**Homepage — live proof.** A page claiming "every charity here links to the regulator's own filing" opened onto three photographs. `<LiveProof>` now sits above the bucket cards and the manifesto with a worked example: name, registration number, document type, fiscal period, and a link straight to the ProPublica filing. Every value is read from the API at render time — a hardcoded "Registration 208625442" would be a fact asserted without reading it back from its source, the defect class §1 and §5 of DATA_INTEGRITY exist to document. If the fetch fails or the charity has no document with a URL, the block renders nothing.
+
+**Charity profile.** The photo was 55–70% of the viewport with the name and tagline burned into it — evidence below the fold, name printed three times. Now a ~30% band carrying only the back link, the trust chip and the licence-required credit; the name appears once, as the page's single `h1`. Directly under it, the new `<VerificationLine>`: *Verified · IRS Form 990 · fiscal year ending 31 December 2023 · re-checked 30 July 2026 → Open the filing*. Clauses are dropped rather than faked when the fact is absent (Catholic Charities USA has no filing date, so that page omits the clause). Document type comes from the document's `kind`, not its free-text label, which already carries the year. A permanent **"What we didn't check"** section closes every profile: a green badge reads as "recommended" unless the page says otherwise in words, and the claim here is only *registered, and has filed*.
+
+### 6. Two caching defects, found by verifying rather than assuming
+
+- `caches.default` **survives a deploy**, and these handlers cache a copy of `index.html` — so after a release they kept serving HTML naming the previous JS bundle. Cache keys now carry the hashed bundle filename Vite already emits, so they turn over by themselves every build.
+- The deeper cause: `s-maxage=3600` makes Cloudflare's **own CDN** cache the response by URL *in front of* the Worker, which the key above cannot help with because the Worker never runs. Measured right after a deploy: `/charities?page=3` (never requested before) came back on the new bundle while `/charities` (which had been) stayed on the old one. No `purge_cache` permission on the token, so the lever is the TTL — now `s-maxage=300, stale-while-revalidate=3600`. Staleness after a release is bounded at five minutes and the page stays fast meanwhile.
+
+This matters beyond a stale asset: *"does the live HTML name the bundle I just built?"* is the check this project relies on to know a deploy landed, and an hour-long edge cache was quietly answering it for a page captured before the deploy.
+
 ### Not done / pending
 
 - **pytest not run**: no Docker/local Postgres in this environment. New tests `apps/charities/tests/test_hubs.py` (6) and `test_search.py` (6) are unexecuted; CI will run them. All ranking claims above were instead verified directly against the production database.
 - **Worker rendering was never executed locally** — `wrangler dev`'s outbound `fetch()` can't reach `api.trustgive.org` here (egress goes through a local proxy workerd doesn't use), so it fell back to the plain SPA shell on every request. It was verified on production instead, after deploy.
 - Re-crawl not requested in Search Console (no access); IndexNow will submit the new 812-URL list at the next 06:00 UTC cron, or immediately via `/_indexnow`.
+- Block B item not taken: the charity card in the **catalogue grid** still lacks the source line ("IRS Form 990 · FY2023") that STRATEGY §2 asks for. Only the profile was reworked.
 - **Pre-existing, unrelated, found while testing**: after a full page reload the language toggle half-persists — zustand keeps `lang: "ru"` but i18next re-initialises to English (`i18nextLng` is never written), so the store says Russian while every `t()` string renders English. Affects the whole site, not just the new pages.
 - Remaining Block B items (charity card: confirmation line above the fold, smaller photo, "what we didn't check"; live proof on the homepage) untouched.
