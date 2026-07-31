@@ -2245,7 +2245,7 @@ Cache note: API cache is LocMemCache, CACHALOT_TIMEOUT=1h, per-entry. After a lo
 
 ## [2026-07-31] [Backend/Frontend/Worker] [v3.21 — crawl paths + search ranking]
 
-Two problems, one session. Backend is **deployed and verified on production**; frontend + Worker are built and committed but **not deployed** (no Cloudflare auth in this environment).
+Two problems, one session. **All of it is deployed and verified on production** — backend via `git push` (Railway), frontend + Worker via `wrangler deploy` after the user ran `wrangler login` mid-session (OAuth, `railyrains@gmail.com`; the first login attempt timed out waiting for the callback, the second succeeded).
 
 ### 1. "Discovered — currently not indexed" (640 URLs)
 
@@ -2272,10 +2272,20 @@ Verified on the live API: `?q=givewell` → givewell first (was third) · `?q=gi
 
 A failed search now renders `search.noMatch` / `search.noMatchBody` — which say the organisation may be real but unconfirmed, and unconfirmed organisations aren't published — instead of the generic "no charities match these filters". Those strings had been in the locales, unused.
 
+### 4. Stale sitemap survived the deploy — fixed
+
+First deploy landed correctly (bundle `index-B6TEypOw.js` live, hub pages rendering) but `/sitemap.xml` kept returning the old 743-URL body with zero hub URLs. Cause: `caches.default` **survives a deploy**, the cache key was the bare constant `https://trustgive.org/sitemap.xml`, and the entry still had hours of its 6-hour TTL left — so the new handler's own `cache.match()` served the previous worker's output. The token has `zone (read)` only, so no purge was possible.
+
+Fixed by versioning the key (`SITEMAP_VERSION`, part of the cache-key URL); bump it whenever the sitemap's *shape* changes. This is the same class of failure the project has hit three times — everything reports success while production serves the old thing — and it deserved a structural fix rather than waiting six hours.
+
+### Verified on production after deploy
+
+Bundle `index-B6TEypOw.js` matches the local build · `/charities` ships 60 charity `<a href>` + 6 page links in the raw HTML · `/charities?page=7` → 10 charities, self-canonical, `rel=prev` · `/charities/registry/irs-990` → 60 charity links, 53 hub-directory links, `rel=next`, canonical · `/charities/country/es` → 6 · `/charities/country/it` (4 charities, below threshold) → untouched shell, no fabricated page · `/charities?q=givewell` → `noindex, follow` · sitemap 812 URLs (61 hub, 6 catalogue pages, `/about`, `/data-sources`), valid XML.
+
 ### Not done / pending
 
-- **`npx wrangler deploy` (frontend + Worker) — user, authenticated shell.** Until then the live site has the old catalogue: the backend hubs API is live but nothing links to it. Built bundle: `dist/assets/index-B6TEypOw.js` — check the live HTML references that exact name after deploying (two past deploys silently kept the previous bundle).
-- **Worker rendering not executed locally.** `wrangler dev`'s outbound `fetch()` can't reach `api.trustgive.org` from this environment (egress goes through a local proxy that workerd doesn't use), so it fell back to the plain SPA shell on every request. The handlers are written to degrade to exactly that shell on any API failure, so the risk of the deploy is bounded — but the injected link block itself is unverified until it runs on Cloudflare.
 - **pytest not run**: no Docker/local Postgres in this environment. New tests `apps/charities/tests/test_hubs.py` (6) and `test_search.py` (6) are unexecuted; CI will run them. All ranking claims above were instead verified directly against the production database.
+- **Worker rendering was never executed locally** — `wrangler dev`'s outbound `fetch()` can't reach `api.trustgive.org` here (egress goes through a local proxy workerd doesn't use), so it fell back to the plain SPA shell on every request. It was verified on production instead, after deploy.
+- Re-crawl not requested in Search Console (no access); IndexNow will submit the new 812-URL list at the next 06:00 UTC cron, or immediately via `/_indexnow`.
 - **Pre-existing, unrelated, found while testing**: after a full page reload the language toggle half-persists — zustand keeps `lang: "ru"` but i18next re-initialises to English (`i18nextLng` is never written), so the store says Russian while every `t()` string renders English. Affects the whole site, not just the new pages.
 - Remaining Block B items (charity card: confirmation line above the fold, smaller photo, "what we didn't check"; live proof on the homepage) untouched.
