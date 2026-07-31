@@ -98,9 +98,15 @@ def _select_featured(target_size: int = 6, bucket: str | None = None) -> list[Ch
     (G.1 weekly rotation deferred — needs hash(slug + ISO-week) %
     pool_size; safe to add later without API contract change).
     """
+    # `is_stale` is deliberately NOT a filter here. It marks a filing older than
+    # 24 months, which describes the regulator's publication cycle rather than the
+    # charity: the IRS and most national registers run 1–2 years behind, so 330 of
+    # 370 published charities carry the flag at any given time. Filtering on it
+    # shrank the homepage pool to 30 and made the bucket counts read "1 verified
+    # charity" for Planet — a directory of 370 presenting itself as a directory of
+    # 40. Revenue is still required, because these cards lead with a money figure.
     base_qs = Charity.objects.filter(
         verification_status="verified",
-        is_stale=False,
         total_revenue_usd__isnull=False,
     ).prefetch_related("charity_badges__badge")
 
@@ -166,7 +172,10 @@ def _verified_total(bucket: str | None = None) -> int:
     Returning a `count(*)` query is sub-millisecond even uncached; the result
     is also cached per-deploy by cachalot since the queryset is read-only.
     """
-    qs = Charity.objects.filter(verification_status="verified", is_stale=False)
+    # Counts what the catalogue actually contains. `is_stale` is excluded for the
+    # reason given in _select_featured: it tracks the regulator's filing cycle, so
+    # including it under-reported the catalogue by an order of magnitude.
+    qs = Charity.objects.filter(**PUBLISHED)
     if bucket:
         qs = qs.filter(bucket=bucket)
     return qs.count()
