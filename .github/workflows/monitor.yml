@@ -50,11 +50,17 @@ jobs:
           [ -n "$asset" ] || { echo "::error::homepage references no JS bundle"; exit 1; }
           echo "bundle: $asset"
 
-          bundle=$(curl -fsS --max-time 60 "https://trustgive.org${asset}")
-          # The exact defect that emptied the homepage: an API base that is not an
-          # absolute URL, so every call resolves against the site origin and is
-          # answered by the SPA fallback.
-          echo "$bundle" | grep -q 'https://api.trustgive.org' \
+          # Stream straight into grep. Buffering the bundle in a shell variable
+          # and echoing it back reported a false negative on the first run: the
+          # file is ~590 KB on a single line, and `echo "$var"` does not survive
+          # that. A monitor that cries wolf gets ignored, so this reads from the
+          # pipe instead of memory.
+          #
+          # The defect being guarded: an API base that is not an absolute URL, so
+          # every call resolves against the site origin and is answered by the
+          # SPA fallback with HTTP 200.
+          curl -fsS --max-time 60 "https://trustgive.org${asset}" \
+            | grep -qF 'https://api.trustgive.org' \
             || { echo "::error::bundle has no absolute API base — the homepage will render empty"; exit 1; }
 
       - name: Featured endpoint returns cards and an honest count
