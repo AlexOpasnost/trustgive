@@ -51,11 +51,20 @@ export function CatalogPage() {
   // v3.15: useInfiniteQuery + Load-more replaces the v3.7 single-page page_size=300
   // approach. Required because the catalog crossed 300 charities (now 541) — the
   // old approach silently truncated 241 charities.
+  // Free-text query. Backed by Postgres FTS + pg_trgm on the server, so it
+  // tolerates a misremembered name and matches on registration number too —
+  // which is the point: the common arrival is "someone named a charity at me,
+  // is it real?", not "show me charities by cause".
+  const query = (searchParams.get("q") || "").trim()
+
   const baseParams: Omit<CharityListParams, "page" | "page_size"> = {
     cause: activeCause ? [activeCause] : [],
     country: countryParam,
     bucket,
-    sort: bucket ? "largest_revenue" : "most_recent_filing",
+    q: query || undefined,
+    // Relevance ordering is the server's default when q is present; imposing a
+    // filing-date sort on top of it would bury the best match.
+    sort: query ? undefined : bucket ? "largest_revenue" : "most_recent_filing",
   }
 
   const {

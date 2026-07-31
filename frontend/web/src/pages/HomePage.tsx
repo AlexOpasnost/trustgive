@@ -25,6 +25,7 @@ import { useTranslation } from "react-i18next"
 import { Link } from "react-router-dom"
 
 import { HeroBucketCard } from "@/components/home/HeroBucketCard"
+import { SearchBox } from "@/components/search/SearchBox"
 import { Reveal } from "@/components/ui/Reveal"
 import { PHOTO_WIDTHS, SRCSET_WIDTHS, buildSrcSet, wikimediaThumb } from "@/lib/image"
 import { useFeaturedCharities } from "@/lib/queries"
@@ -110,6 +111,27 @@ export function HomePage() {
 
   return (
     <>
+      {/* === WHAT THIS IS, AND A WAY IN ===
+          The page previously opened straight onto three photographs. Beautiful,
+          but it stated no claim, showed no evidence and offered no way to look
+          something up — a visitor holding a charity's name had nowhere to put
+          it. This block is deliberately plain: the claim, the scale, the field. */}
+      <section className="bg-paper border-b border-rule">
+        <div className="max-w-(--container-default) mx-auto px-6 lg:px-12 py-16 lg:py-24">
+          <h1
+            className="font-serif text-ink mb-5 max-w-[20ch]"
+            style={{ fontSize: "clamp(32px, 4.5vw, 52px)", lineHeight: 1.1, fontWeight: 700, letterSpacing: "-0.02em" }}
+          >
+            {t("home.hero.title")}
+          </h1>
+          <p className="text-body text-ink-2 mb-8 max-w-[60ch]" style={{ fontSize: "19px", lineHeight: "32px" }}>
+            {t("home.hero.subtitle")}
+          </p>
+          <SearchBox variant="hero" />
+          <p className="text-caption text-ink-3 mt-3">{t("home.hero.hint")}</p>
+        </div>
+      </section>
+
       {/* === HERO: 3 BUCKET CARDS (above-the-fold) === */}
       <section
         aria-label="Browse by cause"

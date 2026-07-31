@@ -8,6 +8,11 @@
   "home": {
     "exploreCatalog": "Explore the catalog",
     "howWeVerify": "Read the methodology",
+    "hero": {
+      "title": "Every charity here links to the regulator's own filing.",
+      "subtitle": "370 organisations across 27 countries. No ratings, no fees, no account. If we can't open an organisation's filing, we don't list it.",
+      "hint": "Try a name, or a registration number such as 208625442."
+    },
     "editorial": {
       "eyebrow": "Why this exists",
       "title": "Star ratings get gamed. Source documents don't.",
@@ -140,6 +145,14 @@
     "linkCode": "Source code",
     "linkMethodology": "Verification method",
     "linkApi": "Public API"
+  },
+  "search": {
+    "label": "Search charities by name or registration number",
+    "placeholder": "Search by name or registration number",
+    "submit": "Search",
+    "resultsFor": "Results for “{{query}}”",
+    "noMatch": "Nothing in the catalogue matches “{{query}}”",
+    "noMatchBody": "That may mean the organisation is real but we couldn't confirm its regulator filing — unconfirmed organisations aren't published here. Check the spelling, try the registration number, or read how verification works."
   },
   "sources": {
     "title": "Data sources",

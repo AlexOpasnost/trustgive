@@ -11,6 +11,8 @@ import { Menu01Icon } from "@hugeicons/core-free-icons"
 import { useTranslation } from "react-i18next"
 import { Link, NavLink } from "react-router-dom"
 
+import { SearchBox } from "@/components/search/SearchBox"
+
 import { cn } from "@/lib/utils"
 import { usePreferences } from "@/store/preferences"
 
@@ -65,6 +67,12 @@ export function TopNav() {
           <NavLink to="/about" className={navLinkClass}>
             {t("nav.about")}
           </NavLink>
+          {/* Persistent, because the arrival is usually a name rather than a
+              browse intent. Hidden below md — the mobile header has no room,
+              and the catalogue carries its own field. */}
+          <div className="hidden md:block ml-2">
+            <SearchBox variant="compact" />
+          </div>
         </nav>
 
         <div className="flex items-center gap-3">
