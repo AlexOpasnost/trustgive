@@ -16,15 +16,19 @@ from drf_spectacular.utils import OpenApiParameter, extend_schema
 from rest_framework import status, viewsets
 from rest_framework.decorators import action
 from rest_framework.exceptions import NotFound
+from rest_framework.permissions import AllowAny
 from rest_framework.request import Request
 from rest_framework.response import Response
+from rest_framework.views import APIView
 
 from apps.charities.filters import CharityFilter
+from apps.charities.hubs import MIN_HUB_SIZE, all_hubs
 from apps.charities.models import Cause, Charity, CharitySlugAlias, VerificationStatus
 from apps.charities.serializers import (
     CauseSerializer,
     CharityDetailSerializer,
     CharitySummarySerializer,
+    HubIndexSerializer,
     SourceDocumentSerializer,
 )
 from apps.core.middleware import set_charity_slug
@@ -326,6 +330,36 @@ class CharityViewSet(viewsets.ReadOnlyModelViewSet):
     # (DESIGN.md v3.0 §J). The Compare page is killed — buckets are the new
     # discovery affordance. Frontend simultaneously drops <CompareTable>,
     # the nav link, the footer link, and the useCompareSelection hook.
+
+
+class HubIndexView(APIView):
+    """Index of the crawlable hub sections (v3.21 — see apps.charities.hubs).
+
+    One request returns every country / cause / registry grouping that clears the
+    publication threshold, with its label and charity count. Both the SPA and the
+    Cloudflare Worker read this: the SPA to render the "Browse by" link block at
+    the foot of the catalogue, the Worker to build the sitemap and to decide
+    whether a requested hub URL is real (an unlisted grouping must not resolve to
+    a page that then renders empty).
+    """
+
+    permission_classes = [AllowAny]
+
+    @extend_schema(
+        operation_id="listHubs",
+        tags=["catalog"],
+        summary="Crawlable hub sections (country / cause / registry)",
+        description=(
+            "Every grouping of the published catalogue that holds at least "
+            f"{MIN_HUB_SIZE} charities, with EN+RU labels, counts and the "
+            "front-end path. Groupings below the threshold are omitted "
+            "deliberately: a two-item page is a thin page. Sorted largest first "
+            "within each kind."
+        ),
+        responses=HubIndexSerializer,
+    )
+    def get(self, request: Request) -> Response:
+        return Response(all_hubs())
 
 
 class CauseListView(viewsets.ReadOnlyModelViewSet):

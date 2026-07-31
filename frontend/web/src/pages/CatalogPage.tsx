@@ -10,22 +10,29 @@
  *   - Implicit defaults: revenue-DESC sort for bucket views, all charities
  *     in the catalog are `verified` by curation so the verification filter
  *     was meaningless to expose
+ *
+ * v3.21 (crawlability):
+ *   - Grid, counts and "Load more" moved into <CatalogResults>, shared with the
+ *     hub pages, and joined by numbered `?page=N` links. Before this, 310 of 370
+ *     charities had no internal link pointing at them and Search Console filed
+ *     them as "Discovered — currently not indexed".
+ *   - <HubDirectory> at the foot links every country / cause / registry section.
+ *   - A failed search now says what an empty catalogue actually means here
+ *     (unconfirmed organisations aren't published) instead of the generic
+ *     "no charities match these filters".
  */
 
-import { useInfiniteQuery } from "@tanstack/react-query"
 import { useTranslation } from "react-i18next"
 import { useSearchParams } from "react-router-dom"
 
-import { CharityCard } from "@/components/charity/CharityCard"
-import { Button } from "@/components/ui/Button"
+import { CatalogResults } from "@/components/catalog/CatalogResults"
+import { HubDirectory } from "@/components/catalog/HubDirectory"
 import { Chip } from "@/components/ui/Chip"
-import { api, type CharityListParams } from "@/lib/api"
+import { type CharityListParams } from "@/lib/api"
 import { BUCKET_SUBFILTERS, REGION_FILTERS } from "@/lib/buckets"
 import { useDocumentTitle } from "@/lib/useDocumentTitle"
 import { usePreferences } from "@/store/preferences"
 import type { Bucket } from "@/types/api"
-
-const PAGE_SIZE = 60
 
 const VALID_BUCKETS: Bucket[] = ["people", "animals", "planet"]
 
@@ -48,14 +55,13 @@ export function CatalogPage() {
   const region = REGION_FILTERS.find((r) => r.slug === activeRegion)
   const countryParam = region?.countries?.length ? region.countries.join(",") : undefined
 
-  // v3.15: useInfiniteQuery + Load-more replaces the v3.7 single-page page_size=300
-  // approach. Required because the catalog crossed 300 charities (now 541) — the
-  // old approach silently truncated 241 charities.
   // Free-text query. Backed by Postgres FTS + pg_trgm on the server, so it
   // tolerates a misremembered name and matches on registration number too —
   // which is the point: the common arrival is "someone named a charity at me,
   // is it real?", not "show me charities by cause".
   const query = (searchParams.get("q") || "").trim()
+
+  const page = Math.max(1, Number(searchParams.get("page")) || 1)
 
   const baseParams: Omit<CharityListParams, "page" | "page_size"> = {
     cause: activeCause ? [activeCause] : [],
@@ -67,30 +73,6 @@ export function CatalogPage() {
     sort: query ? undefined : bucket ? "largest_revenue" : "most_recent_filing",
   }
 
-  const {
-    data,
-    isLoading,
-    isError,
-    fetchNextPage,
-    hasNextPage,
-    isFetchingNextPage,
-  } = useInfiniteQuery({
-    queryKey: ["charities", baseParams],
-    initialPageParam: 1,
-    queryFn: ({ pageParam, signal }) =>
-      api.listCharities(
-        { ...baseParams, page: pageParam as number, page_size: PAGE_SIZE },
-        { signal },
-      ),
-    getNextPageParam: (lastPage) =>
-      lastPage.next ? lastPage.page + 1 : undefined,
-  })
-
-  const pages = data?.pages ?? []
-  const allResults = pages.flatMap((p) => p.results)
-  const totalCount = pages[0]?.count ?? 0
-  const loadedCount = allResults.length
-
   const setFilter = (key: string, value: string | null) => {
     const next = new URLSearchParams(searchParams)
     if (value == null || value === "") next.delete(key)
@@ -99,11 +81,35 @@ export function CatalogPage() {
     setSearchParams(next, { replace: true })
   }
 
-  const headerTitle = bucket ? t(`bucket.${bucket}.pageTitle`) : t("catalog.title")
-  const headerSubtitle = bucket ? t(`bucket.${bucket}.pageSubtitle`) : null
+  /** Page link that keeps every active filter. Page 1 drops `?page` so the
+   *  first page has exactly one URL rather than two that duplicate each other. */
+  const buildPageHref = (target: number) => {
+    const next = new URLSearchParams(searchParams)
+    if (target <= 1) next.delete("page")
+    else next.set("page", String(target))
+    const qs = next.toString()
+    return qs ? `/charities?${qs}` : "/charities"
+  }
+
+  const headerTitle = query
+    ? t("search.resultsFor", { query })
+    : bucket
+      ? t(`bucket.${bucket}.pageTitle`)
+      : t("catalog.title")
+  const headerSubtitle = !query && bucket ? t(`bucket.${bucket}.pageSubtitle`) : null
   useDocumentTitle(headerTitle)
 
   const subfilters = bucket ? BUCKET_SUBFILTERS[bucket] : null
+
+  // A search that finds nothing means something specific on this site, and it
+  // isn't "try another filter": the catalogue publishes only organisations whose
+  // regulator filing we could open, so an absent charity may well be real.
+  const empty = query
+    ? {
+        title: t("search.noMatch", { query }),
+        body: t("search.noMatchBody"),
+      }
+    : { title: t("catalog.noResults"), body: t("catalog.tryRemoving") }
 
   return (
     <div className="max-w-(--container-default) mx-auto px-6 lg:px-12 py-12">
@@ -113,15 +119,6 @@ export function CatalogPage() {
         </h1>
         {headerSubtitle && (
           <p className="text-body text-ink-2 mt-3 max-w-2xl">{headerSubtitle}</p>
-        )}
-        {data && loadedCount > 0 && (
-          <p className="text-body-sm text-ink-3 mt-4">
-            {t("catalog.showing", {
-              from: 1,
-              to: loadedCount,
-              count: totalCount,
-            })}
-          </p>
         )}
       </header>
 
@@ -167,65 +164,15 @@ export function CatalogPage() {
 
       {/* === Grid === */}
       <main>
-        {isLoading && (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {[0, 1, 2, 3, 4, 5].map((i) => (
-              <div
-                key={i}
-                className="bg-surface-raised border border-rule rounded-md overflow-hidden"
-              >
-                <div className="aspect-[3/2] skeleton" />
-                <div className="p-5">
-                  <div className="skeleton h-5 w-2/3 mb-2" />
-                  <div className="skeleton h-4 w-1/2 mb-3" />
-                  <div className="skeleton h-3 w-3/4" />
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
-
-        {isError && (
-          <div className="border border-rule rounded-md p-12 text-center">
-            <h2 className="text-h3 font-semibold text-ink mb-2">{t("common.error")}</h2>
-            <p className="text-body text-ink-2">{t("common.errorBody")}</p>
-          </div>
-        )}
-
-        {data && loadedCount === 0 && (
-          <div className="border border-rule rounded-md p-12 text-center">
-            <h2 className="text-h3 font-semibold text-ink mb-2">
-              {t("catalog.noResults")}
-            </h2>
-            <p className="text-body text-ink-2">{t("catalog.tryRemoving")}</p>
-          </div>
-        )}
-
-        {data && loadedCount > 0 && (
-          <>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-              {allResults.map((charity) => (
-                <CharityCard key={charity.slug} charity={charity} />
-              ))}
-            </div>
-
-            {hasNextPage && (
-              <div className="mt-12 flex justify-center">
-                <Button
-                  variant="secondary"
-                  size="lg"
-                  onClick={() => fetchNextPage()}
-                  disabled={isFetchingNextPage}
-                >
-                  {isFetchingNextPage
-                    ? t("catalog.loadingMore")
-                    : t("catalog.loadMore")}
-                </Button>
-              </div>
-            )}
-          </>
-        )}
+        <CatalogResults
+          params={baseParams}
+          page={page}
+          buildPageHref={buildPageHref}
+          empty={empty}
+        />
       </main>
+
+      <HubDirectory />
     </div>
   )
 }

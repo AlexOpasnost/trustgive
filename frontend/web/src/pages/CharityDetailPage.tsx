@@ -23,6 +23,7 @@ import { useState } from "react"
 import { useTranslation } from "react-i18next"
 import { Link, useParams } from "react-router-dom"
 
+import { CharityHubLinks } from "@/components/catalog/CharityHubLinks"
 import { CharityLogo } from "@/components/charity/CharityLogo"
 import { DonateConfirmModal } from "@/components/charity/DonateConfirmModal"
 import { MoneyBreakdown } from "@/components/charity/MoneyBreakdown"
@@ -352,6 +353,9 @@ export function CharityDetailPage() {
           </div>
         </section>
       )}
+
+      {/* === RELATED SECTIONS (country / registry / cause hubs) === */}
+      <CharityHubLinks charity={charity} />
 
       <SourceDocumentDrawer
         document={openDoc}

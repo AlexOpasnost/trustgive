@@ -11,6 +11,21 @@ import { api } from "@/lib/api"
 import type { Bucket } from "@/types/api"
 
 /**
+ * Hub index (v3.21). Backend ships `s-maxage=3600`; the payload only changes
+ * when a grouping crosses the publication threshold, so an hour of client
+ * staleness is generous.
+ */
+export function useHubs() {
+  return useQuery({
+    queryKey: ["hubs"],
+    queryFn: ({ signal }) => api.listHubs({ signal }),
+    staleTime: 60 * 60 * 1000,
+    gcTime: 60 * 60 * 1000,
+    retry: 1,
+  })
+}
+
+/**
  * Featured charities, optionally filtered by bucket (DESIGN.md v3.0 §A).
  *
  * Backend endpoint (`GET /api/charities/featured/?bucket=people|animals|planet`)

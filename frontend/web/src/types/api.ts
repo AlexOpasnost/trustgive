@@ -161,6 +161,39 @@ export type SeoCharityPayload = {
 }
 
 /**
+ * v3.21 — hub sections (`GET /api/hubs/`).
+ *
+ * A hub is a crawlable slice of the catalogue: one country, one cause, or one
+ * registry. Only slices holding at least `min_size` charities are published —
+ * see backend `apps/charities/hubs.py` for why. `path` is the front-end route,
+ * supplied by the backend so the sitemap and the SPA can never disagree about
+ * a hub's URL.
+ */
+export type HubKind = "country" | "cause" | "registry"
+
+export type Hub = {
+  kind: HubKind
+  slug: string
+  label: LocalizedString
+  count: number
+  path: string
+  /** country hubs only — the ISO code the API filter needs */
+  code?: string
+  /** registry hubs only */
+  publisher?: string
+  host?: string
+  country?: string
+  description?: LocalizedString
+}
+
+export type HubIndex = {
+  min_size: number
+  countries: Hub[]
+  causes: Hub[]
+  registries: Hub[]
+}
+
+/**
  * v3.15 — featured-endpoint envelope. `featured` is the up-to-6 hero cards;
  * `total_count` is the real verified-charity total in scope (drives the
  * homepage bucket-card "{N} verified charities" subtitle).

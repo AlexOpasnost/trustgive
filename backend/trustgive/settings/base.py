@@ -230,6 +230,10 @@ CACHE_CONTROL_MAP = {
     "charity-source-documents": "public, s-maxage=86400, stale-while-revalidate=86400",
     # charity-compare removed in v3.0 (DESIGN.md §J — Compare page killed).
     "cause-list": "public, s-maxage=86400",
+    # Hub index changes only when verification coverage crosses the threshold for
+    # some grouping — i.e. rarely. The Worker fetches it on every sitemap build,
+    # so a long edge cache keeps that free.
+    "hub-index": "public, s-maxage=3600, stale-while-revalidate=86400",
     "rss-feed": "public, s-maxage=3600",
     "seo-charity": "public, s-maxage=3600, stale-while-revalidate=86400",
     "donation-redirect": "no-store",

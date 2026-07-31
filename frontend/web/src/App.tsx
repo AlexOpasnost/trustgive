@@ -7,6 +7,7 @@ import { AboutPage } from "./pages/AboutPage"
 import { CharityDetailPage } from "./pages/CharityDetailPage"
 import { DataSourcesPage } from "./pages/DataSourcesPage"
 import { HomePage } from "./pages/HomePage"
+import { HubPage } from "./pages/HubPage"
 import { LegitPage } from "./pages/LegitPage"
 import { MethodologyPage } from "./pages/MethodologyPage"
 import { NotFoundPage } from "./pages/NotFoundPage"
@@ -29,6 +30,12 @@ export function App() {
           <Route path="/" element={<Layout />}>
             <Route index element={<HomePage />} />
             <Route path="charities" element={<CatalogPage />} />
+            {/* v3.21 hub sections. Declared before the `:slug` detail route for
+                readability — React Router ranks the static "country"/"cause"/
+                "registry" segments above the dynamic one regardless of order. */}
+            <Route path="charities/country/:slug" element={<HubPage kind="country" />} />
+            <Route path="charities/cause/:slug" element={<HubPage kind="cause" />} />
+            <Route path="charities/registry/:slug" element={<HubPage kind="registry" />} />
             <Route path="charities/:slug" element={<CharityDetailPage />} />
             <Route path="charities/:slug/legit" element={<LegitPage />} />
             {/* /compare route removed in v3.0 */}

@@ -88,7 +88,40 @@
     "loadMore": "Load more",
     "loadingMore": "Loading…",
     "notFound": "Charity not found",
-    "notFoundBody": "We couldn't find this charity. The link may be outdated. Browse the full catalog to find a similar organisation."
+    "notFoundBody": "We couldn't find this charity. The link may be outdated. Browse the full catalog to find a similar organisation.",
+    "pagination": {
+      "label": "Catalogue pages",
+      "previous": "Previous",
+      "next": "Next",
+      "goToPage": "Go to page {{page}}"
+    }
+  },
+  "hubs": {
+    "directoryTitle": "Browse the catalogue",
+    "directoryBody": "Every organisation is listed under the registry that published its filing, its country, and the causes it works on. Sections with fewer than {{min}} organisations aren't given their own page.",
+    "byRegistry": "By registry",
+    "byCountry": "By country",
+    "byCause": "By cause",
+    "byKind": {
+      "country": "Country",
+      "cause": "Cause",
+      "registry": "Registry"
+    },
+    "heading": {
+      "country": "Verified charities in {{label}}",
+      "cause": "Verified charities working on {{label}}",
+      "registry": "Charities verified through {{label}}"
+    },
+    "intro": {
+      "country": "{{count}} organisations registered in {{label}}, each linking to the filing its regulator published.",
+      "cause": "{{count}} organisations tagged {{label}}. Every one links to a filing you can open yourself — we don't rank them."
+    },
+    "publisher": "Documents served by {{publisher}}.",
+    "breadcrumb": "Breadcrumb",
+    "backToCatalog": "Back to the full catalogue",
+    "onProfileTitle": "Also in this catalogue",
+    "unknownTitle": "No such section",
+    "unknownBody": "This section doesn't exist. We only publish a section once it holds at least {{min}} verified organisations — below that it would be a page about almost nothing."
   },
   "charity": {
     "verified": "Verified",

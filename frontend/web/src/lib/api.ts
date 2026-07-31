@@ -17,6 +17,7 @@ import type {
   Cause,
   Charity,
   FeaturedResponse,
+  HubIndex,
   PaginatedCharitySummary,
   SeoCharityPayload,
   SourceDocument,
@@ -77,6 +78,8 @@ export type CharityListParams = {
   verification_status?: "verified" | "listed" | "stale"
   badges?: string[]
   bucket?: Bucket
+  /** v3.21 — registry hub slug (`irs-990`, `uk-charity-commission`, …). */
+  registry?: string
   q?: string
   lang?: "en" | "ru"
   sort?: "most_recent_filing" | "largest_revenue" | "highest_program_pct" | "alphabetical"
@@ -134,6 +137,14 @@ export const api = {
   },
   listCauses(opts?: FetchOptions) {
     return apiFetch<Cause[]>(`/api/causes/`, opts)
+  },
+  /**
+   * v3.21 — the country / cause / registry hub index. One small payload backs
+   * the "Browse by" block on the catalogue, every hub page's header, and the
+   * validity check for an unknown hub slug.
+   */
+  listHubs(opts?: FetchOptions) {
+    return apiFetch<HubIndex>(`/api/hubs/`, opts)
   },
   logDonationRedirect(payload: {
     charity_slug: string

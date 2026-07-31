@@ -33,6 +33,35 @@ class CauseSerializer(serializers.ModelSerializer):
         return CauseSerializer(children_qs, many=True).data
 
 
+class HubItemSerializer(serializers.Serializer):
+    """One crawlable section of the catalogue (v3.21 — see apps.charities.hubs).
+
+    Schema-only: the view returns plain dicts built by `hubs.all_hubs()`. This
+    exists so `/api/hubs/` documents itself in the OpenAPI schema like every
+    other endpoint, rather than appearing as an untyped blob.
+    """
+
+    kind = serializers.ChoiceField(choices=["country", "cause", "registry"])
+    slug = serializers.CharField()
+    label = LocalizedSerializerField()
+    count = serializers.IntegerField()
+    path = serializers.CharField(help_text="Front-end route for this section.")
+    code = serializers.CharField(required=False, help_text="Country hubs: ISO 3166-1 alpha-2.")
+    publisher = serializers.CharField(required=False, help_text="Registry hubs: publishing body.")
+    host = serializers.CharField(required=False, help_text="Registry hubs: source-document host.")
+    country = serializers.CharField(required=False)
+    description = LocalizedSerializerField(required=False)
+
+
+class HubIndexSerializer(serializers.Serializer):
+    min_size = serializers.IntegerField(
+        help_text="Minimum charities a grouping needs before it is published as a section."
+    )
+    countries = HubItemSerializer(many=True)
+    causes = HubItemSerializer(many=True)
+    registries = HubItemSerializer(many=True)
+
+
 class TrustBadgeNestedSerializer(serializers.ModelSerializer):
     slug = serializers.CharField(source="badge.slug")
     label = LocalizedSerializerField(source="badge.label")
