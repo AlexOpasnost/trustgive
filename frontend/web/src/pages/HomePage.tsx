@@ -25,6 +25,7 @@ import { useTranslation } from "react-i18next"
 import { Link } from "react-router-dom"
 
 import { HeroBucketCard } from "@/components/home/HeroBucketCard"
+import { LiveProof } from "@/components/home/LiveProof"
 import { SearchBox } from "@/components/search/SearchBox"
 import { Reveal } from "@/components/ui/Reveal"
 import { PHOTO_WIDTHS, SRCSET_WIDTHS, buildSrcSet, wikimediaThumb } from "@/lib/image"
@@ -131,6 +132,12 @@ export function HomePage() {
           <p className="text-caption text-ink-3 mt-3">{t("home.hero.hint")}</p>
         </div>
       </section>
+
+      {/* === LIVE PROOF ===
+          Sits above the bucket cards and above the manifesto, per STRATEGY §4:
+          the claim in the block above is worth nothing until the reader can open
+          a government document. Everything in it is read from the API. */}
+      <LiveProof />
 
       {/* === HERO: 3 BUCKET CARDS (above-the-fold) === */}
       <section

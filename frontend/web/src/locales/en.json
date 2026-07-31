@@ -18,6 +18,15 @@
       "title": "Star ratings get gamed. Source documents don't.",
       "p1": "TrustGive aggregates public registries — IRS Form 990, UK Charity Commission, Минюст СОНКО — and links directly to the source documents. We don't publish a trust score. We don't process payments. The job of the platform is to take you to the original record in one click.",
       "cta": "Read the full methodology"
+    },
+    "proof": {
+      "eyebrow": "What that looks like",
+      "lead": "Take {{name}}. Registration",
+      "filing": "The catalogue links it to its {{document}}, covering the fiscal year ending {{date}}.",
+      "filingNoDate": "The catalogue links it to its {{document}}.",
+      "openFiling": "Open the filing",
+      "seeProfile": "See what we hold on {{name}}",
+      "footnote": "Not a screenshot and not a summary — that link goes to the regulator's own record. Every one of the 370 organisations here has one, and an organisation whose link stops opening is removed the same night."
     }
   },
   "homepage": {
@@ -143,8 +152,26 @@
     "description": "Description",
     "press": "Press mentions",
     "methodology": "Methodology",
-    "fiscalYearEnding": "Fiscal year ending {{date}}",
-    "lastChecked": "Re-checked by TrustGive {{date}}",
+    "fiscalYearEnding": "fiscal year ending {{date}}",
+    "lastChecked": "re-checked {{date}}",
+    "founded": "Founded {{year}}",
+    "openFiling": "Open the filing",
+    "docKind": {
+      "irs_990": "IRS Form 990",
+      "irs_990ez": "IRS Form 990-EZ",
+      "irs_990pf": "IRS Form 990-PF",
+      "charity_commission_filing": "Charity Commission filing",
+      "minjust_registration": "Минюст registration",
+      "sonko_registration": "СОНКО registration",
+      "audit": "Independent audit",
+      "state_registration": "State register record",
+      "annual_report": "Annual report"
+    },
+    "notChecked": {
+      "title": "What we didn't check",
+      "body": "We confirmed that this organisation is registered with its regulator and has filed the accounts linked above. We did not assess how well it spends the money, how much of it reaches the work, or whether it is a good place for your donation. Nothing on this page is a recommendation — a verified badge means a document exists and opens, nothing more.",
+      "cta": "How verification works"
+    },
     "staleWarning": "Latest published filing covers the fiscal year ending {{date}}. Regulators typically publish 1–2 years in arrears, so a gap here usually reflects the filing cycle rather than anything about this organisation.",
     "leavingTitle": "You're leaving TrustGive",
     "leavingBody": "Your donation will go directly to {{name}} on their own website. We don't process payments.",

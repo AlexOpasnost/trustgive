@@ -25,6 +25,7 @@ import { Link, useParams } from "react-router-dom"
 
 import { CharityHubLinks } from "@/components/catalog/CharityHubLinks"
 import { CharityLogo } from "@/components/charity/CharityLogo"
+import { VerificationLine } from "@/components/charity/VerificationLine"
 import { DonateConfirmModal } from "@/components/charity/DonateConfirmModal"
 import { MoneyBreakdown } from "@/components/charity/MoneyBreakdown"
 import { SourceDocumentDrawer } from "@/components/charity/SourceDocumentDrawer"
@@ -125,60 +126,63 @@ export function CharityDetailPage() {
 
   return (
     <div>
-      {/* === HERO === */}
-      <DetailHero charity={charity} name={name} tagline={tagline ?? ""} />
+      {/* === PHOTO BAND === */}
+      <DetailHero charity={charity} name={name} />
 
-      {/* === IDENTITY STRIP (white surface, below hero) === */}
+      {/* === IDENTITY + EVIDENCE (first thing under the photo band) ===
+          v3.21: this used to sit below a photo filling 70% of the viewport, and
+          carried the name a second time next to a bare "Verified" pill, with the
+          filing dates exiled to a grey column on the right. The evidence is the
+          product, so it now opens the page: name, then the verification line,
+          then the identifiers. The name appears once. */}
       <section className="bg-surface-raised border-b border-rule">
         <div className="max-w-(--container-default) mx-auto px-6 lg:px-12 py-8">
-          <div className="flex flex-wrap items-start justify-between gap-4">
-            <div className="flex items-center gap-4 min-w-0">
-              <CharityLogo
-                logoUrl={charity.logo_url}
-                slug={charity.slug}
-                name={name}
-                size="lg"
-              />
-              <div className="min-w-0">
-                <h2 className="text-h3 font-semibold text-ink leading-tight truncate">
-                  {name}
-                </h2>
-                <p className="text-body-sm text-ink-2 mt-1">
-                  <span className="font-mono">EIN/Reg {charity.registration_id}</span>
-                  <span className="mx-2 text-ink-3">·</span>
-                  <span>{charity.country}</span>
-                  {charity.founded_year && (
-                    <>
-                      <span className="mx-2 text-ink-3">·</span>
-                      <span>Founded {charity.founded_year}</span>
-                    </>
-                  )}
-                </p>
-                <Link
-                  to={`/charities/${charity.slug}/legit`}
-                  className="inline-block mt-2 text-body-sm text-ink underline decoration-rule decoration-1 underline-offset-4 hover:decoration-ink"
-                >
-                  {t("legit.fromProfileLink", { name })}
-                </Link>
-              </div>
-            </div>
-            {/* The stored date is the fiscal-period end reported on the filing
-                (ProPublica `tax_prd`), not the day the return was submitted —
-                so it is labelled for exactly what it is. Alongside it we show
-                when TrustGive last re-checked the record, because a site that
-                asks you to trust its verification should say how fresh that
-                verification is. */}
-            <div className="text-caption text-ink-3 font-mono text-right">
-              {charity.last_filed_date && (
-                <p>{t("charity.fiscalYearEnding", { date: charity.last_filed_date })}</p>
+          <div className="flex items-start gap-4 md:gap-6">
+            <CharityLogo
+              logoUrl={charity.logo_url}
+              slug={charity.slug}
+              name={name}
+              size="lg"
+            />
+            <div className="min-w-0 flex-1">
+              <h1
+                className="font-serif text-ink leading-tight"
+                style={{
+                  fontSize: "clamp(28px, 3.5vw, 40px)",
+                  fontWeight: 700,
+                  letterSpacing: "-0.02em",
+                }}
+              >
+                {name}
+              </h1>
+              {tagline && (
+                <p className="text-body text-ink-2 mt-2 max-w-[60ch]">{tagline}</p>
               )}
-              {charity.data_freshness?.last_synced_at && (
-                <p className="mt-1">
-                  {t("charity.lastChecked", {
-                    date: charity.data_freshness.last_synced_at.slice(0, 10),
-                  })}
-                </p>
-              )}
+
+              {/* The line the whole page exists for. */}
+              <VerificationLine charity={charity} onOpenFiling={setOpenDoc} />
+
+              {/* The stored filing date is the fiscal-period end reported on the
+                  return (ProPublica `tax_prd`), not the day it was submitted —
+                  the verification line labels it for exactly that. */}
+              <p className="text-body-sm text-ink-3 mt-4">
+                <span className="font-mono">EIN/Reg {charity.registration_id}</span>
+                <span className="mx-2">·</span>
+                <span>{charity.country}</span>
+                {charity.founded_year && (
+                  <>
+                    <span className="mx-2">·</span>
+                    <span>{t("charity.founded", { year: charity.founded_year })}</span>
+                  </>
+                )}
+              </p>
+
+              <Link
+                to={`/charities/${charity.slug}/legit`}
+                className="inline-block mt-2 text-body-sm text-ink underline decoration-rule decoration-1 underline-offset-4 hover:decoration-ink"
+              >
+                {t("legit.fromProfileLink", { name })}
+              </Link>
             </div>
           </div>
         </div>
@@ -323,6 +327,31 @@ export function CharityDetailPage() {
         </section>
       )}
 
+      {/* === WHAT WE DIDN'T CHECK ===
+          Permanent, on every profile, whatever the charity's status (STRATEGY
+          §5.7). A green "Verified" badge reads as "recommended" unless the page
+          says otherwise in words, and this catalogue makes a far narrower claim:
+          the organisation is registered and has filed. Nothing here is an
+          opinion about how well it spends the money, because nothing here
+          measures that. */}
+      <section className="bg-paper border-t border-rule">
+        <div className="max-w-(--container-default) mx-auto px-6 lg:px-12 py-12 lg:py-16">
+          <h2 className="font-serif text-h2 font-semibold text-ink mb-4">
+            {t("charity.notChecked.title")}
+          </h2>
+          <p className="text-body text-ink-2 max-w-[65ch] leading-relaxed">
+            {t("charity.notChecked.body")}
+          </p>
+          <Link
+            to="/methodology"
+            className="inline-flex items-center gap-2 mt-5 text-body-sm text-ink underline decoration-rule decoration-1 underline-offset-4 hover:decoration-ink"
+          >
+            {t("charity.notChecked.cta")}
+            <HugeiconsIcon icon={ArrowRight01Icon} size={14} aria-hidden="true" />
+          </Link>
+        </div>
+      </section>
+
       {/* === PRESS MENTIONS === */}
       {charity.news_mentions.length > 0 && (
         <section className="bg-surface-raised border-t border-rule">
@@ -377,91 +406,56 @@ export function CharityDetailPage() {
 }
 
 /**
- * DetailHero — full-bleed 70vh photo with overlay text.
- * If no hero_photo_url, renders a tasteful cream/serif title block with no photo
- * (still readable, no broken-image state).
+ * DetailHero — a photo band, not a cover.
+ *
+ * v3.21 (STRATEGY.md §5): the photo used to occupy 55–70% of the viewport with
+ * the name and tagline burned into it, which pushed the evidence — the reason
+ * anyone is on this page — below the fold, and printed the name a second time
+ * three centimetres above where the identity strip printed it again. It is now
+ * a ~30vh band carrying only navigation, trust state and the credit the licence
+ * requires. Name, tagline and the verification line live in the section below,
+ * where they are the first thing read.
+ *
+ * With no photo the band collapses to a slim paper strip rather than a large
+ * empty title block — same structure either way, so the page below never has to
+ * care which variant rendered.
  */
-function DetailHero({
-  charity,
-  name,
-  tagline,
-}: {
-  charity: Charity
-  name: string
-  tagline: string
-}) {
+function DetailHero({ charity, name }: { charity: Charity; name: string }) {
   const { t } = useTranslation()
   const lang = usePreferences((s) => s.lang)
   const photoUrl = wikimediaThumb(charity.hero_photo_url, PHOTO_WIDTHS.detailHero)
   const photoSrcSet = buildSrcSet(charity.hero_photo_url, SRCSET_WIDTHS.detailHero)
   const credit = charity.hero_photo_credit ?? ""
   const license = charity.hero_photo_license ?? ""
-  const photoCredit = credit
-    ? license
-      ? `${credit} / ${license}`
-      : credit
-    : ""
+  const photoCredit = credit ? (license ? `${credit} / ${license}` : credit) : ""
   const caption = charity.hero_photo_caption?.[lang] || charity.hero_photo_caption?.en || ""
 
-  // === FALLBACK: no photo. Cream/serif title block. ===
+  const isVerified = charity.verification_status === "verified"
+
+  // === FALLBACK: no photo. Slim paper strip with the back link. ===
   if (!photoUrl) {
     return (
       <header className="bg-paper border-b border-rule">
-        <div className="max-w-(--container-default) mx-auto px-6 lg:px-12 py-12 lg:py-20">
+        <div className="max-w-(--container-default) mx-auto px-6 lg:px-12 py-5">
           <Link
             to="/charities"
-            className="inline-flex items-center gap-2 text-body-sm text-ink-3 hover:text-ink mb-8"
+            className="inline-flex items-center gap-2 text-body-sm text-ink-3 hover:text-ink"
           >
-            <HugeiconsIcon icon={ArrowLeft02Icon} size={16} />
+            <HugeiconsIcon icon={ArrowLeft02Icon} size={16} aria-hidden="true" />
             {t("charity.back")}
           </Link>
-          <div className="flex items-start gap-6 flex-wrap">
-            <CharityLogo
-              logoUrl={charity.logo_url}
-              slug={charity.slug}
-              name={name}
-              size="xl"
-            />
-            <div className="flex-1 min-w-0">
-              <h1
-                className="font-serif text-ink leading-tight"
-                style={{
-                  fontSize: "clamp(40px, 5vw, 56px)",
-                  fontWeight: 700,
-                  letterSpacing: "-0.02em",
-                }}
-              >
-                {name}
-              </h1>
-              {tagline && (
-                <p className="text-h4 font-normal text-ink-2 mt-3 max-w-[60ch]">
-                  {tagline}
-                </p>
-              )}
-              {charity.verification_status === "verified" ? (
-                <span className="mt-4 inline-flex items-center gap-1.5 bg-verified-soft text-verified text-body-sm font-medium rounded-full px-3 py-1">
-                  <HugeiconsIcon icon={Tick02Icon} size={14} aria-hidden="true" />
-                  {t("charity.verified")}
-                </span>
-              ) : (
-                <span className="mt-4 inline-flex items-center gap-1.5 bg-black/5 text-ink-3 text-body-sm font-medium rounded-full px-3 py-1">
-                  {t("charity.notVerified")}
-                </span>
-              )}
-            </div>
-          </div>
         </div>
       </header>
     )
   }
 
-  // === PHOTO HERO: full-bleed 70vh ===
+  // === PHOTO BAND ===
   return (
     <header
       className="
         relative bg-ink overflow-hidden
-        h-[55vh] md:h-[70vh]
-        min-h-[360px] md:min-h-[480px]
+        h-[26vh] md:h-[30vh]
+        min-h-[180px] md:min-h-[240px]
       "
       aria-label={name}
     >
@@ -477,22 +471,22 @@ function DetailHero({
         className="absolute inset-0 h-full w-full object-cover object-center"
       />
 
-      {/* Bottom-fade gradient overlay */}
+      {/* Gradient kept top and bottom: the band is short, so the back link at the
+          top needs its own contrast floor rather than relying on the photo. */}
       <div
         aria-hidden="true"
         className="absolute inset-0"
         style={{
           background:
-            "linear-gradient(to top, rgba(10,12,11,0.85) 0%, rgba(10,12,11,0.4) 50%, transparent 80%)",
+            "linear-gradient(to bottom, rgba(10,12,11,0.55) 0%, rgba(10,12,11,0.15) 40%, rgba(10,12,11,0.55) 100%)",
         }}
       />
 
-      {/* Top-left: Back link (white) */}
       <Link
         to="/charities"
         className="
-          absolute top-6 left-6 md:top-8 md:left-8 z-10
-          inline-flex items-center gap-2 text-body-sm text-white/85 hover:text-white
+          absolute top-4 left-6 md:top-5 md:left-12 z-10
+          inline-flex items-center gap-2 text-body-sm text-white/90 hover:text-white
           underline-offset-4 hover:underline decoration-white/40
         "
       >
@@ -500,84 +494,29 @@ function DetailHero({
         {t("charity.back")}
       </Link>
 
-      {/* Top-right: verification chip — green Verified, or a muted Not verified
-          so a charity's trust state is never ambiguous (v3.18). */}
-      {charity.verification_status === "verified" ? (
-        <span
-          className="
-            absolute top-6 right-6 md:top-8 md:right-8 z-10
-            inline-flex items-center gap-1.5
-            bg-white/95 backdrop-blur-sm
-            rounded-full px-4 py-1.5
-            text-body-sm font-medium text-verified
-            shadow-sm
-          "
-          aria-label={t("charity.verified")}
-        >
-          <HugeiconsIcon icon={Tick02Icon} size={14} aria-hidden="true" />
-          {t("charity.verified")}
-        </span>
-      ) : (
-        <span
-          className="
-            absolute top-6 right-6 md:top-8 md:right-8 z-10
-            inline-flex items-center
-            bg-white/80 backdrop-blur-sm
-            rounded-full px-4 py-1.5
-            text-body-sm font-medium text-ink-3
-            shadow-sm
-          "
-          aria-label={t("charity.notVerified")}
-        >
-          {t("charity.notVerified")}
-        </span>
-      )}
-
-      {/* Bottom-left: name + tagline */}
-      {/* v3.15: lifted from bottom-8 to bottom-14 on mobile (<md) so the photo
-          credit row below has its own 24px lane and stops overlapping. */}
-      <div
-        className="
-          absolute bottom-14 left-6 right-6 md:bottom-12 md:left-12 md:right-12 z-10
-          max-w-(--container-default) mx-auto
-        "
+      {/* Trust state stays on the band so it is visible before any scrolling,
+          even though the full verification line repeats it below (v3.18: a
+          charity's trust state is never blank). */}
+      <span
+        className={`
+          absolute top-4 right-6 md:top-5 md:right-12 z-10
+          inline-flex items-center gap-1.5
+          backdrop-blur-sm rounded-full px-4 py-1.5
+          text-body-sm font-medium shadow-sm
+          ${isVerified ? "bg-white/95 text-verified" : "bg-white/80 text-ink-3"}
+        `}
+        aria-label={isVerified ? t("charity.verified") : t("charity.notVerified")}
       >
-        <h1
-          className="font-serif text-white"
-          style={{
-            fontSize: "clamp(40px, 5vw, 72px)",
-            lineHeight: 1.05,
-            letterSpacing: "-0.02em",
-            fontWeight: 700,
-          }}
-        >
-          {name}
-        </h1>
-        {tagline && (
-          <p
-            className="mt-3 text-white/85 max-w-[60ch]"
-            style={{ fontSize: "clamp(16px, 1.5vw, 20px)", lineHeight: 1.5 }}
-          >
-            {tagline}
-          </p>
-        )}
-      </div>
+        {isVerified && <HugeiconsIcon icon={Tick02Icon} size={14} aria-hidden="true" />}
+        {isVerified ? t("charity.verified") : t("charity.notVerified")}
+      </span>
 
-      {/* Bottom-right: photo credit */}
-      {/* v3.15.2: hide long descriptive caption on mobile — at 320px it wraps
-          to 3-4 lines and overlays the title. Credit + license stays (legal
-          requirement). md+ gets the full caption + credit line. */}
+      {/* Photo credit — a licence requirement, so it stays at every width. The
+          descriptive caption is desktop-only; at 320px it wraps into the band. */}
       {photoCredit && (
-        <div
-          className="
-            absolute bottom-3 left-6 right-6 md:left-auto md:bottom-4 md:right-6 z-10
-            text-right
-          "
-        >
-          <span className="text-[10px] leading-tight text-white/65 font-sans">
-            {caption && (
-              <span className="hidden md:inline">{caption} — </span>
-            )}
+        <div className="absolute bottom-2 left-6 right-6 md:left-auto md:bottom-3 md:right-12 z-10 text-right">
+          <span className="text-[10px] leading-tight text-white/70 font-sans">
+            {caption && <span className="hidden md:inline">{caption} — </span>}
             {t("detail.hero.photoCredit", { credit: photoCredit })}
           </span>
         </div>

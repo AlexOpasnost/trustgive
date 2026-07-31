@@ -467,13 +467,16 @@ function buildJsonLd(c: CharityDetail, name: string, description: string, canoni
 
 async function handleCharityMeta(request: Request, env: Env, slug: string): Promise<Response> {
   const canonical = `${SITE_BASE}/charities/${slug}`
+
+  // Always have the SPA shell ready — it's our fallback on any failure — and
+  // read it before the cache lookup, because its build token keys the cache
+  // (see fetchShell: `caches.default` outlives a deploy).
+  const { html: shell, version } = await fetchShell(request, env)
+
   const cache = (caches as unknown as { default: Cache }).default
-  const cacheKey = new Request(canonical)
+  const cacheKey = new Request(`${canonical}?v=${version}`)
   const cached = await cache.match(cacheKey)
   if (cached) return cached
-
-  // Always have the SPA shell ready — it's our fallback on any failure.
-  const shell = await env.ASSETS.fetch(request)
 
   let charity: CharityDetail | null = null
   try {
@@ -486,7 +489,7 @@ async function handleCharityMeta(request: Request, env: Env, slug: string): Prom
     // API unreachable — fall through to the untouched shell.
   }
 
-  if (!charity || !charity.name) return shell // 404 or API down → plain SPA
+  if (!charity || !charity.name) return plainShell(shell) // 404 or API down → plain SPA
 
   const name = charity.name.en || charity.name.ru || slug
   const countryLabel = (charity.country && COUNTRY_LABEL[charity.country]) || ""
@@ -544,15 +547,13 @@ async function handleCharityMeta(request: Request, env: Env, slug: string): Prom
 
   // Buffer the rewritten HTML so we can both return and cache it. index.html is
   // small; streaming isn't worth the complexity here.
-  const transformed = rewriter.transform(shell)
+  const transformed = rewriter.transform(plainShell(shell))
   const html = await transformed.text()
   const response = new Response(html, {
     status: 200,
     headers: {
       "Content-Type": "text/html; charset=utf-8",
-      // Browser revalidates; edge holds 1h. Charity data changes rarely and the
-      // sitemap already drives crawl freshness.
-      "Cache-Control": "public, max-age=0, s-maxage=3600, must-revalidate",
+      "Cache-Control": HTML_CACHE_CONTROL,
     },
   })
   await cache.put(cacheKey, response.clone())
@@ -580,12 +581,13 @@ interface SeoPayload {
 
 async function handleLegitMeta(request: Request, env: Env, slug: string): Promise<Response> {
   const canonical = `${SITE_BASE}/charities/${slug}/legit`
+
+  const { html: shell, version } = await fetchShell(request, env)
+
   const cache = (caches as unknown as { default: Cache }).default
-  const cacheKey = new Request(canonical)
+  const cacheKey = new Request(`${canonical}?v=${version}`)
   const cached = await cache.match(cacheKey)
   if (cached) return cached
-
-  const shell = await env.ASSETS.fetch(request)
 
   let payload: SeoPayload | null = null
   try {
@@ -598,7 +600,7 @@ async function handleLegitMeta(request: Request, env: Env, slug: string): Promis
     // API unreachable — fall through to the untouched shell.
   }
 
-  if (!payload || !payload.h1) return shell // 404 or API down → plain SPA
+  if (!payload || !payload.h1) return plainShell(shell) // 404 or API down → plain SPA
 
   const question = payload.h1
   const evidence = payload.evidence_summary?.en ?? ""
@@ -661,13 +663,13 @@ async function handleLegitMeta(request: Request, env: Env, slug: string): Promis
       },
     })
 
-  const transformed = rewriter.transform(shell)
+  const transformed = rewriter.transform(plainShell(shell))
   const html = await transformed.text()
   const response = new Response(html, {
     status: 200,
     headers: {
       "Content-Type": "text/html; charset=utf-8",
-      "Cache-Control": "public, max-age=0, s-maxage=3600, must-revalidate",
+      "Cache-Control": HTML_CACHE_CONTROL,
     },
   })
   await cache.put(cacheKey, response.clone())
@@ -699,6 +701,65 @@ async function handleLegitMeta(request: Request, env: Env, slug: string): Promis
 
 /** Must match CATALOG_PAGE_SIZE in the SPA (components/catalog/CatalogResults). */
 const CATALOG_PAGE_SIZE = 60
+
+/**
+ * The SPA shell plus a token identifying the build it belongs to.
+ *
+ * Every handler here caches a rewritten copy of `index.html` at the edge for an
+ * hour, and `caches.default` **survives a deploy** — so without a per-build
+ * token those cached copies keep pointing at the previous JS bundle after the
+ * next release. Users get a working-but-stale app, and, worse, the one check
+ * this project relies on to prove a deploy landed ("does the live HTML name the
+ * bundle I just built?") starts answering for a page that was cached before the
+ * deploy. That is the exact shape of the failure this codebase has hit three
+ * times: everything reports success while production serves the old thing.
+ *
+ * The token is the hashed bundle filename Vite already emits, so it changes on
+ * its own with every build — nothing to remember to bump.
+ *
+ * The body is returned as a string rather than a Response because a Response
+ * body can only be read once, and we need it both to derive the token and to
+ * feed HTMLRewriter.
+ */
+async function fetchShell(
+  request: Request,
+  env: Env,
+): Promise<{ html: string; version: string }> {
+  const html = await (await env.ASSETS.fetch(request)).text()
+  const match = html.match(/\/assets\/(index-[A-Za-z0-9_-]+)\.js/)
+  return { html, version: match ? match[1] : "unknown" }
+}
+
+/**
+ * Cache-Control for every HTML page this Worker renders.
+ *
+ * Was `s-maxage=3600`. That hour is charged twice on a deploy: Cloudflare's CDN
+ * caches the response by URL *in front of* the Worker, so a page requested
+ * before a release keeps being served from the edge without the Worker running
+ * at all — the per-build cache key in fetchShell can't help, because the Worker
+ * is never reached. Observed directly after the v3.21 deploy: `/charities?page=3`
+ * (never requested before) came back on the new bundle while `/charities` (which
+ * had been) stayed on the old one.
+ *
+ * With no `purge_cache` permission on the deploy token, the only lever is the
+ * TTL. Five minutes bounds post-release staleness to something a person can wait
+ * out, and `stale-while-revalidate` keeps the page fast meanwhile: the edge
+ * serves the old copy instantly and refreshes it in the background. Regenerating
+ * costs two API subrequests, both themselves edge-cached via `cf.cacheTtl`.
+ */
+const HTML_CACHE_CONTROL =
+  "public, max-age=0, s-maxage=300, stale-while-revalidate=3600, must-revalidate"
+
+/** The untouched shell, for every path where we decline to enrich the page. */
+function plainShell(html: string): Response {
+  return new Response(html, {
+    status: 200,
+    headers: {
+      "Content-Type": "text/html; charset=utf-8",
+      "Cache-Control": "public, max-age=0, must-revalidate",
+    },
+  })
+}
 
 interface HubItem {
   kind: "country" | "cause" | "registry"
@@ -825,7 +886,7 @@ function crawlBody(opts: {
 
 /** Shared head/body rewriter for the two crawlable catalogue surfaces. */
 function renderCrawlablePage(opts: {
-  shell: Response
+  shell: string
   title: string
   description: string
   canonical: string
@@ -880,7 +941,7 @@ function renderCrawlablePage(opts: {
     })
   }
 
-  return rewriter.transform(opts.shell).text()
+  return rewriter.transform(plainShell(opts.shell)).text()
 }
 
 function hubHeading(hub: HubItem): string {
@@ -909,25 +970,29 @@ async function handleHubPage(
   const url = new URL(request.url)
   const page = Math.max(1, parseInt(url.searchParams.get("page") || "1", 10) || 1)
 
+  // The shell is read before the cache lookup because its build token is part
+  // of the cache key — see fetchShell.
+  const { html: shell, version } = await fetchShell(request, env)
+
   const cache = (caches as unknown as { default: Cache }).default
-  const cacheKey = new Request(`${SITE_BASE}${url.pathname}${page > 1 ? `?page=${page}` : ""}`)
+  const cacheKey = new Request(
+    `${SITE_BASE}${url.pathname}?v=${version}${page > 1 ? `&page=${page}` : ""}`,
+  )
   const cached = await cache.match(cacheKey)
   if (cached) return cached
 
-  const shell = await env.ASSETS.fetch(request)
-
   const hubs = await fetchHubIndex()
-  if (!hubs) return shell // API down → plain SPA, which retries client-side
+  if (!hubs) return plainShell(shell) // API down → plain SPA, which retries client-side
 
   const group =
     kind === "country" ? hubs.countries : kind === "cause" ? hubs.causes : hubs.registries
   const hub = group.find((h) => h.slug === slug.toLowerCase())
   // Unknown or below-threshold slug: hand back the untouched shell and let the
   // SPA render "no such section". Never fabricate a page for it.
-  if (!hub) return shell
+  if (!hub) return plainShell(shell)
 
   const listing = await fetchCharityPage(hubApiQuery(hub, page))
-  if (!listing) return shell
+  if (!listing) return plainShell(shell)
 
   const pages = totalPages(listing.count)
   const canonical = `${SITE_BASE}${pageHref(hub.path, page)}`
@@ -967,7 +1032,7 @@ async function handleHubPage(
     status: 200,
     headers: {
       "Content-Type": "text/html; charset=utf-8",
-      "Cache-Control": "public, max-age=0, s-maxage=3600, must-revalidate",
+      "Cache-Control": HTML_CACHE_CONTROL,
     },
   })
   await cache.put(cacheKey, response.clone())
@@ -992,9 +1057,11 @@ async function handleCatalogPage(request: Request, env: Env): Promise<Response> 
   const indexableParams = new Set(["page", "bucket"])
   const hasFacet = [...url.searchParams.keys()].some((k) => !indexableParams.has(k))
 
+  const { html: shell, version } = await fetchShell(request, env)
+
   const cache = (caches as unknown as { default: Cache }).default
   const cacheKey = new Request(
-    `${SITE_BASE}/charities?${validBucket ? `bucket=${validBucket}&` : ""}page=${page}`,
+    `${SITE_BASE}/charities?v=${version}&${validBucket ? `bucket=${validBucket}&` : ""}page=${page}`,
   )
   // The facet space is unbounded, so faceted URLs skip the edge cache entirely
   // rather than each taking a slot for a page nobody indexes.
@@ -1002,8 +1069,6 @@ async function handleCatalogPage(request: Request, env: Env): Promise<Response> 
     const cached = await cache.match(cacheKey)
     if (cached) return cached
   }
-
-  const shell = await env.ASSETS.fetch(request)
 
   // A faceted/search URL gets meta only — building a link list for a filter
   // combination we're telling Google not to index would be wasted work.
@@ -1037,7 +1102,7 @@ async function handleCatalogPage(request: Request, env: Env): Promise<Response> 
     fetchCharityPage(query.toString()),
     fetchHubIndex(),
   ])
-  if (!listing) return shell
+  if (!listing) return plainShell(shell)
 
   const pages = totalPages(listing.count)
   const extra = validBucket ? `bucket=${validBucket}` : ""
@@ -1078,7 +1143,7 @@ async function handleCatalogPage(request: Request, env: Env): Promise<Response> 
     status: 200,
     headers: {
       "Content-Type": "text/html; charset=utf-8",
-      "Cache-Control": "public, max-age=0, s-maxage=3600, must-revalidate",
+      "Cache-Control": HTML_CACHE_CONTROL,
     },
   })
   await cache.put(cacheKey, response.clone())
