@@ -2240,3 +2240,42 @@ User caught it: a demoted ("listed") charity still showed a curated `methodology
 - Patched `audit_source_links.py` so future demotions also blank `methodology_note` (added to the CLEAN branch + update_fields).
 
 Cache note: API cache is LocMemCache, CACHALOT_TIMEOUT=1h, per-entry. After a local DB write the live API self-refreshes within ≤1h per record (confirmed: anglicare-australia already live as verified+ABR after its entry expired; ducks methodology will clear on its entry's expiry). No Railway auth is reachable from the agent env (whoami Unauthorized in both bash and the user's PowerShell profile), so an instant redeploy needs the user's `railway login` or a RAILWAY_TOKEN.
+
+---
+
+## [2026-07-31] [Backend/Frontend/Worker] [v3.21 — crawl paths + search ranking]
+
+Two problems, one session. Backend is **deployed and verified on production**; frontend + Worker are built and committed but **not deployed** (no Cloudflare auth in this environment).
+
+### 1. "Discovered — currently not indexed" (640 URLs)
+
+Google knew every charity page from the sitemap and crawled almost none of them. A sitemap line is a hint, not a vote — importance comes from links, and the catalogue had none pointing at charities 61–370: they sat behind a "Load more" button no crawler presses.
+
+- **Numbered `?page=N` links** beside "Load more" — plain `<a href>`, so all 370 charities are reachable without running our JavaScript. Both controls read the same `?page=` parameter, and a deep link renders that page directly (`?page=5` → "Showing 241–257 of 257", no four round-trips).
+- **Hub sections** at `/charities/country/{code}`, `/charities/cause/{slug}`, `/charities/registry/{slug}` — **50 pages**: 4 countries (US 257, GB 77, AU 17, ES 6), 43 causes, 3 registries (IRS Form 990 257, UK Charity Commission 77, ACNC 15). Each charity now sits on several, and each profile links back up ("Also in this catalogue"), so nothing is at the end of a one-way path.
+- **Threshold: 5.** Below it a grouping keeps its data but gets no URL. A two-item page is precisely the thin content Google declines to index — the state we're leaving, not repeating. Italy (4) has no page; Spain (6) does. An unlisted or unknown slug renders "No such section", never an empty grid.
+- **Registry grouping is keyed on the source document's URL host**, not `SourceDocument.kind`. Kind is inconsistent for a single publisher — 71 UK charities carry `annual_report` and 6 carry `charity_commission_filing`, all pointing at the same Charity Commission register — whereas the host is exactly "which registry served this document". An unknown `?registry=` slug returns nothing, never the whole catalogue: `/charities/registry/typo` must not claim 370 charities were verified by a registry that never heard of them.
+- **`GET /api/hubs/`** publishes the index (labels EN+RU, counts, front-end path) so the sitemap, the SPA and the hub-validity check can't disagree. `s-maxage=3600`.
+- **Worker** renders the same link graph into the HTML it serves for hub and catalogue pages, so discovery doesn't wait on a render pass Google defers for exactly the low-priority pages we want promoted. React clears `#root` on mount and replaces it with the identical content, styled. Faceted URLs (`?q=`, `?region=`, `?cause=`) get `noindex, follow` instead — a 370-row catalogue must not become thousands of near-duplicate filter URLs.
+- **Sitemap** gains the hub pages, the paginated catalogue, and `/about` + `/data-sources` (both were missing); hubs rank above individual profiles.
+
+### 2. Search ranking — two defects, both measured against production
+
+- **`SearchRank("search_vector", …)` passed the field as a string**, so Django wrapped it in `SearchVector("search_vector")` — `to_tsvector` over the stored vector's own text dump. The re-parse discards the A/B/C weights migration 0003 writes (name=A, registration_id=B, description=C) and relabels everything D. `q=givewell` therefore ranked Sightsavers and BRAC — whose descriptions say "GiveWell-recommended" — above GiveWell itself, 0.076 to 0.061. `F("search_vector")` reads the stored vector: 0.78 to 0.15.
+- **`TrigramSimilarity` compared the query to the whole of `name_trgm`**, which holds the EN and RU names concatenated. Even the exact string "givewell" scored 0.375 against "givewell (the clear fund) givewell (the clear fund)" — under the 0.4 gate — so `q=givewel` matched *nothing* despite pg_trgm being installed. `TrigramWordSimilarity` scores the best-matching extent: 1.000 and 0.875.
+- **Exact name / registration-number matches now outrank every text match.** The dominant arrival is "someone named a charity at me, is it real?", so that organisation has to come first. EINs match with their typed punctuation too (`20-8625442`).
+- **Threshold 0.5, chosen by measurement**: keeps "givewel", "red cros", "oxfem", "save the childrne"; drops "amnesty" to nothing — correct, Amnesty isn't in the catalogue, and an honest empty result beats a plausible wrong one.
+
+Verified on the live API: `?q=givewell` → givewell first (was third) · `?q=givewel` → givewell (was nothing) · `?q=208625442` and `?q=20-8625442` → givewell.
+
+### 3. Block B leftover
+
+A failed search now renders `search.noMatch` / `search.noMatchBody` — which say the organisation may be real but unconfirmed, and unconfirmed organisations aren't published — instead of the generic "no charities match these filters". Those strings had been in the locales, unused.
+
+### Not done / pending
+
+- **`npx wrangler deploy` (frontend + Worker) — user, authenticated shell.** Until then the live site has the old catalogue: the backend hubs API is live but nothing links to it. Built bundle: `dist/assets/index-B6TEypOw.js` — check the live HTML references that exact name after deploying (two past deploys silently kept the previous bundle).
+- **Worker rendering not executed locally.** `wrangler dev`'s outbound `fetch()` can't reach `api.trustgive.org` from this environment (egress goes through a local proxy that workerd doesn't use), so it fell back to the plain SPA shell on every request. The handlers are written to degrade to exactly that shell on any API failure, so the risk of the deploy is bounded — but the injected link block itself is unverified until it runs on Cloudflare.
+- **pytest not run**: no Docker/local Postgres in this environment. New tests `apps/charities/tests/test_hubs.py` (6) and `test_search.py` (6) are unexecuted; CI will run them. All ranking claims above were instead verified directly against the production database.
+- **Pre-existing, unrelated, found while testing**: after a full page reload the language toggle half-persists — zustand keeps `lang: "ru"` but i18next re-initialises to English (`i18nextLng` is never written), so the store says Russian while every `t()` string renders English. Affects the whole site, not just the new pages.
+- Remaining Block B items (charity card: confirmation line above the fold, smaller photo, "what we didn't check"; live proof on the homepage) untouched.
