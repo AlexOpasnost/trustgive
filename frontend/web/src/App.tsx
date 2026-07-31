@@ -5,6 +5,7 @@ import { Layout } from "./components/layout/Layout"
 import { CatalogPage } from "./pages/CatalogPage"
 import { AboutPage } from "./pages/AboutPage"
 import { CharityDetailPage } from "./pages/CharityDetailPage"
+import { DataSourcesPage } from "./pages/DataSourcesPage"
 import { HomePage } from "./pages/HomePage"
 import { LegitPage } from "./pages/LegitPage"
 import { MethodologyPage } from "./pages/MethodologyPage"
@@ -34,6 +35,7 @@ export function App() {
             <Route path="compare" element={<Navigate to="/charities" replace />} />
             <Route path="methodology" element={<MethodologyPage />} />
             <Route path="about" element={<AboutPage />} />
+            <Route path="data-sources" element={<DataSourcesPage />} />
             <Route path="ru" element={<Navigate to="/" replace />} />
             <Route path="*" element={<NotFoundPage />} />
           </Route>

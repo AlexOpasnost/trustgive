@@ -53,6 +53,7 @@ export function Footer() {
               nowhere. Replaced with destinations that exist. */}
           <FooterCol title={t("footer.method.title")}>
             <FooterLink to="/methodology">{t("footer.method.howWeVerify")}</FooterLink>
+            <FooterLink to="/data-sources">{t("footer.method.dataSources")}</FooterLink>
             <FooterExternalLink href="https://api.trustgive.org/api/docs/">
               {t("footer.method.api")}
             </FooterExternalLink>

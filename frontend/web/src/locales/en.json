@@ -141,6 +141,45 @@
     "linkMethodology": "Verification method",
     "linkApi": "Public API"
   },
+  "sources": {
+    "title": "Data sources",
+    "lead": "Everything in the catalogue comes from a public register. This page lists which ones, what each covers, and where each falls short.",
+    "howTitle": "How the data moves",
+    "howBody": "A nightly job re-reads every US filing from ProPublica and re-checks every source link in the catalogue. A charity whose link stops resolving is removed from public view the same night — not flagged, removed. Nothing here is entered by hand except the two-sentence descriptions and the translations.",
+    "limitLabel": "Limit:",
+    "visit": "Open the register",
+    "propublica": {
+      "name": "ProPublica Nonprofit Explorer",
+      "meta": "United States · Form 990 · free, no key",
+      "body": "Mirrors the IRS release of Form 990 filings for US 501(c)(3) organisations. Supplies the registration number, the fiscal period covered, total revenue and executive compensation. This is the largest single source in the catalogue.",
+      "limit": "Filings appear one to two years after the fiscal year ends, and the API returns nothing for organisations that file on paper or fall below the electronic filing threshold."
+    },
+    "charityCommission": {
+      "name": "Charity Commission for England and Wales",
+      "meta": "United Kingdom · annual returns · free",
+      "body": "The statutory register of charities in England and Wales, with accounts and annual returns filed against each registration number.",
+      "limit": "Covers England and Wales only. Scottish and Northern Irish charities sit under separate regulators that are not yet integrated here."
+    },
+    "acnc": {
+      "name": "Australian Charities and Not-for-profits Commission",
+      "meta": "Australia · ABN records · free",
+      "body": "The national charity register, matched to the Australian Business Register record for each organisation.",
+      "limit": "The register does not expose per-charity revenue, so Australian entries carry a verified registration without a money breakdown. Several national bodies share a domain with their state branches, which makes automatic matching unreliable — those are resolved by hand or left out."
+    },
+    "minjust": {
+      "name": "Минюст СОНКО",
+      "meta": "Russia · registration records · free",
+      "body": "The Ministry of Justice register of socially oriented non-profit organisations, used for the small curated Russian selection.",
+      "limit": "Registration confirms legal existence and nothing else. Russian entries are curated rather than loaded in bulk, and the legal exclusions described in the methodology apply."
+    },
+    "missingTitle": "What is missing, and why",
+    "missingBody": "Coverage follows what regulators publish, not what matters. Two absences are worth naming:",
+    "missingCanada": "Canada. The CRA charity register has no stable public address for an individual charity — the URL that looks like one returns an identical page for every input, including invented registration numbers, and an error in a browser. There is no document to link to, so no Canadian charity is published here.",
+    "missingEurope": "Most of continental Europe. Charity registers are national and heterogeneous; many publish no machine-readable per-organisation record, and smaller organisations file only on paper.",
+    "useTitle": "Using this data",
+    "useBody": "The same records the site reads are available from the public API, unauthenticated. If you are citing the catalogue in research, query it directly rather than scraping the pages — and note the date, because entries are removed when their evidence stops resolving.",
+    "apiLink": "API documentation"
+  },
   "methodology": {
     "title": "How we verify",
     "lead": "We don't grade charities. We show you the documents that grade them for us — and link straight to those documents.",
@@ -188,6 +227,7 @@
     "method": {
       "title": "Methodology",
       "howWeVerify": "How we verify",
+      "dataSources": "Data sources",
       "api": "Public API",
       "standards": "What we don't verify"
     },
