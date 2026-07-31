@@ -1,0 +1,96 @@
+name: Production check
+
+# Every failure this catches actually happened, and each one survived because the
+# layer above it reported success:
+#
+#   * The homepage rendered nav, one paragraph and a footer for an unknown number
+#     of days. VITE_API_BASE_URL had been built with a PostHog key, so requests
+#     went to /phc_.../api/... — answered by the SPA fallback with index.html and
+#     HTTP 200. Build, deploy and server were all "fine".
+#   * Two deploys in a row left the edge serving the previous bundle. The deploy
+#     command reported success both times.
+#   * The homepage announced 40 charities out of 370 because a count carried a
+#     filter that tracks the regulator's publication cycle.
+#
+# So checking "is the site up" is useless here — the site was up throughout.
+# These checks assert what the pages must actually contain.
+
+on:
+  schedule:
+    - cron: '17 */6 * * *'
+  workflow_dispatch: {}
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    name: Assert production is serving real content
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: API is healthy and the catalogue is not empty
+        run: |
+          set -euo pipefail
+          health=$(curl -fsS --max-time 30 https://api.trustgive.org/api/health/)
+          echo "$health"
+          echo "$health" | grep -q '"status":"ok"' || { echo "::error::API health is not ok"; exit 1; }
+          echo "$health" | grep -q '"db":"ok"'     || { echo "::error::database is not ok"; exit 1; }
+
+          count=$(curl -fsS --max-time 30 'https://api.trustgive.org/api/charities/?page_size=1' \
+                  | grep -o '"count":[0-9]*' | head -1 | cut -d: -f2)
+          echo "published charities: $count"
+          [ "${count:-0}" -ge 300 ] || { echo "::error::catalogue collapsed to ${count:-0}"; exit 1; }
+
+      - name: Homepage ships a bundle that can reach the API
+        run: |
+          set -euo pipefail
+          html=$(curl -fsS --max-time 30 https://trustgive.org/)
+          asset=$(echo "$html" | grep -o '/assets/index-[A-Za-z0-9_-]*\.js' | head -1)
+          [ -n "$asset" ] || { echo "::error::homepage references no JS bundle"; exit 1; }
+          echo "bundle: $asset"
+
+          bundle=$(curl -fsS --max-time 60 "https://trustgive.org${asset}")
+          # The exact defect that emptied the homepage: an API base that is not an
+          # absolute URL, so every call resolves against the site origin and is
+          # answered by the SPA fallback.
+          echo "$bundle" | grep -q 'https://api.trustgive.org' \
+            || { echo "::error::bundle has no absolute API base — the homepage will render empty"; exit 1; }
+
+      - name: Featured endpoint returns cards and an honest count
+        run: |
+          set -euo pipefail
+          body=$(curl -fsS --max-time 30 https://api.trustgive.org/api/charities/featured/)
+          total=$(echo "$body" | grep -o '"total_count":[0-9]*' | cut -d: -f2)
+          echo "featured total_count: $total"
+          echo "$body" | grep -q '"featured":\[{' \
+            || { echo "::error::featured array is empty — homepage cards will not render"; exit 1; }
+          # Guards the under-reporting bug: the homepage subtitle reads from this.
+          [ "${total:-0}" -ge 300 ] || { echo "::error::featured count $total under-reports the catalogue"; exit 1; }
+
+      - name: Every published charity still has a source document
+        run: |
+          set -euo pipefail
+          # The whole premise. If this ever fails, the badge is unsupported.
+          slug=$(curl -fsS --max-time 30 'https://api.trustgive.org/api/charities/?page_size=1' \
+                 | grep -o '"slug":"[^"]*"' | head -1 | cut -d'"' -f4)
+          echo "sampling: $slug"
+          detail=$(curl -fsS --max-time 30 "https://api.trustgive.org/api/charities/${slug}/")
+          echo "$detail" | grep -q '"source_documents":\[{' \
+            || { echo "::error::$slug is published with no source document"; exit 1; }
+
+          url=$(echo "$detail" | grep -o '"url":"https[^"]*"' | head -1 | cut -d'"' -f4)
+          echo "source: $url"
+          code=$(curl -s -o /dev/null -w '%{http_code}' --max-time 30 -L \
+                 -A 'TrustGiveMonitor/1.0 (+https://trustgive.org)' "$url")
+          echo "source responded: $code"
+          [ "$code" = "200" ] || { echo "::error::source document for $slug returned $code"; exit 1; }
+
+      - name: Key pages render
+        run: |
+          set -euo pipefail
+          for path in / /charities /methodology /about; do
+            code=$(curl -s -o /dev/null -w '%{http_code}' --max-time 30 "https://trustgive.org${path}")
+            echo "${path} -> ${code}"
+            [ "$code" = "200" ] || { echo "::error::${path} returned ${code}"; exit 1; }
+          done
