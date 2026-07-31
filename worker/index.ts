@@ -246,10 +246,21 @@ async function handleImageProxy(request: Request): Promise<Response> {
  * Static routes (/, /charities, /methodology) get priority 0.8-1.0; charity
  * detail pages get 0.6. lastmod is omitted — the API summary doesn't carry a
  * per-charity updated_at, and a wrong lastmod is worse than none.
+ *
+ * SITEMAP_VERSION is part of the edge-cache key, and must be bumped whenever the
+ * *shape* of the sitemap changes. `caches.default` survives a deploy: after
+ * v3.21 shipped, the edge kept serving the previous 743-URL body — with none of
+ * the new hub or pagination URLs — because the key was a bare constant and the
+ * entry still had hours to live. A sitemap that silently outlives the deploy
+ * that changed it is the same failure this project has been bitten by three
+ * times: everything reports success while production serves the old thing.
+ * Charity-count changes need no bump; the 6-hour TTL handles those.
  */
+const SITEMAP_VERSION = "v3.21"
+
 async function handleSitemap(): Promise<Response> {
   const cache = (caches as unknown as { default: Cache }).default
-  const cacheKey = new Request("https://trustgive.org/sitemap.xml")
+  const cacheKey = new Request(`https://trustgive.org/sitemap.xml?v=${SITEMAP_VERSION}`)
   const cached = await cache.match(cacheKey)
   if (cached) return cached
 
