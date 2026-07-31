@@ -62,6 +62,9 @@ export function TopNav() {
           <NavLink to="/methodology" className={navLinkClass}>
             {t("nav.methodology")}
           </NavLink>
+          <NavLink to="/about" className={navLinkClass}>
+            {t("nav.about")}
+          </NavLink>
         </nav>
 
         <div className="flex items-center gap-3">

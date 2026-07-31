@@ -48,13 +48,18 @@ export function Footer() {
             <FooterLink to="/charities?country=RU">{t("footer.discover.ru")}</FooterLink>
           </FooterCol>
 
+          {/* The two anchor links that used to sit here (#sources, #standards)
+              pointed at ids the methodology page never had, so both scrolled
+              nowhere. Replaced with destinations that exist. */}
           <FooterCol title={t("footer.method.title")}>
             <FooterLink to="/methodology">{t("footer.method.howWeVerify")}</FooterLink>
-            <FooterLink to="/methodology#sources">{t("footer.method.dataSources")}</FooterLink>
-            <FooterLink to="/methodology#standards">{t("footer.method.standards")}</FooterLink>
+            <FooterExternalLink href="https://api.trustgive.org/api/docs/">
+              {t("footer.method.api")}
+            </FooterExternalLink>
           </FooterCol>
 
           <FooterCol title={t("footer.about.title")}>
+            <FooterLink to="/about">{t("footer.about.about")}</FooterLink>
             <FooterExternalLink href="https://github.com/AlexOpasnost/trustgive">
               {t("footer.about.github")}
             </FooterExternalLink>
@@ -72,10 +77,10 @@ export function Footer() {
           <p>
             © {year} TrustGive · {t("footer.colophon")}
           </p>
-          <p>
-            {t("footer.builtWith")}{" "}
-            <span className="text-ink-2">Inter · Source Serif 4 · Geist Mono · Hugeicons</span>
-          </p>
+          {/* Was a list of the typefaces and icon set in use. That reads as a
+              student project's colophon; the space is better spent on the one
+              fact a visitor might act on. */}
+          <p>{t("footer.independence")}</p>
         </div>
       </div>
     </footer>

@@ -118,6 +118,29 @@
     "viewProfile": "See the full profile",
     "fromProfileLink": "Is {{name}} a legitimate charity?"
   },
+  "about": {
+    "title": "About",
+    "lead": "TrustGive is built and run by one person. It takes no money from charities, runs no ads, and has no investors. Here is who I am and what that means for what you're reading.",
+    "whoTitle": "Who runs this",
+    "whoBody": "I'm Alex Diachenko. I build software, and I live in Moscow. TrustGive started as a weekend question and turned into the thing I work on. There is no team behind it — when this site is wrong, it's my mistake, and when it's fixed, I fixed it.",
+    "whyTitle": "Why it exists",
+    "whyBody1": "I went to donate and stopped at a question I couldn't answer: who decides which charities are real? The large rating sites publish scores whose method I couldn't follow, and which nonprofits learn to work around — Charity Navigator dropped its overhead-ratio metric in 2023 for that reason. The donation platforms add 10–18% on top of a gift before the charity sees it.",
+    "whyBody2": "So this site doesn't score anything. It finds the filing the regulator holds and links straight to it. You read the document and decide. Donations happen on the charity's own site, not here.",
+    "moneyTitle": "How it's funded",
+    "moneyBody": "It isn't. Infrastructure costs about nothing — a small database, a worker, free public APIs. Charities cannot pay to be listed, to rank higher, or to be removed. There is no revenue to protect, which is the only reason I can afford to delist an organisation the moment its filing stops resolving.",
+    "limitsTitle": "What this can't do",
+    "limitsBody": "Three limits worth knowing before you rely on anything here:",
+    "limit1": "A verified badge means the organisation is registered and has filed. It says nothing about whether the money is spent well. That's a harder question and I don't answer it.",
+    "limit2": "Coverage follows the registers, not the sector. Countries whose regulators publish machine-readable records are represented; countries whose regulators don't are missing, regardless of how good their charities are.",
+    "limit3": "Filings run one to two years behind. That's the regulator's cycle, not a gap in the data.",
+    "errorTitle": "If something here is wrong",
+    "errorBody": "Tell me. I've already found four organisations listed under another entity's registration number — one of them filed under the Gates Foundation. I found those by auditing my own data, but I won't catch everything. A specific report with the charity's name gets fixed faster than a general complaint.",
+    "openTitle": "Open by default",
+    "openBody": "The code, the method and the API are public. You don't have to take my word for how verification works — you can read the code that does it, or query the same data directly.",
+    "linkCode": "Source code",
+    "linkMethodology": "Verification method",
+    "linkApi": "Public API"
+  },
   "methodology": {
     "title": "How we verify",
     "lead": "We don't grade charities. We show you the documents that grade them for us — and link straight to those documents.",
@@ -165,17 +188,18 @@
     "method": {
       "title": "Methodology",
       "howWeVerify": "How we verify",
-      "dataSources": "Data sources",
+      "api": "Public API",
       "standards": "What we don't verify"
     },
     "about": {
       "title": "About",
+      "about": "About",
       "github": "Source on GitHub",
       "changelog": "Changelog",
       "contact": "Contact"
     },
     "colophon": "We don't process donations. We never see your money.",
-    "builtWith": "Built with",
+    "independence": "Independent. No fees, no ads, no investors.",
     "links": {
       "methodology": "Methodology",
       "press": "Press",

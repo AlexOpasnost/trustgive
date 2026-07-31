@@ -3,6 +3,7 @@ import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom"
 
 import { Layout } from "./components/layout/Layout"
 import { CatalogPage } from "./pages/CatalogPage"
+import { AboutPage } from "./pages/AboutPage"
 import { CharityDetailPage } from "./pages/CharityDetailPage"
 import { HomePage } from "./pages/HomePage"
 import { LegitPage } from "./pages/LegitPage"
@@ -32,6 +33,7 @@ export function App() {
             {/* /compare route removed in v3.0 */}
             <Route path="compare" element={<Navigate to="/charities" replace />} />
             <Route path="methodology" element={<MethodologyPage />} />
+            <Route path="about" element={<AboutPage />} />
             <Route path="ru" element={<Navigate to="/" replace />} />
             <Route path="*" element={<NotFoundPage />} />
           </Route>
