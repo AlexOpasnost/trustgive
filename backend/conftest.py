@@ -8,7 +8,7 @@ from rest_framework.test import APIClient
 
 
 @pytest.fixture(scope="session")
-def django_db_setup(django_db_setup, django_db_blocker):  # noqa: F811
+def django_db_setup(django_db_setup, django_db_blocker):
     """Build the test schema from migrations, then drop the data they seeded.
 
     The catalogue is populated by data migrations (0025, 0055 and friends carry
