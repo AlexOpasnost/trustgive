@@ -1,0 +1,15 @@
+# Test and lint tooling.
+#
+# Kept out of requirements.txt so the production image doesn't ship a test
+# runner — but it has to exist somewhere, and until 2026-08-01 it existed
+# nowhere. CI's backend-test job installed only requirements.txt and then ran
+# `pytest`, which exited 127 (command not found). Combined with the schema-
+# validation step that aborted before it, this meant the backend test suite had
+# never executed in CI at any point in the project's history.
+#
+# Versions are pinned rather than floating: `pip install ruff` picks up whatever
+# released today, so a new rule in a future ruff can turn the build red without
+# anyone touching the code. Bump these deliberately.
+pytest==9.0.3
+pytest-django==4.12.0
+ruff==0.16.1

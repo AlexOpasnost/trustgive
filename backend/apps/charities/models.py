@@ -205,9 +205,11 @@ class Charity(models.Model):
     search_vector = SearchVectorField(null=True, blank=True)
     name_trgm = models.CharField(max_length=600, blank=True, default="")
 
-    affiliated_charities = models.ManyToManyField(
-        "self", blank=True, symmetrical=True, related_name="affiliations"
-    )
+    # No related_name: on a symmetrical self-referential M2M Django ignores it
+    # and warns (fields.W345). The reverse accessor is `affiliated_charities`
+    # itself — the relation is its own reverse — so the name was never reachable
+    # and only produced a system-check warning on every management command.
+    affiliated_charities = models.ManyToManyField("self", blank=True, symmetrical=True)
 
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
