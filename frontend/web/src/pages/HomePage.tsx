@@ -29,7 +29,9 @@ import { LiveProof } from "@/components/home/LiveProof"
 import { SearchBox } from "@/components/search/SearchBox"
 import { Reveal } from "@/components/ui/Reveal"
 import { PHOTO_WIDTHS, SRCSET_WIDTHS, buildSrcSet, wikimediaThumb } from "@/lib/image"
-import { useFeaturedCharities } from "@/lib/queries"
+import { useFeaturedCharities, useStats } from "@/lib/queries"
+import { formatIsoDate } from "@/lib/utils"
+import { usePreferences } from "@/store/preferences"
 import type { Bucket, CharitySummary } from "@/types/api"
 
 const BUCKETS: Bucket[] = ["people", "animals", "planet"]
@@ -107,6 +109,52 @@ function BucketSlot({ bucket }: BucketSlotProps) {
   )
 }
 
+/**
+ * The size claim, read from the catalogue.
+ *
+ * Until v3.22 this line was a fixed string saying "370 organisations across 27
+ * countries" — the country figure predated the July audit and was wrong by 17.
+ * While the count is loading the sentence renders without it rather than with a
+ * placeholder: on a site whose argument is "we don't state what we can't show
+ * you", a number that might be wrong is worse than no number.
+ */
+function HeroSubtitle() {
+  const { t } = useTranslation()
+  const { data: stats } = useStats()
+
+  const text = stats
+    ? t("home.hero.subtitle", {
+        count: stats.charities,
+        countries: stats.countries,
+      })
+    : t("home.hero.subtitleNoCounts")
+
+  return (
+    <p
+      className="text-body text-ink-2 mb-8 max-w-[60ch]"
+      style={{ fontSize: "19px", lineHeight: "32px" }}
+    >
+      {text}
+    </p>
+  )
+}
+
+/** "Catalogue re-checked 2 August 2026" — STRATEGY §4.6. */
+function LastChecked() {
+  const { t } = useTranslation()
+  const lang = usePreferences((s) => s.lang)
+  const { data: stats } = useStats()
+
+  const date = formatIsoDate(stats?.last_checked, lang)
+  if (!date) return null
+
+  return (
+    <p className="text-caption text-ink-3 mt-2">
+      {t("home.hero.lastChecked", { date })}
+    </p>
+  )
+}
+
 export function HomePage() {
   const { t } = useTranslation()
 
@@ -125,11 +173,10 @@ export function HomePage() {
           >
             {t("home.hero.title")}
           </h1>
-          <p className="text-body text-ink-2 mb-8 max-w-[60ch]" style={{ fontSize: "19px", lineHeight: "32px" }}>
-            {t("home.hero.subtitle")}
-          </p>
+          <HeroSubtitle />
           <SearchBox variant="hero" />
           <p className="text-caption text-ink-3 mt-3">{t("home.hero.hint")}</p>
+          <LastChecked />
         </div>
       </section>
 

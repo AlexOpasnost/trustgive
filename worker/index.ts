@@ -1150,6 +1150,75 @@ async function handleCatalogPage(request: Request, env: Env): Promise<Response> 
   return response
 }
 
+/**
+ * `/` — the homepage meta description, with the catalogue's real size in it.
+ *
+ * index.html is a static file, so any number written into it goes stale the
+ * moment the catalogue changes. It claimed "540+ verified charities across 27
+ * countries" while the catalogue held 370 across 10 — the counts predated the
+ * July audit. That text is what Google prints under the result, so the wrong
+ * number was the most-read sentence on the site.
+ *
+ * The static tag no longer carries counts at all (it has to stay true when this
+ * handler can't run); here we put the live figures back in. On any API failure
+ * the untouched shell is served, which is correct rather than merely safe: no
+ * claim beats a stale one.
+ */
+async function handleHomePage(request: Request, env: Env): Promise<Response> {
+  const cacheKey = new Request(`${SITE_BASE}/?meta=${SITEMAP_VERSION}`)
+  const cache = (caches as unknown as { default: Cache }).default
+  const cached = await cache.match(cacheKey)
+  if (cached) return cached
+
+  const shell = await env.ASSETS.fetch(request)
+
+  let stats: { charities?: number; countries?: number } | null = null
+  try {
+    const res = await fetch(`${API_BASE}/api/stats/`, {
+      headers: { Accept: "application/json" },
+      cf: { cacheTtl: 3600 } as RequestInit["cf"],
+    })
+    if (res.ok) stats = await res.json()
+  } catch {
+    // API unreachable — fall through to the untouched shell.
+  }
+
+  if (!stats?.charities || !stats.countries) return shell
+
+  const description =
+    `${stats.charities} verified charities across ${stats.countries} countries. ` +
+    `Every one links to the regulator's own filing — IRS Form 990, UK Charity ` +
+    `Commission, ACNC. No ratings, no fees, no account.`
+
+  const rewriter = new HTMLRewriter()
+    .on('meta[name="description"]', {
+      element(el) {
+        el.setAttribute("content", clamp(description, 160))
+      },
+    })
+    .on('meta[property="og:description"]', {
+      element(el) {
+        el.setAttribute("content", clamp(description, 160))
+      },
+    })
+    .on("head", {
+      element(el) {
+        el.append(`<link rel="canonical" href="${escapeAttr(SITE_BASE)}/">`, { html: true })
+      },
+    })
+
+  const html = await rewriter.transform(shell).text()
+  const response = new Response(html, {
+    status: 200,
+    headers: {
+      "Content-Type": "text/html; charset=utf-8",
+      "Cache-Control": HTML_CACHE_CONTROL,
+    },
+  })
+  await cache.put(cacheKey, response.clone())
+  return response
+}
+
 // Order matters: the legit page adds a `/legit` segment, so it's matched before
 // the single-segment detail regex below.
 const LEGIT_DETAIL = /^\/charities\/([^/]+)\/legit\/?$/
@@ -1237,6 +1306,11 @@ export default {
 
     if (url.pathname === "/sitemap.xml") {
       return handleSitemap()
+    }
+
+    // Homepage: put the catalogue's real size into the meta description.
+    if (request.method === "GET" && (url.pathname === "/" || url.pathname === "")) {
+      return handleHomePage(request, env)
     }
 
     // "Is X legitimate?" landing (`/charities/{slug}/legit`, GET only) gets its

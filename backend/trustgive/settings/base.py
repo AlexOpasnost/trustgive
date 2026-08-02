@@ -251,6 +251,11 @@ CACHE_CONTROL_MAP = {
     # some grouping — i.e. rarely. The Worker fetches it on every sitemap build,
     # so a long edge cache keeps that free.
     "hub-index": "public, s-maxage=3600, stale-while-revalidate=86400",
+    # Catalogue counts change only when the nightly job adds or removes an
+    # organisation, but they are read on every homepage render — and, unlike the
+    # numbers they replaced, being an hour stale is recoverable while being
+    # wrong is not.
+    "catalogue-stats": "public, s-maxage=3600, stale-while-revalidate=86400",
     "rss-feed": "public, s-maxage=3600",
     "seo-charity": "public, s-maxage=3600, stale-while-revalidate=86400",
     "donation-redirect": "no-store",

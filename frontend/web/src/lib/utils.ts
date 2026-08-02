@@ -38,12 +38,18 @@ export function formatIsoDate(
   if (!value) return null
   const parsed = new Date(`${value.slice(0, 10)}T00:00:00Z`)
   if (Number.isNaN(parsed.getTime())) return null
-  return new Intl.DateTimeFormat(lang === "ru" ? "ru-RU" : "en-GB", {
+  const formatted = new Intl.DateTimeFormat(lang === "ru" ? "ru-RU" : "en-GB", {
     day: "numeric",
     month: "long",
     year: "numeric",
     timeZone: "UTC",
   }).format(parsed)
+  // `ru-RU` appends the era marker " г." — "2 августа 2026 г.". That trailing
+  // period collides with the sentence punctuation in the locale strings, which
+  // produced "Каталог перепроверен 2 августа 2026 г.." on the homepage. Strip it
+  // here so punctuation stays the sentence's business, in one place, rather than
+  // every Russian string having to know how the formatter ends.
+  return formatted.replace(/\s*г\.$/, "")
 }
 
 export function formatPercent(value: number | string | null | undefined): string {

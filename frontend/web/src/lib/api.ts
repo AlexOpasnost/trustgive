@@ -14,6 +14,7 @@
 
 import type {
   Bucket,
+  CatalogueStats,
   Cause,
   Charity,
   FeaturedResponse,
@@ -145,6 +146,13 @@ export const api = {
    */
   listHubs(opts?: FetchOptions) {
     return apiFetch<HubIndex>(`/api/hubs/`, opts)
+  },
+  /**
+   * v3.22 — catalogue counts for the homepage. See CatalogueStats: these
+   * numbers exist as an endpoint precisely so no one types them into markup.
+   */
+  getStats(opts?: FetchOptions) {
+    return apiFetch<CatalogueStats>(`/api/stats/`, opts)
   },
   logDonationRedirect(payload: {
     charity_slug: string

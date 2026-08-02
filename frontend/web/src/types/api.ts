@@ -169,6 +169,21 @@ export type SeoCharityPayload = {
  * supplied by the backend so the sitemap and the SPA can never disagree about
  * a hub's URL.
  */
+/**
+ * v3.22 — catalogue-wide counts (`GET /api/stats/`).
+ *
+ * Every figure is computed from the catalogue at request time. Nothing here may
+ * be hardcoded in the UI: the homepage previously claimed "540+ verified
+ * charities across 27 countries" against a catalogue of 370 across 10, because
+ * both numbers were typed into markup and never revisited after the July audit.
+ */
+export type CatalogueStats = {
+  charities: number
+  countries: number
+  /** ISO date, or null if the catalogue is empty. */
+  last_checked: string | null
+}
+
 export type HubKind = "country" | "cause" | "registry"
 
 export type Hub = {

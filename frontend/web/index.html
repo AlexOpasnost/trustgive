@@ -6,7 +6,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="theme-color" content="#0E7C5C" />
     <title>TrustGive — Verified charity discovery</title>
-    <meta name="description" content="Charity discovery that links every claim to the regulator's own file — IRS 990, UK Charity Commission, Canada T3010 — not a star rating you can't audit. 0% platform fee, no donation pass-through. 540+ verified charities across 27 countries." />
+    <!-- No counts here. This file is static, so any number written into it goes
+         stale the moment the catalogue changes — it said "540+ verified
+         charities across 27 countries" for weeks after the July audit left 370
+         across 10. The Worker rewrites this tag with live figures from
+         /api/stats/; this text is the fallback for when the API is unreachable,
+         so it must stay true at any catalogue size. -->
+    <meta name="description" content="Charity discovery that links every claim to the regulator's own file — IRS 990, UK Charity Commission, ACNC — not a star rating you can't audit. 0% platform fee, no donation pass-through. If we can't open an organisation's filing, we don't list it." />
     <meta property="og:title" content="TrustGive — Verified charity discovery" />
     <meta property="og:description" content="0% platform fee. We never see your money. Every 'verified' claim links to the original IRS 990, Charity Commission filing, or Минюст registration." />
     <meta property="og:type" content="website" />

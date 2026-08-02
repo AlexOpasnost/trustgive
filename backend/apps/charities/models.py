@@ -91,6 +91,25 @@ class VerificationStatus(models.TextChoices):
     STALE = "stale", "Stale"
 
 
+# Verified-only catalogue (2026-07-27 product decision).
+#
+# TrustGive's claim is "every organisation here is backed by a regulator filing
+# you can open". Publishing entries we could not confirm — even labelled
+# "not verified" — weakens that claim, so the public API serves ONLY charities
+# whose verification survived the source-document audit.
+#
+# This is a *visibility* filter, not a deletion: unverified rows stay in the
+# database untouched and reappear the moment they are verified (they are still
+# reachable via Django admin and every management command). To publish the full
+# catalogue again, drop `.filter(**PUBLISHED)` from its call sites.
+#
+# Defined here rather than in views.py because "what the public can see" is a
+# property of the domain, and three modules need it — views, hubs and stats. It
+# lived in two of them separately until 2026-08-02, which is how a filter that
+# must never disagree with itself came to be written twice.
+PUBLISHED = {"verification_status": VerificationStatus.VERIFIED}
+
+
 class IngestionSource(models.TextChoices):
     PROPUBLICA = "propublica"
     EVERY_ORG = "every_org"

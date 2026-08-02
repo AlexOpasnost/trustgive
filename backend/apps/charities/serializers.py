@@ -63,6 +63,25 @@ class HubIndexSerializer(serializers.Serializer):
     registries = HubItemSerializer(many=True)
 
 
+class CatalogueStatsSerializer(serializers.Serializer):
+    """Response shape of `GET /api/stats/` (v3.22).
+
+    Read-only and derived — see apps/charities/stats.py for why none of these
+    numbers may be written down anywhere.
+    """
+
+    charities = serializers.IntegerField(
+        help_text="Published (verified) organisations in the catalogue."
+    )
+    countries = serializers.IntegerField(
+        help_text="Distinct countries those organisations are registered in."
+    )
+    last_checked = serializers.DateField(
+        allow_null=True,
+        help_text="Date the catalogue was last re-checked; null on an empty catalogue.",
+    )
+
+
 class TrustBadgeNestedSerializer(serializers.ModelSerializer):
     slug = serializers.CharField(source="badge.slug")
     label = LocalizedSerializerField(source="badge.label")

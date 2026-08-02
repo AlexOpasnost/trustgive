@@ -25,6 +25,7 @@ import { useTranslation } from "react-i18next"
 import { Link } from "react-router-dom"
 
 import { api } from "@/lib/api"
+import { useStats } from "@/lib/queries"
 import { formatIsoDate } from "@/lib/utils"
 import { usePreferences } from "@/store/preferences"
 
@@ -39,6 +40,8 @@ const PROOF_SLUG = "givewell"
 export function LiveProof() {
   const { t } = useTranslation()
   const lang = usePreferences((s) => s.lang)
+
+  const { data: stats } = useStats()
 
   const { data: charity } = useQuery({
     queryKey: ["charity", PROOF_SLUG],
@@ -99,8 +102,13 @@ export function LiveProof() {
           </div>
         </div>
 
+        {/* The catalogue size is read, not written. This sentence carried a
+            hardcoded "370" for exactly as long as it took to notice — the same
+            defect as the homepage's "27 countries". */}
         <p className="text-body-sm text-ink-3 mt-5 max-w-[65ch]">
-          {t("home.proof.footnote")}
+          {stats
+            ? t("home.proof.footnote", { count: stats.charities })
+            : t("home.proof.footnoteNoCount")}
         </p>
       </div>
     </section>

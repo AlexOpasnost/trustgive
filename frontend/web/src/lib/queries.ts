@@ -11,6 +11,23 @@ import { api } from "@/lib/api"
 import type { Bucket } from "@/types/api"
 
 /**
+ * Catalogue counts (v3.22). Backend ships `s-maxage=3600`.
+ *
+ * Callers must render nothing rather than a placeholder while this is loading:
+ * a wrong number on a page about verifiable claims is worse than no number, and
+ * a wrong one is exactly what this endpoint replaced.
+ */
+export function useStats() {
+  return useQuery({
+    queryKey: ["stats"],
+    queryFn: ({ signal }) => api.getStats({ signal }),
+    staleTime: 60 * 60 * 1000,
+    gcTime: 60 * 60 * 1000,
+    retry: 1,
+  })
+}
+
+/**
  * Hub index (v3.21). Backend ships `s-maxage=3600`; the payload only changes
  * when a grouping crosses the publication threshold, so an hour of client
  * staleness is generous.

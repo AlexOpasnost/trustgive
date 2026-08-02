@@ -37,14 +37,10 @@ from collections import Counter
 from typing import Any, TypedDict
 from urllib.parse import urlparse
 
-from apps.charities.models import Cause, Charity, Country, VerificationStatus
+from apps.charities.models import PUBLISHED, Cause, Charity, Country
 
 # A hub needs this many charities before it gets a URL. See module docstring.
 MIN_HUB_SIZE = 5
-
-# Mirrors views.PUBLISHED. Imported there rather than here to avoid a circular
-# import (views imports this module).
-_PUBLISHED = {"verification_status": VerificationStatus.VERIFIED}
 
 
 class HubItem(TypedDict, total=False):
@@ -215,7 +211,7 @@ def registry_host(slug: str) -> str | None:
 
 
 def _published():
-    return Charity.objects.filter(**_PUBLISHED)
+    return Charity.objects.filter(**PUBLISHED)
 
 
 def country_hubs(min_size: int = MIN_HUB_SIZE) -> list[HubItem]:
@@ -290,7 +286,7 @@ def registry_hubs(min_size: int = MIN_HUB_SIZE) -> list[HubItem]:
     """
     hosts = {r["host"]: r for r in REGISTRY_DEFS}
     per_host: dict[str, set[str]] = {h: set() for h in hosts}
-    rows = Charity.objects.filter(**_PUBLISHED).values_list("slug", "source_documents__url")
+    rows = Charity.objects.filter(**PUBLISHED).values_list("slug", "source_documents__url")
     for charity_slug, url in rows:
         if not url:
             continue

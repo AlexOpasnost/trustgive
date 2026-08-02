@@ -10,7 +10,10 @@
     "howWeVerify": "Read the methodology",
     "hero": {
       "title": "Every charity here links to the regulator's own filing.",
-      "subtitle": "370 organisations across 27 countries. No ratings, no fees, no account. If we can't open an organisation's filing, we don't list it.",
+      "subtitle_one": "{{count}} organisation in {{countries}} countries. No ratings, no fees, no account. If we can't open an organisation's filing, we don't list it.",
+      "subtitle_other": "{{count}} organisations across {{countries}} countries. No ratings, no fees, no account. If we can't open an organisation's filing, we don't list it.",
+      "subtitleNoCounts": "No ratings, no fees, no account. If we can't open an organisation's filing, we don't list it.",
+      "lastChecked": "Catalogue re-checked {{date}}.",
       "hint": "Try a name, or a registration number such as 208625442."
     },
     "editorial": {
@@ -26,7 +29,9 @@
       "filingNoDate": "The catalogue links it to its {{document}}.",
       "openFiling": "Open the filing",
       "seeProfile": "See what we hold on {{name}}",
-      "footnote": "Not a screenshot and not a summary — that link goes to the regulator's own record. Every one of the 370 organisations here has one, and an organisation whose link stops opening is removed the same night."
+      "footnote_one": "Not a screenshot and not a summary — that link goes to the regulator's own record. The one organisation here has one, and an organisation whose link stops opening is removed the same night.",
+      "footnote_other": "Not a screenshot and not a summary — that link goes to the regulator's own record. Every one of the {{count}} organisations here has one, and an organisation whose link stops opening is removed the same night.",
+      "footnoteNoCount": "Not a screenshot and not a summary — that link goes to the regulator's own record. Every organisation here has one, and an organisation whose link stops opening is removed the same night."
     }
   },
   "homepage": {

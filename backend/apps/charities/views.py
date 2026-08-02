@@ -23,14 +23,16 @@ from rest_framework.views import APIView
 
 from apps.charities.filters import CharityFilter
 from apps.charities.hubs import MIN_HUB_SIZE, all_hubs
-from apps.charities.models import Cause, Charity, CharitySlugAlias, VerificationStatus
+from apps.charities.models import PUBLISHED, Cause, Charity, CharitySlugAlias
 from apps.charities.serializers import (
+    CatalogueStatsSerializer,
     CauseSerializer,
     CharityDetailSerializer,
     CharitySummarySerializer,
     HubIndexSerializer,
     SourceDocumentSerializer,
 )
+from apps.charities.stats import catalogue_stats
 from apps.core.middleware import set_charity_slug
 
 logger = logging.getLogger(__name__)
@@ -44,18 +46,9 @@ SORT_MAP = {
 }
 
 
-# Verified-only catalogue (2026-07-27 product decision).
-#
-# TrustGive's claim is "every organisation here is backed by a regulator filing
-# you can open". Publishing entries we could not confirm — even labelled
-# "not verified" — weakens that claim, so the public API serves ONLY charities
-# whose verification survived the source-document audit.
-#
-# This is a *visibility* filter, not a deletion: unverified rows stay in the
-# database untouched and reappear the moment they are verified (they are still
-# reachable via Django admin and every management command). To publish the full
-# catalogue again, drop `.filter(**PUBLISHED)` from the three call sites below.
-PUBLISHED = {"verification_status": VerificationStatus.VERIFIED}
+# PUBLISHED (the verified-only visibility filter) now lives in models.py — see
+# the comment there for the product decision behind it. Re-exported from this
+# module because callers and tests already import it from here.
 
 
 def _resolve_slug(slug: str) -> Charity:
@@ -364,6 +357,34 @@ class CharityViewSet(viewsets.ReadOnlyModelViewSet):
     # (DESIGN.md v3.0 §J). The Compare page is killed — buckets are the new
     # discovery affordance. Frontend simultaneously drops <CompareTable>,
     # the nav link, the footer link, and the useCompareSelection hook.
+
+
+class StatsView(APIView):
+    """Catalogue-wide counts (v3.22 — see apps.charities.stats).
+
+    Exists so the homepage can state its size without anyone typing a number
+    into markup. It previously claimed "540+ verified charities across 27
+    countries" while holding 370 across 10 — both figures left over from before
+    the July audit. The Cloudflare Worker reads this to rewrite the homepage
+    meta description, and the SPA reads it for the hero line.
+    """
+
+    permission_classes = [AllowAny]
+
+    @extend_schema(
+        operation_id="getCatalogueStats",
+        tags=["catalog"],
+        summary="Counts describing the published catalogue",
+        description=(
+            "Number of published charities, the number of distinct countries "
+            "they are registered in, and the date the catalogue was last "
+            "re-checked. Every figure is computed from the catalogue at request "
+            "time; none is stored."
+        ),
+        responses={200: CatalogueStatsSerializer},
+    )
+    def get(self, request: Request) -> Response:
+        return Response(catalogue_stats())
 
 
 class HubIndexView(APIView):
