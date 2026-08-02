@@ -1,4 +1,5 @@
 """Tests for /api/events/donation-redirect/ — idempotency + throttle (per ADR-007/008)."""
+
 from __future__ import annotations
 
 import uuid

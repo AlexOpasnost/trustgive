@@ -1,4 +1,5 @@
 """ThrottledHTTPClient — politeness throttle + exponential backoff for ETL."""
+
 from __future__ import annotations
 
 import logging
@@ -37,7 +38,9 @@ class ThrottledHTTPClient:
         stop=stop_after_attempt(5),
         reraise=True,
     )
-    def get(self, path: str, params: dict[str, Any] | None = None, headers: dict[str, str] | None = None) -> dict[str, Any]:
+    def get(
+        self, path: str, params: dict[str, Any] | None = None, headers: dict[str, str] | None = None
+    ) -> dict[str, Any]:
         self._wait()
         url = f"{self.base_url}/{path.lstrip('/')}"
         resp = self._session.get(url, params=params, headers=headers, timeout=self._timeout)

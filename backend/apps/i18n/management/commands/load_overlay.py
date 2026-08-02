@@ -9,6 +9,7 @@ Format:
       "animals":
         name: "Животные"
 """
+
 from __future__ import annotations
 
 import logging
@@ -45,7 +46,9 @@ class Command(BaseCommand):
                 for slug_or_id, fields in (instances or {}).items():
                     obj = self._lookup(model, slug_or_id)
                     if obj is None:
-                        self.stderr.write(self.style.WARNING(f"Skipping {model_label}/{slug_or_id}: not found"))
+                        self.stderr.write(
+                            self.style.WARNING(f"Skipping {model_label}/{slug_or_id}: not found")
+                        )
                         continue
                     for field_name, value in fields.items():
                         current = dict(getattr(obj, field_name) or {})
@@ -56,7 +59,9 @@ class Command(BaseCommand):
                         applied += 1
                     obj.save()
 
-        self.stdout.write(self.style.SUCCESS(f"Applied {applied} translations from {path} (lang={lang})"))
+        self.stdout.write(
+            self.style.SUCCESS(f"Applied {applied} translations from {path} (lang={lang})")
+        )
 
     def _lookup(self, model, slug_or_id):
         if hasattr(model, "slug"):

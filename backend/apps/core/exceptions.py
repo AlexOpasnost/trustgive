@@ -1,4 +1,5 @@
 """Custom DRF exception handler emitting the API_SPEC §5 error envelope."""
+
 from __future__ import annotations
 
 import logging

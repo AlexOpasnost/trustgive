@@ -3,8 +3,10 @@
 Will mirror the structure of ingest_propublica.py:
 - ThrottledHTTPClient at 1 req/sec
 - Tiered dedup via pg_trgm
-- Enriches existing Charity records (logos, descriptions, cause_tags from Every.org's 66-tag taxonomy)
+- Enriches existing Charity records (logos, descriptions, cause_tags from
+  Every.org's 66-tag taxonomy)
 """
+
 from __future__ import annotations
 
 from django.core.management.base import BaseCommand

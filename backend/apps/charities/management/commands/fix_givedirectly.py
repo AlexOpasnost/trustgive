@@ -15,13 +15,13 @@ Two issues to clean up:
 This command is idempotent — safe to run multiple times. Removes once
 GiveDirectly is properly re-ingested with the corrected ETL.
 """
+
 from __future__ import annotations
 
 from django.core.management.base import BaseCommand
 from django.db import transaction
 
 from apps.charities.models import Charity, Financial
-
 
 GIVEDIRECTLY_SLUGS = ["givedirectly-inc", "givedirectly"]
 

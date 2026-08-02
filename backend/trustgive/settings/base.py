@@ -1,4 +1,5 @@
 """Base settings for TrustGive — values shared by development and production."""
+
 from __future__ import annotations
 
 import os
@@ -124,7 +125,9 @@ ASGI_APPLICATION = "trustgive.asgi.application"
 
 # --- Database ---
 DATABASES = {
-    "default": env.db("DATABASE_URL", default="postgres://postgres:postgres@localhost:5432/trustgive"),
+    "default": env.db(
+        "DATABASE_URL", default="postgres://postgres:postgres@localhost:5432/trustgive"
+    ),
 }
 DATABASES["default"]["CONN_MAX_AGE"] = 300
 
@@ -137,7 +140,10 @@ PASSWORD_HASHERS = [
 ]
 
 AUTH_PASSWORD_VALIDATORS = [
-    {"NAME": "django.contrib.auth.password_validation.MinimumLengthValidator", "OPTIONS": {"min_length": 12}},
+    {
+        "NAME": "django.contrib.auth.password_validation.MinimumLengthValidator",
+        "OPTIONS": {"min_length": 12},
+    },
     {"NAME": "django.contrib.auth.password_validation.CommonPasswordValidator"},
     {"NAME": "django.contrib.auth.password_validation.NumericPasswordValidator"},
 ]
@@ -178,7 +184,9 @@ REST_FRAMEWORK = {
 
 SPECTACULAR_SETTINGS = {
     "TITLE": "TrustGive API",
-    "DESCRIPTION": "Public, anonymous, read-mostly API for the TrustGive charity discovery platform.",
+    "DESCRIPTION": (
+        "Public, anonymous, read-mostly API for the TrustGive charity discovery platform."
+    ),
     "VERSION": APP_VERSION,
     "SERVE_INCLUDE_SCHEMA": False,
     "COMPONENT_SPLIT_REQUEST": True,
@@ -195,6 +203,15 @@ SPECTACULAR_SETTINGS = {
         {"url": "https://api.trustgive.org", "description": "Production"},
         {"url": "http://localhost:8000", "description": "Local development"},
     ],
+    # The {en, ru} choice set reaches the schema under two different field names
+    # — `NewsMention.language` and the `lang` query parameter — so
+    # drf-spectacular warned that one choice set had two candidate component
+    # names and picked one arbitrarily. Under CI's `--fail-on-warn` that warning
+    # aborted schema generation. Naming it once here is both the documented fix
+    # and the honest description: it is one language enum, used in two places.
+    "ENUM_NAME_OVERRIDES": {
+        "LanguageEnum": [("en", "English"), ("ru", "Russian")],
+    },
 }
 
 # --- Cache (per ADR-007) ---
@@ -248,7 +265,11 @@ LOGGING = {
     "formatters": {
         "json": {
             "()": "pythonjsonlogger.jsonlogger.JsonFormatter",
-            "format": "%(asctime)s %(name)s %(levelname)s %(message)s %(request_id)s %(charity_slug)s %(path)s %(method)s %(status_code)s %(duration_ms)s",
+            "format": (
+                "%(asctime)s %(name)s %(levelname)s %(message)s "
+                "%(request_id)s %(charity_slug)s %(path)s %(method)s "
+                "%(status_code)s %(duration_ms)s"
+            ),
         },
     },
     "filters": {
@@ -269,7 +290,9 @@ LOGGING = {
 }
 
 # --- External integrations ---
-PROPUBLICA_API_BASE = env("PROPUBLICA_API_BASE", default="https://projects.propublica.org/nonprofits/api/v2")
+PROPUBLICA_API_BASE = env(
+    "PROPUBLICA_API_BASE", default="https://projects.propublica.org/nonprofits/api/v2"
+)
 EVERY_ORG_API_BASE = env("EVERY_ORG_API_BASE", default="https://partners.every.org/v0.2")
 EVERY_ORG_PUBLIC_KEY = env("EVERY_ORG_PUBLIC_KEY", default="")
 EVERY_ORG_PRIVATE_KEY = env("EVERY_ORG_PRIVATE_KEY", default="")

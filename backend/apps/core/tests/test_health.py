@@ -1,4 +1,5 @@
 """Tests for HealthView (per ADR-008)."""
+
 from __future__ import annotations
 
 import pytest

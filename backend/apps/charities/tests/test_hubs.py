@@ -8,6 +8,7 @@ resolve to nothing rather than to the whole catalogue — otherwise
 /charities/registry/typo would claim 370 charities were verified by a registry
 that never heard of them.
 """
+
 from __future__ import annotations
 
 import pytest

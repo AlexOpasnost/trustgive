@@ -1,4 +1,5 @@
 """Custom Django fields — LocalizedTextField for {en, ru} JSONB storage (per ADR-006)."""
+
 from __future__ import annotations
 
 import json

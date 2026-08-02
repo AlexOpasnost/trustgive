@@ -1,7 +1,9 @@
 """Tests for LocalizedTextField (per ADR-006)."""
+
 from __future__ import annotations
 
 import pytest
+from rest_framework.exceptions import ValidationError
 
 from apps.core.fields import LocalizedTextField, _empty_localized
 from apps.core.serializers import LocalizedSerializerField
@@ -44,5 +46,8 @@ def test_serializer_to_internal_value_coerces_strings():
 
 def test_serializer_rejects_non_dict():
     s = LocalizedSerializerField()
-    with pytest.raises(Exception):
+    # ValidationError specifically, not a blind Exception: the field signals a
+    # bad payload via `self.fail("invalid")`, and a blind assert would also pass
+    # on an AttributeError from the field being broken outright.
+    with pytest.raises(ValidationError):
         s.to_internal_value("not a dict")

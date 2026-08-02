@@ -1,11 +1,12 @@
 """SEO landing page payload ("Is X legitimate?" per SPEC Story 5)."""
+
 from __future__ import annotations
 
 from typing import Any
 
 from django.shortcuts import get_object_or_404
 from drf_spectacular.types import OpenApiTypes
-from drf_spectacular.utils import OpenApiParameter, extend_schema
+from drf_spectacular.utils import OpenApiParameter, OpenApiResponse, extend_schema
 from rest_framework.permissions import AllowAny
 from rest_framework.request import Request
 from rest_framework.response import Response
@@ -13,6 +14,7 @@ from rest_framework.views import APIView
 
 from apps.charities.models import Charity, VerificationStatus
 from apps.charities.serializers import CharityDetailSerializer
+from apps.seo.serializers import SeoCharityPayloadSerializer
 
 
 def _h1(charity: Charity, lang: str) -> str:
@@ -31,13 +33,22 @@ def _answer(charity: Charity, lang: str) -> str:
 
 def _evidence(charity: Charity, lang: str) -> str:
     name = (charity.name or {}).get("en") or charity.slug
-    country_label = {"US": "US 501(c)(3) nonprofit", "GB": "UK registered charity", "RU": "Минюст-зарегистрированная НКО"}
+    country_label = {
+        "US": "US 501(c)(3) nonprofit",
+        "GB": "UK registered charity",
+        "RU": "Минюст-зарегистрированная НКО",
+    }
     label = country_label.get(charity.country, "registered charity")
     if lang == "ru":
+        form = (
+            "зарегистрированная 501(c)(3)"
+            if charity.country == "US"
+            else "зарегистрированная организация"
+        )
+        filed = charity.last_filed_date or "неизвестно"
         return (
-            f"{name} (рег. №{charity.registration_id}) — "
-            f"{'зарегистрированная организация' if charity.country != 'US' else 'зарегистрированная 501(c)(3)'} "
-            f"в {charity.country}, последняя финансовая отчётность подана {charity.last_filed_date or 'неизвестно'}."
+            f"{name} (рег. №{charity.registration_id}) — {form} "
+            f"в {charity.country}, последняя финансовая отчётность подана {filed}."
         )
     return (
         f"{name} (registration {charity.registration_id}) is a {label}, in good standing, "
@@ -48,6 +59,12 @@ def _evidence(charity: Charity, lang: str) -> str:
 class SeoCharityView(APIView):
     permission_classes = [AllowAny]
 
+    # A bare APIView gives drf-spectacular nothing to introspect, so without an
+    # explicit `responses` it logs an error and drops the endpoint from the
+    # schema. `serializer_class` additionally silences the "unable to guess
+    # serializer" fallback for any tooling that looks for it.
+    serializer_class = SeoCharityPayloadSerializer
+
     @extend_schema(
         operation_id="getSeoCharity",
         tags=["seo"],
@@ -55,6 +72,16 @@ class SeoCharityView(APIView):
         parameters=[
             OpenApiParameter("lang", OpenApiTypes.STR, OpenApiParameter.QUERY, enum=["en", "ru"]),
         ],
+        responses={
+            200: SeoCharityPayloadSerializer,
+            404: OpenApiResponse(
+                description=(
+                    "No verified charity with this slug. The landing page asserts "
+                    "a verification verdict, so an unverified organisation has no "
+                    "payload here rather than a hedged one."
+                ),
+            ),
+        },
     )
     def get(self, request: Request, slug: str) -> Response:
         # Verified-only, matching the public catalogue (see views.PUBLISHED).
@@ -78,16 +105,22 @@ class SeoCharityView(APIView):
 
         title = f"{h1[:60]} · TrustGive" if len(h1) > 60 else f"{h1} · TrustGive"
         canonical_url = f"/{lang}/charities/{slug}/"
+        meta_description = (
+            f"Verification status: {charity.verification_status}. "
+            f"EIN/Reg: {charity.registration_id}."
+        )
 
         body: dict[str, Any] = {
             "slug": slug,
             "h1": h1,
             "answer": answer,
-            "evidence_summary": {"en": evidence if lang == "en" else _evidence(charity, "en"),
-                                 "ru": evidence if lang == "ru" else _evidence(charity, "ru")},
+            "evidence_summary": {
+                "en": evidence if lang == "en" else _evidence(charity, "en"),
+                "ru": evidence if lang == "ru" else _evidence(charity, "ru"),
+            },
             "meta": {
                 "title": title[:70],
-                "description": f"Verification status: {charity.verification_status}. EIN/Reg: {charity.registration_id}."[:160],
+                "description": meta_description[:160],
                 "canonical_url": canonical_url,
                 "og_image_url": f"https://api.trustgive.org/og/{slug}.png",
                 "structured_data": {

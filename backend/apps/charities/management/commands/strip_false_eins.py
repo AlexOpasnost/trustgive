@@ -18,6 +18,7 @@ copy to insert a new one. A prose EIN that MATCHES the record is left untouched.
     python manage.py strip_false_eins --dry-run
     python manage.py strip_false_eins
 """
+
 from __future__ import annotations
 
 import re
@@ -102,7 +103,9 @@ class Command(BaseCommand):
                     continue
 
                 touched += 1
-                self.stdout.write(f"[CLEAN] {c.slug} -- {', '.join(fields_changed)} (record {stored})")
+                self.stdout.write(
+                    f"[CLEAN] {c.slug} -- {', '.join(fields_changed)} (record {stored})"
+                )
 
                 # Report any contradicting EIN the clause pattern could not reach,
                 # so nothing false is left behind silently.
@@ -113,17 +116,19 @@ class Command(BaseCommand):
                             if _normalise(m.group(1), m.group(2)) != stored:
                                 leftover += 1
                                 self.stdout.write(
-                                    f"        !! residual EIN {m.group(0)} in {field}.{lang} — review"
+                                    f"        !! residual EIN {m.group(0)} "
+                                    f"in {field}.{lang} — review"
                                 )
 
                 if not dry:
-                    c.save(update_fields=fields_changed + ["updated_at"])
+                    c.save(update_fields=[*fields_changed, "updated_at"])
 
             if dry:
                 transaction.set_rollback(True)
 
         self.stdout.write(
             self.style.SUCCESS(
-                f"\nDone ({'dry' if dry else 'applied'}). charities_cleaned={touched} residual_flags={leftover}"
+                f"\nDone ({'dry' if dry else 'applied'}). "
+                f"charities_cleaned={touched} residual_flags={leftover}"
             )
         )

@@ -5,6 +5,7 @@ privacy-conscious target audience. Donation-redirect is the conversion that
 matters most for portfolio narrative — server-side mirror makes it
 ad-block-resistant. Keeps API key off the client.
 """
+
 from __future__ import annotations
 
 import logging

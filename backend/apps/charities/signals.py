@@ -1,4 +1,5 @@
 """Cache invalidation signals (per ADR-007)."""
+
 from __future__ import annotations
 
 import logging

@@ -1,4 +1,5 @@
 """Health endpoint per ADR-008 + API_SPEC endpoint #1."""
+
 from __future__ import annotations
 
 import logging

@@ -11,7 +11,9 @@ class DonationRedirectEventSerializer(serializers.ModelSerializer):
     # validators=[] disables it; uniqueness is still enforced at the DB layer
     # (and converted to 200/202 by get_or_create's no-op path).
     client_event_id = serializers.UUIDField(validators=[])
-    source_page = serializers.ChoiceField(choices=SourcePage.choices, required=False, allow_blank=True)
+    source_page = serializers.ChoiceField(
+        choices=SourcePage.choices, required=False, allow_blank=True
+    )
 
     class Meta:
         model = DonationRedirectEvent

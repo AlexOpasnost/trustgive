@@ -1,4 +1,5 @@
 """Root URL configuration for TrustGive."""
+
 from django.contrib import admin
 from django.http import HttpResponsePermanentRedirect
 from django.urls import include, path
@@ -12,7 +13,6 @@ def root_redirect(_request):
 urlpatterns = [
     path("", root_redirect),
     path("admin/", admin.site.urls),
-
     # API docs
     path("api/schema/", SpectacularAPIView.as_view(), name="schema"),
     path(
@@ -20,7 +20,6 @@ urlpatterns = [
         SpectacularSwaggerView.as_view(url_name="schema"),
         name="swagger-ui",
     ),
-
     # App URLs
     path("api/", include("apps.core.urls")),
     path("api/", include("apps.charities.urls")),

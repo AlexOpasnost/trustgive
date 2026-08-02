@@ -1,4 +1,5 @@
 """Donation-redirect event log (mirrored to PostHog server-side per ADR-008)."""
+
 from __future__ import annotations
 
 import uuid
@@ -18,7 +19,9 @@ class DonationRedirectEvent(models.Model):
     client_event_id = models.UUIDField(unique=True)
     charity_slug = models.SlugField(max_length=200)
     lang = models.CharField(max_length=2, choices=[("en", "English"), ("ru", "Russian")])
-    source_page = models.CharField(max_length=20, choices=SourcePage.choices, blank=True, default="")
+    source_page = models.CharField(
+        max_length=20, choices=SourcePage.choices, blank=True, default=""
+    )
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:

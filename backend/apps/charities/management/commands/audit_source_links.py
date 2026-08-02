@@ -36,6 +36,7 @@ Usage:
     python manage.py audit_source_links --country=CA         # scope to one country
     python manage.py audit_source_links --workers=16 --retries=3
 """
+
 from __future__ import annotations
 
 import urllib.request
@@ -64,7 +65,7 @@ def _probe(url: str, *, retries: int, timeout: int) -> int | str:
             req = urllib.request.Request(url, headers={"User-Agent": UA}, method="GET")
             with urllib.request.urlopen(req, timeout=timeout) as resp:
                 return resp.getcode()
-        except urllib.error.HTTPError as exc:  # noqa: PERF203 — retry loop is intentional
+        except urllib.error.HTTPError as exc:
             if exc.code in DEFINITIVE_DEAD:
                 return exc.code
             last = exc.code
@@ -80,7 +81,9 @@ class Command(BaseCommand):
         parser.add_argument("--dry-run", action="store_true", help="Preview without writing.")
         parser.add_argument("--country", default="", help="Limit to a 2-letter country code.")
         parser.add_argument("--workers", type=int, default=12, help="Concurrent probe workers.")
-        parser.add_argument("--retries", type=int, default=3, help="Retries per URL on transient failure.")
+        parser.add_argument(
+            "--retries", type=int, default=3, help="Retries per URL on transient failure."
+        )
         parser.add_argument("--timeout", type=int, default=20, help="Per-request timeout (s).")
 
     def handle(self, *args: Any, **options: Any) -> None:
@@ -98,11 +101,18 @@ class Command(BaseCommand):
         # Probe every unique source URL once, concurrently. List (not set) so the
         # zip() below pairs each URL with its own result deterministically.
         urls = list({d.url for c in charities for d in c.source_documents.all() if d.url})
-        self.stdout.write(f"Probing {len(urls)} unique source URLs across {len(charities)} charities…")
+        self.stdout.write(
+            f"Probing {len(urls)} unique source URLs across {len(charities)} charities…"
+        )
         status: dict[str, int | str] = {}
         with ThreadPoolExecutor(max_workers=workers) as ex:
+            # strict=True: `ex.map` yields exactly one result per input, so a
+            # length mismatch would mean results silently paired with the wrong
+            # URLs — and this loop decides which charities get demoted.
             for url, code in zip(
-                urls, ex.map(lambda u: _probe(u, retries=retries, timeout=timeout), urls)
+                urls,
+                ex.map(lambda u: _probe(u, retries=retries, timeout=timeout), urls),
+                strict=True,
             ):
                 status[url] = code
 

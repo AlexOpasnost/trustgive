@@ -21,6 +21,7 @@ Usage:
     python manage.py fix_us_eins --file=us_auto_eins.json --dry-run
     python manage.py fix_us_eins --file=us_auto_eins.json
 """
+
 from __future__ import annotations
 
 import calendar
@@ -186,8 +187,12 @@ class Command(BaseCommand):
                         Financial.objects.create(
                             charity=charity,
                             year=year,
-                            total_revenue_usd=Decimal(str(revenue)) if revenue is not None else None,
-                            top_executive_comp_usd=Decimal(str(exec_comp)) if exec_comp is not None else None,
+                            total_revenue_usd=Decimal(str(revenue))
+                            if revenue is not None
+                            else None,
+                            top_executive_comp_usd=Decimal(str(exec_comp))
+                            if exec_comp is not None
+                            else None,
                             source_url=src_url,
                             source_label=f"IRS Form 990, FY {year} (ProPublica)",
                         )
@@ -198,7 +203,9 @@ class Command(BaseCommand):
                         filed_date=charity.last_filed_date,
                         label={
                             "en": f"IRS Form 990 ({year})" if year else "IRS Form 990",
-                            "ru": f"Налоговая форма IRS 990 ({year})" if year else "Налоговая форма IRS 990",
+                            "ru": f"Налоговая форма IRS 990 ({year})"
+                            if year
+                            else "Налоговая форма IRS 990",
                         },
                         url=src_url,
                         source_label="ProPublica Nonprofit Explorer",
@@ -206,7 +213,10 @@ class Command(BaseCommand):
                     )
                 else:
                     no_filing += 1
-                    self.stdout.write(f"[WARN]  {slug} -- EIN {ein} resolves but has no revenue filing; link fixed, financials left empty")
+                    self.stdout.write(
+                        f"[WARN]  {slug} -- EIN {ein} resolves but has no revenue "
+                        f"filing; link fixed, financials left empty"
+                    )
                     charity.source_documents.all().delete()
                     SourceDocument.objects.create(
                         charity=charity,
@@ -226,7 +236,5 @@ class Command(BaseCommand):
 
         verb = "would apply" if dry_run else "applied"
         self.stdout.write(
-            self.style.SUCCESS(
-                f"\nDone. {verb}={applied} skipped={skipped} no_filing={no_filing}"
-            )
+            self.style.SUCCESS(f"\nDone. {verb}={applied} skipped={skipped} no_filing={no_filing}")
         )

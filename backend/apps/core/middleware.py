@@ -1,11 +1,11 @@
 """Request-ID and Cache-Control middleware (per ADR-007 + ADR-008)."""
+
 from __future__ import annotations
 
 import contextvars
 import logging
 import time
 import uuid
-from typing import Any, Callable
 
 from django.conf import settings
 from django.http import HttpRequest, HttpResponse

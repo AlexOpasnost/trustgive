@@ -1,4 +1,5 @@
 """TranslationOverlay — per-instance manual translations (RU curation overlay)."""
+
 from __future__ import annotations
 
 from django.db import models

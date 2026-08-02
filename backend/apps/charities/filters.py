@@ -1,4 +1,5 @@
 """Charity catalog FilterSet."""
+
 from __future__ import annotations
 
 import re
@@ -22,7 +23,7 @@ from django.db.models import (
 from django.db.models.fields.json import KeyTextTransform
 
 from apps.charities.hubs import registry_host
-from apps.charities.models import Bucket, Charity, Country, SizeBucket, VerificationStatus
+from apps.charities.models import Bucket, Charity, SizeBucket, VerificationStatus
 
 # Trigram gate for a query that full-text search couldn't match — i.e. a typo.
 #

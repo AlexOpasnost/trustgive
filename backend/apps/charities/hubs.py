@@ -30,6 +30,7 @@ Counts are computed against the published (verified-only) queryset, so a hub can
 appear or disappear as verification coverage changes. Nothing here is hardcoded
 except the registry definitions, which describe real publishers rather than data.
 """
+
 from __future__ import annotations
 
 from collections import Counter
@@ -289,10 +290,7 @@ def registry_hubs(min_size: int = MIN_HUB_SIZE) -> list[HubItem]:
     """
     hosts = {r["host"]: r for r in REGISTRY_DEFS}
     per_host: dict[str, set[str]] = {h: set() for h in hosts}
-    rows = (
-        Charity.objects.filter(**_PUBLISHED)
-        .values_list("slug", "source_documents__url")
-    )
+    rows = Charity.objects.filter(**_PUBLISHED).values_list("slug", "source_documents__url")
     for charity_slug, url in rows:
         if not url:
             continue

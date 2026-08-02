@@ -2,10 +2,11 @@
 
 Gracefully no-ops when CF_API_TOKEN is not configured — useful for local dev.
 """
+
 from __future__ import annotations
 
 import logging
-from typing import Iterable
+from collections.abc import Iterable
 
 import requests
 from django.conf import settings

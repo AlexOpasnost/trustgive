@@ -5,6 +5,7 @@ API_SPEC.md §2 (Pagination schema). DRF's default PageNumberPagination
 omits them, which makes client-side "Showing X-Y of N" math impossible
 without re-deriving from URL params.
 """
+
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.response import Response
 

@@ -29,7 +29,11 @@ import {
 
 import { cn } from "@/lib/utils"
 
-export const buttonVariants = cva(
+// Not exported: nothing outside this file uses it, and a non-component export
+// here costs the module its fast-refresh boundary — every edit to Button.tsx
+// would remount instead of hot-swapping. If another component ever needs these
+// classes, move this into its own module rather than re-exporting from here.
+const buttonVariants = cva(
   // Base — applies to every tier. Min-height 44px (KB-DESIGNER-INIT-002 tap target).
   "inline-flex items-center justify-center gap-2 font-medium transition-colors focus-visible:outline-none disabled:cursor-not-allowed",
   {

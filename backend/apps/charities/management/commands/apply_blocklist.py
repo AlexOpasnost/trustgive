@@ -9,6 +9,7 @@ Usage:
     python manage.py apply_blocklist                # destructive
     python manage.py apply_blocklist --dry-run      # preview
 """
+
 from __future__ import annotations
 
 from typing import Any
@@ -57,14 +58,11 @@ class Command(BaseCommand):
 
                 deleted += 1
                 reasons[reason.rule] = reasons.get(reason.rule, 0) + 1
+                identity = f"{charity.slug} ({charity.country}/{charity.registration_id})"
                 if dry_run:
-                    self.stdout.write(
-                        f"[DRY] would delete {charity.slug} ({charity.country}/{charity.registration_id}) — {reason}"
-                    )
+                    self.stdout.write(f"[DRY] would delete {identity} — {reason}")
                 else:
-                    self.stdout.write(
-                        f"deleting {charity.slug} ({charity.country}/{charity.registration_id}) — {reason}"
-                    )
+                    self.stdout.write(f"deleting {identity} — {reason}")
                     charity.delete()
 
             if dry_run:
@@ -72,6 +70,8 @@ class Command(BaseCommand):
                 transaction.set_rollback(True)
 
         verb = "would delete" if dry_run else "deleted"
-        self.stdout.write(self.style.SUCCESS(
-            f"\nScanned {scanned}; {verb} {deleted}. By rule: {reasons or '(none)'}"
-        ))
+        self.stdout.write(
+            self.style.SUCCESS(
+                f"\nScanned {scanned}; {verb} {deleted}. By rule: {reasons or '(none)'}"
+            )
+        )

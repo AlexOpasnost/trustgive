@@ -1,4 +1,5 @@
 """DRF serializers for charity catalog and detail."""
+
 from __future__ import annotations
 
 from typing import Any
@@ -123,9 +124,7 @@ def _money_breakdown_from_financial(charity: Charity) -> dict[str, Any] | None:
         return None
 
     primary_source: SourceDocument | None = (
-        charity.source_documents.filter(kind__startswith="irs_990")
-        .order_by("-filed_date")
-        .first()
+        charity.source_documents.filter(kind__startswith="irs_990").order_by("-filed_date").first()
     )
 
     total = float(latest.total_revenue_usd)
@@ -222,7 +221,8 @@ class CharityDetailSerializer(CharitySummarySerializer):
     data_freshness = serializers.SerializerMethodField()
 
     class Meta(CharitySummarySerializer.Meta):
-        fields = CharitySummarySerializer.Meta.fields + (
+        fields = (
+            *CharitySummarySerializer.Meta.fields,
             "description",
             "founded_year",
             "donation_url",

@@ -11,6 +11,7 @@ plus the two defects that broke it in production:
   * `TrigramSimilarity` scored the query against the whole EN+RU name blob, so a
     one-letter typo matched nothing despite pg_trgm being enabled.
 """
+
 from __future__ import annotations
 
 import pytest

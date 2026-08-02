@@ -1,4 +1,5 @@
 """Donation-redirect event endpoint — mirrors to PostHog server-side."""
+
 from __future__ import annotations
 
 import logging

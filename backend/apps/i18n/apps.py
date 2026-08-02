@@ -2,6 +2,7 @@
 translation framework. We set `label = "i18n_app"` to avoid INSTALLED_APPS resolution
 collision while keeping the on-disk module path semantic (`apps/i18n/`).
 """
+
 from django.apps import AppConfig
 
 

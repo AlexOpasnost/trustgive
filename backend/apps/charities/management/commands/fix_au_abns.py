@@ -9,6 +9,7 @@ register doesn't expose per-charity revenue, so financials are left as-is.
     python manage.py fix_au_abns --file=au_abns.json --dry-run
     python manage.py fix_au_abns --file=au_abns.json
 """
+
 from __future__ import annotations
 
 import json
@@ -66,7 +67,8 @@ class Command(BaseCommand):
                     continue
                 clash = (
                     Charity.objects.filter(country="AU", registration_id=abn)
-                    .exclude(pk=c.pk).first()
+                    .exclude(pk=c.pk)
+                    .first()
                 )
                 if clash is not None:
                     skipped += 1
@@ -93,6 +95,8 @@ class Command(BaseCommand):
                 c.save(update_fields=["registration_id", "verification_status"])
             if dry:
                 transaction.set_rollback(True)
-        self.stdout.write(self.style.SUCCESS(
-            f"\nDone ({'dry' if dry else 'applied'}). applied={applied} skipped={skipped}"
-        ))
+        self.stdout.write(
+            self.style.SUCCESS(
+                f"\nDone ({'dry' if dry else 'applied'}). applied={applied} skipped={skipped}"
+            )
+        )

@@ -34,6 +34,7 @@ with `audit_source_links`). Idempotent — safe to run on a schedule.
     python manage.py refresh_us_filings --only-fabricated --dry-run
     python manage.py refresh_us_filings
 """
+
 from __future__ import annotations
 
 import calendar

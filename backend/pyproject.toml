@@ -5,11 +5,55 @@ extend-exclude = ["migrations"]
 
 [tool.ruff.lint]
 select = ["E", "F", "W", "I", "N", "UP", "B", "C4", "DJ", "S", "PIE", "RUF"]
-ignore = ["S101", "S105", "S106", "DJ001"]
+ignore = [
+    "S101",   # assert — pytest is built on it
+    "S105",   # hardcoded password string — false positives on setting names
+    "S106",   # hardcoded password argument — same
+    "DJ001",  # null=True on CharField — deliberate for optional registry fields
+
+    # --- Added 2026-08-01 while making CI mean something. ---
+    # The lint job had never passed, so none of these had ever been triaged;
+    # every entry below is a rule that is wrong for this codebase rather than a
+    # defect being waved through.
+
+    # Ambiguous-unicode rules flag Cyrillic characters that could be confused
+    # with Latin lookalikes. This is a bilingual catalogue: "Минюст", "СОНКО"
+    # and Russian descriptions are the product, not a homoglyph attack. 22 of
+    # the 172 findings were this, all of them legitimate text.
+    "RUF001",  # in strings
+    "RUF002",  # in docstrings
+    "RUF003",  # in comments
+
+    # Mutable default for a class attribute. Every hit is Django/DRF idiom —
+    # `Meta.indexes`, `Meta.constraints`, `Meta.fields`, `permission_classes`.
+    # These are class-level declarations read by a metaclass, never mutated per
+    # instance, and the ClassVar annotation the rule wants would be noise on 32
+    # sites.
+    "RUF012",
+
+    # Model without __str__. Useful on models a human reads in the admin; the
+    # hits are through-tables and value objects (CharityTrustBadge, Financial)
+    # where the default repr is fine.
+    "DJ008",
+]
 
 [tool.ruff.lint.per-file-ignores]
-"settings/*.py" = ["S105"]
+# NB: these keys match the path relative to this file's directory, so the
+# previous "settings/*.py" entry never matched `trustgive/settings/base.py` and
+# had been silently doing nothing.
+"trustgive/settings/*.py" = [
+    "S105",
+    "F401",   # settings modules re-export deliberately
+    "F403",   # `from .base import *` is the documented Django pattern
+    "RUF100", # keep the explanatory noqa on the star imports
+]
 "manage.py" = ["S603", "S607"]
+# Ingestion and repair commands fetch registry documents by URL — that is their
+# entire purpose, and the URLs come from our own database rather than from user
+# input. S310 (`urllib.request` with a non-literal URL) has no defect to point
+# at here; the real control is that every stored URL is read back from the
+# registry before it is trusted (see DATA_INTEGRITY.md).
+"apps/*/management/commands/*.py" = ["S310"]
 
 [tool.mypy]
 python_version = "3.13"

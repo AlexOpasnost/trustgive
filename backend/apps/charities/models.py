@@ -4,6 +4,7 @@ All localised text fields use LocalizedTextField (JSONB {en, ru}) per ADR-006.
 search_vector is populated by a Postgres trigger reading via JSONB ->> operator
 (ADR-005 reconciled per API_SPEC §10).
 """
+
 from __future__ import annotations
 
 import uuid
@@ -183,7 +184,9 @@ class Charity(models.Model):
     registration_id = models.CharField(max_length=64)
     cause_tags = ArrayField(models.SlugField(max_length=100), default=list)
 
-    size_bucket = models.CharField(max_length=10, choices=SizeBucket.choices, blank=True, default="")
+    size_bucket = models.CharField(
+        max_length=10, choices=SizeBucket.choices, blank=True, default=""
+    )
     verification_status = models.CharField(
         max_length=10,
         choices=VerificationStatus.choices,
@@ -191,17 +194,14 @@ class Charity(models.Model):
     )
     is_stale = models.BooleanField(default=False)
     last_filed_date = models.DateField(null=True, blank=True)
-    total_revenue_usd = models.DecimalField(
-        max_digits=18, decimal_places=2, null=True, blank=True
-    )
-    program_expense_pct = models.DecimalField(
-        max_digits=5, decimal_places=2, null=True, blank=True
-    )
+    total_revenue_usd = models.DecimalField(max_digits=18, decimal_places=2, null=True, blank=True)
+    program_expense_pct = models.DecimalField(max_digits=5, decimal_places=2, null=True, blank=True)
     founded_year = models.PositiveIntegerField(null=True, blank=True)
 
     ingestion_source = models.CharField(max_length=20, choices=IngestionSource.choices)
 
-    # Search support — populated by Postgres trigger (apps/charities/migrations/0003_search_vector_trigger)
+    # Search support — populated by a Postgres trigger
+    # (apps/charities/migrations/0003_search_vector_trigger)
     search_vector = SearchVectorField(null=True, blank=True)
     name_trgm = models.CharField(max_length=600, blank=True, default="")
 
@@ -249,10 +249,16 @@ class Financial(models.Model):
     charity = models.ForeignKey(Charity, on_delete=models.CASCADE, related_name="financial_history")
     year = models.PositiveSmallIntegerField()
     total_revenue_usd = models.DecimalField(max_digits=18, decimal_places=2, null=True, blank=True)
-    program_expenses_usd = models.DecimalField(max_digits=18, decimal_places=2, null=True, blank=True)
+    program_expenses_usd = models.DecimalField(
+        max_digits=18, decimal_places=2, null=True, blank=True
+    )
     admin_expenses_usd = models.DecimalField(max_digits=18, decimal_places=2, null=True, blank=True)
-    fundraising_expenses_usd = models.DecimalField(max_digits=18, decimal_places=2, null=True, blank=True)
-    top_executive_comp_usd = models.DecimalField(max_digits=14, decimal_places=2, null=True, blank=True)
+    fundraising_expenses_usd = models.DecimalField(
+        max_digits=18, decimal_places=2, null=True, blank=True
+    )
+    top_executive_comp_usd = models.DecimalField(
+        max_digits=14, decimal_places=2, null=True, blank=True
+    )
     top_executive_name = models.CharField(max_length=200, blank=True, default="")
     source_url = models.URLField()
     source_label = models.CharField(max_length=200, blank=True, default="")
@@ -295,7 +301,9 @@ class SourceDocument(models.Model):
     url = models.URLField(max_length=500)
     filed_date = models.DateField(null=True, blank=True)
     source_label = models.CharField(max_length=200, blank=True, default="")
-    file_format = models.CharField(max_length=10, choices=FileFormat.choices, blank=True, default="")
+    file_format = models.CharField(
+        max_length=10, choices=FileFormat.choices, blank=True, default=""
+    )
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
@@ -324,7 +332,9 @@ class CharityTrustBadge(models.Model):
     """M2M-through table — per-assignment metadata (issued_date, verify_url)."""
 
     charity = models.ForeignKey(Charity, on_delete=models.CASCADE, related_name="charity_badges")
-    badge = models.ForeignKey(TrustBadge, on_delete=models.CASCADE, related_name="charity_assignments")
+    badge = models.ForeignKey(
+        TrustBadge, on_delete=models.CASCADE, related_name="charity_assignments"
+    )
     issued_date = models.DateField(null=True, blank=True)
     verify_url = models.URLField(blank=True, default="")
     created_at = models.DateTimeField(auto_now_add=True)
@@ -342,9 +352,13 @@ class NewsMention(models.Model):
     publisher = models.CharField(max_length=200)
     title = models.CharField(max_length=500)
     published_date = models.DateField()
-    language = models.CharField(max_length=2, choices=[("en", "English"), ("ru", "Russian")], default="en")
+    language = models.CharField(
+        max_length=2, choices=[("en", "English"), ("ru", "Russian")], default="en"
+    )
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
-        indexes = [models.Index(fields=["charity", "-published_date"], name="news_charity_pubd_idx")]
+        indexes = [
+            models.Index(fields=["charity", "-published_date"], name="news_charity_pubd_idx")
+        ]
         ordering = ["-published_date"]

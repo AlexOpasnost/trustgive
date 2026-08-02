@@ -3,13 +3,13 @@
 v3.0 (DESIGN.md §J) removed the Compare endpoint. Featured endpoint gained
 an optional `?bucket=` parameter for the People/Animals/Planet landing pages.
 """
+
 from __future__ import annotations
 
 import logging
 from typing import Any
 
 from django.contrib.syndication.views import Feed
-from django.http import Http404, HttpResponsePermanentRedirect
 from django.shortcuts import get_object_or_404
 from drf_spectacular.types import OpenApiTypes
 from drf_spectacular.utils import OpenApiParameter, extend_schema
@@ -60,12 +60,16 @@ PUBLISHED = {"verification_status": VerificationStatus.VERIFIED}
 
 def _resolve_slug(slug: str) -> Charity:
     try:
-        return Charity.objects.filter(**PUBLISHED).prefetch_related(
-            "financial_history",
-            "source_documents",
-            "news_mentions",
-            "charity_badges__badge",
-        ).get(slug=slug)
+        return (
+            Charity.objects.filter(**PUBLISHED)
+            .prefetch_related(
+                "financial_history",
+                "source_documents",
+                "news_mentions",
+                "charity_badges__badge",
+            )
+            .get(slug=slug)
+        )
     except Charity.DoesNotExist:
         # Try slug alias → 301 redirect path will be handled by viewset retrieve
         raise
@@ -117,8 +121,7 @@ def _select_featured(target_size: int = 6, bucket: str | None = None) -> list[Ch
     if bucket:
         # v3.0 bucket-scoped: just top-N by revenue desc, no country quota.
         return list(
-            base_qs.filter(bucket=bucket)
-            .order_by("-total_revenue_usd", "slug")[:target_size]
+            base_qs.filter(bucket=bucket).order_by("-total_revenue_usd", "slug")[:target_size]
         )
 
     selected: list[Charity] = []
@@ -208,14 +211,43 @@ class CharityViewSet(viewsets.ReadOnlyModelViewSet):
         tags=["catalog"],
         summary="Paginated, faceted charity list",
         parameters=[
-            OpenApiParameter("cause", OpenApiTypes.STR, OpenApiParameter.QUERY, description="Cause slug(s); repeat for multiple"),
-            OpenApiParameter("country", OpenApiTypes.STR, OpenApiParameter.QUERY, description="ISO 3166-1 alpha-2 code(s); comma-separated for regional filters (e.g. country=GB,DE,NL for Europe)"),
-            OpenApiParameter("size", OpenApiTypes.STR, OpenApiParameter.QUERY, enum=["small", "medium", "large"]),
-            OpenApiParameter("verification_status", OpenApiTypes.STR, OpenApiParameter.QUERY, enum=["verified", "listed", "stale"]),
-            OpenApiParameter("badges", OpenApiTypes.STR, OpenApiParameter.QUERY, description="Comma-separated badge slugs"),
-            OpenApiParameter("q", OpenApiTypes.STR, OpenApiParameter.QUERY, description="Free-text search"),
+            OpenApiParameter(
+                "cause",
+                OpenApiTypes.STR,
+                OpenApiParameter.QUERY,
+                description="Cause slug(s); repeat for multiple",
+            ),
+            OpenApiParameter(
+                "country",
+                OpenApiTypes.STR,
+                OpenApiParameter.QUERY,
+                description=(
+                    "ISO 3166-1 alpha-2 code(s); comma-separated for regional "
+                    "filters (e.g. country=GB,DE,NL for Europe)"
+                ),
+            ),
+            OpenApiParameter(
+                "size", OpenApiTypes.STR, OpenApiParameter.QUERY, enum=["small", "medium", "large"]
+            ),
+            OpenApiParameter(
+                "verification_status",
+                OpenApiTypes.STR,
+                OpenApiParameter.QUERY,
+                enum=["verified", "listed", "stale"],
+            ),
+            OpenApiParameter(
+                "badges",
+                OpenApiTypes.STR,
+                OpenApiParameter.QUERY,
+                description="Comma-separated badge slugs",
+            ),
+            OpenApiParameter(
+                "q", OpenApiTypes.STR, OpenApiParameter.QUERY, description="Free-text search"
+            ),
             OpenApiParameter("lang", OpenApiTypes.STR, OpenApiParameter.QUERY, enum=["en", "ru"]),
-            OpenApiParameter("sort", OpenApiTypes.STR, OpenApiParameter.QUERY, enum=list(SORT_MAP.keys())),
+            OpenApiParameter(
+                "sort", OpenApiTypes.STR, OpenApiParameter.QUERY, enum=list(SORT_MAP.keys())
+            ),
             OpenApiParameter(
                 "bucket",
                 OpenApiTypes.STR,
@@ -237,7 +269,9 @@ class CharityViewSet(viewsets.ReadOnlyModelViewSet):
         except Charity.DoesNotExist:
             alias = CharitySlugAlias.objects.filter(slug=slug).select_related("charity").first()
             if alias is None:
-                raise NotFound(f"No charity with slug '{slug}'")
+                # `from None`: the DoesNotExist that got us here is the expected
+                # control flow, not a cause worth chaining into the response.
+                raise NotFound(f"No charity with slug '{slug}'") from None
             return Response(
                 {"redirect_to": f"/api/charities/{alias.charity.slug}/"},
                 status=status.HTTP_301_MOVED_PERMANENTLY,
@@ -369,7 +403,9 @@ class CauseListView(viewsets.ReadOnlyModelViewSet):
     serializer_class = CauseSerializer
     pagination_class = None
 
-    @extend_schema(operation_id="listCauses", tags=["taxonomy"], summary="Cause taxonomy tree (EN+RU)")
+    @extend_schema(
+        operation_id="listCauses", tags=["taxonomy"], summary="Cause taxonomy tree (EN+RU)"
+    )
     def list(self, request: Request, *args: Any, **kwargs: Any) -> Response:
         return super().list(request, *args, **kwargs)
 

@@ -1,4 +1,5 @@
 """STUB — CharityBase.uk ingestion. Full implementation deferred (per Phase 3 brief)."""
+
 from __future__ import annotations
 
 from django.core.management.base import BaseCommand

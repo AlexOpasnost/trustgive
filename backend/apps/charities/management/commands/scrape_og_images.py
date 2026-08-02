@@ -23,6 +23,7 @@ Logic identical to the original 0033 docstring:
 
 Idempotent. Defensive try/except per charity.
 """
+
 from __future__ import annotations
 
 import re
@@ -33,7 +34,6 @@ from django.core.management.base import BaseCommand
 from django.db import connection
 
 from apps.charities.models import Charity
-
 
 USER_AGENT = (
     "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
@@ -105,9 +105,12 @@ def _extract_og(html: str, base_url: str) -> str | None:
         candidate = (m.group(1) or "").strip()
         if not candidate or candidate.startswith("data:") or len(candidate) < 20:
             continue
+        # urljoin only raises for malformed authorities (e.g. a bad IPv6
+        # literal). Narrowed from a bare `except Exception` so a genuine bug in
+        # this helper surfaces instead of being swallowed as "next candidate".
         try:
             absolute = urljoin(base_url, candidate)
-        except Exception:
+        except ValueError:
             continue
         if not absolute.startswith(("http://", "https://")):
             continue
@@ -169,7 +172,9 @@ def _head_image(url: str) -> bool:
 
 
 class Command(BaseCommand):
-    help = "Scrape og:image / twitter:image from each charity's homepage and save as hero_photo_url."
+    help = (
+        "Scrape og:image / twitter:image from each charity's homepage and save as hero_photo_url."
+    )
 
     def handle(self, *args, **opts):
         qs = Charity.objects.all().order_by("created_at", "slug")
@@ -234,45 +239,48 @@ class Command(BaseCommand):
 
             og_found += 1
             host = _host_of(homepage) or _host_of(og_url) or "site"
-            org_en = ""
-            org_ru = ""
-            try:
-                org_en = (charity.name or {}).get("en", "") if isinstance(charity.name, dict) else ""
-                org_ru = (charity.name or {}).get("ru", org_en) if isinstance(charity.name, dict) else ""
-            except Exception:
-                pass
-            if not org_en:
-                org_en = charity.slug
-            if not org_ru:
-                org_ru = org_en
+            # The isinstance guard already covers the only shape that could
+            # fail, so the try/except that used to wrap this was unreachable
+            # defensive code hiding nothing.
+            name = charity.name if isinstance(charity.name, dict) else {}
+            org_en = name.get("en") or charity.slug
+            org_ru = name.get("ru") or org_en
 
             # v3.13.x: Neon Postgres drops idle connections during the
             # 17-min scrape. close_if_unusable_or_obsolete + retry once
             # guarantees we don't lose successful HTTP work to a dead
             # DB connection. The next ORM call auto-reconnects.
-            def _save():
-                Charity.objects.filter(pk=charity.pk).update(
-                    hero_photo_url=og_url,
-                    hero_photo_credit=f"Source: {host}",
+            #
+            # Values are passed in rather than captured from the enclosing loop:
+            # the closure was correct only because it happened to be called in
+            # the same iteration it was defined in, which is a trap for whoever
+            # next moves the retry out of the loop.
+            def _save(pk, photo_url, credit_host, caption_en, caption_ru):
+                Charity.objects.filter(pk=pk).update(
+                    hero_photo_url=photo_url,
+                    hero_photo_credit=f"Source: {credit_host}",
                     hero_photo_license="press-kit",
                     hero_photo_caption={
-                        "en": f"Cover image from {org_en}.",
-                        "ru": f"Изображение с сайта {org_ru}.",
+                        "en": f"Cover image from {caption_en}.",
+                        "ru": f"Изображение с сайта {caption_ru}.",
                     },
                 )
 
+            save_args = (charity.pk, og_url, host, org_en, org_ru)
             try:
                 connection.close_if_unusable_or_obsolete()
-                _save()
+                _save(*save_args)
             except Exception:
                 # First attempt failed (likely stale connection).
                 # Force-close and retry once.
                 try:
                     connection.close()
-                except Exception:
-                    pass
+                except Exception as close_exc:
+                    self.stdout.write(
+                        f"DB-CLOSE {charity.slug} {type(close_exc).__name__}: {close_exc}"
+                    )
                 try:
-                    _save()
+                    _save(*save_args)
                 except Exception as exc:
                     self.stdout.write(f"DB-FAIL {charity.slug} {type(exc).__name__}: {exc}")
                     time.sleep(THROTTLE_SECONDS)
@@ -285,14 +293,16 @@ class Command(BaseCommand):
 
             time.sleep(THROTTLE_SECONDS)
 
-        self.stdout.write(self.style.SUCCESS(
-            f"\nOG-image scrape complete:\n"
-            f"  scanned                : {scanned} / {total}\n"
-            f"  og_found               : {og_found}\n"
-            f"  og_replaced_unsplash   : {og_replaced_unsplash}\n"
-            f"  og_filled_empty        : {og_filled_empty}\n"
-            f"  skipped_wikimedia      : {skipped_wikimedia}\n"
-            f"  skipped_custom_curated : {skipped_custom}\n"
-            f"  fetch_failed           : {fetch_failed}\n"
-            f"  head_failed            : {head_failed}\n"
-        ))
+        self.stdout.write(
+            self.style.SUCCESS(
+                f"\nOG-image scrape complete:\n"
+                f"  scanned                : {scanned} / {total}\n"
+                f"  og_found               : {og_found}\n"
+                f"  og_replaced_unsplash   : {og_replaced_unsplash}\n"
+                f"  og_filled_empty        : {og_filled_empty}\n"
+                f"  skipped_wikimedia      : {skipped_wikimedia}\n"
+                f"  skipped_custom_curated : {skipped_custom}\n"
+                f"  fetch_failed           : {fetch_failed}\n"
+                f"  head_failed            : {head_failed}\n"
+            )
+        )

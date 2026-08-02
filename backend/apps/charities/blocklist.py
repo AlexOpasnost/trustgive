@@ -23,11 +23,11 @@ Updates: when Russia's foreign-agent / extremist / undesirable registers update,
 re-import lists via `python manage.py refresh_official_blocklists` (see TODO §3
 of the file `apply_blocklist.py`).
 """
+
 from __future__ import annotations
 
 import re
 from dataclasses import dataclass
-
 
 # --- 1. Country block (we never ingest these) -------------------------------
 # Operating from Russia, ingesting Ukrainian-registered charities is a direct

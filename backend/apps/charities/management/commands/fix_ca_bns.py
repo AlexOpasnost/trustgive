@@ -18,11 +18,11 @@ left as-is (the detail page hides the money section when there's no figure).
     python manage.py fix_ca_bns --file=ca_bns.json --dry-run
     python manage.py fix_ca_bns --file=ca_bns.json
 """
+
 from __future__ import annotations
 
 import json
 import re
-import urllib.request
 from typing import Any
 
 from django.core.management.base import BaseCommand, CommandError
@@ -94,7 +94,9 @@ class Command(BaseCommand):
                 bn = _normalise_bn(raw_bn)
                 if not BN_RE.match(bn):
                     skipped += 1
-                    self.stdout.write(f"[SKIP]  {slug} -- '{raw_bn}' is not a valid CRA BN (9 digits + RRnnnn)")
+                    self.stdout.write(
+                        f"[SKIP]  {slug} -- '{raw_bn}' is not a valid CRA BN (9 digits + RRnnnn)"
+                    )
                     continue
                 c = Charity.objects.filter(slug=slug, country="CA").first()
                 if c is None:
@@ -107,7 +109,8 @@ class Command(BaseCommand):
                     continue
                 clash = (
                     Charity.objects.filter(country="CA", registration_id=bn)
-                    .exclude(pk=c.pk).first()
+                    .exclude(pk=c.pk)
+                    .first()
                 )
                 if clash is not None:
                     skipped += 1
@@ -134,6 +137,8 @@ class Command(BaseCommand):
                 c.save(update_fields=["registration_id", "verification_status"])
             if dry:
                 transaction.set_rollback(True)
-        self.stdout.write(self.style.SUCCESS(
-            f"\nDone ({'dry' if dry else 'applied'}). applied={applied} skipped={skipped}"
-        ))
+        self.stdout.write(
+            self.style.SUCCESS(
+                f"\nDone ({'dry' if dry else 'applied'}). applied={applied} skipped={skipped}"
+            )
+        )

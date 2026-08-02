@@ -1,4 +1,5 @@
 """Minimal Django admin — Phase 4.5 expands with custom forms for LocalizedTextField."""
+
 from django.contrib import admin
 
 from apps.charities.models import (

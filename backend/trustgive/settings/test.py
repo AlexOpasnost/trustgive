@@ -17,6 +17,7 @@ Postgres-specific features the app uses (FTS, pg_trgm, unaccent, JSONB)
 all work on a real Postgres, so SQLite is not an option — hence the
 docker-compose.test.yml sidecar.
 """
+
 from __future__ import annotations
 
 import environ

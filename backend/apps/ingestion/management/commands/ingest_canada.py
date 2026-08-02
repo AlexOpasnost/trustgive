@@ -12,6 +12,7 @@ Full implementation should:
   - Use the same tiered fuzzy dedup pattern as ingest_propublica.py
   - Pull most recent T3010 (Registered Charity Information Return) for financials
 """
+
 from __future__ import annotations
 
 from django.core.management.base import BaseCommand

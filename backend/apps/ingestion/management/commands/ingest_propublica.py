@@ -5,13 +5,14 @@ Usage:
     python manage.py ingest_propublica --bootstrap --limit=1000
     python manage.py ingest_propublica --since=24h
 """
+
 from __future__ import annotations
 
 import hashlib
 import json
 import logging
 import re
-from datetime import date, datetime, timedelta, timezone
+from datetime import UTC, date, datetime
 from decimal import Decimal
 from typing import Any
 
@@ -28,12 +29,12 @@ from apps.charities.models import (
     Country,
     DocumentKind,
     FileFormat,
+    Financial,
     IngestionSource,
     SizeBucket,
     SourceDocument,
     VerificationStatus,
 )
-from apps.charities.models import Financial
 from apps.ingestion.http import ThrottledHTTPClient
 from apps.ingestion.models import IngestionLog, IngestionStatus, SourceMapping
 
@@ -83,7 +84,9 @@ class Command(BaseCommand):
         ein = options.get("ein")
         client = ThrottledHTTPClient(settings.PROPUBLICA_API_BASE, requests_per_sec=5)
 
-        log = IngestionLog.objects.create(source=IngestionSource.PROPUBLICA, status=IngestionStatus.RUNNING)
+        log = IngestionLog.objects.create(
+            source=IngestionSource.PROPUBLICA, status=IngestionStatus.RUNNING
+        )
 
         try:
             if ein:
@@ -104,16 +107,28 @@ class Command(BaseCommand):
             log.status = IngestionStatus.SUCCEEDED
         elif log.records_upserted > 0:
             log.status = IngestionStatus.PARTIAL
-            sentry_sdk.add_breadcrumb(category="ingestion", message=f"Partial: {len(log.errors)} errors")
+            sentry_sdk.add_breadcrumb(
+                category="ingestion", message=f"Partial: {len(log.errors)} errors"
+            )
         else:
             log.status = IngestionStatus.FAILED
 
-        log.finished_at = datetime.now(timezone.utc)
-        log.save(update_fields=["status", "finished_at", "records_seen", "records_upserted", "records_skipped", "errors"])
+        log.finished_at = datetime.now(UTC)
+        log.save(
+            update_fields=[
+                "status",
+                "finished_at",
+                "records_seen",
+                "records_upserted",
+                "records_skipped",
+                "errors",
+            ]
+        )
 
         self.stdout.write(
             self.style.SUCCESS(
-                f"Done: status={log.status} seen={log.records_seen} upserted={log.records_upserted} "
+                f"Done: status={log.status} seen={log.records_seen} "
+                f"upserted={log.records_upserted} "
                 f"skipped={log.records_skipped} errors={len(log.errors)}"
             )
         )
@@ -125,7 +140,9 @@ class Command(BaseCommand):
         try:
             data = client.get(f"organizations/{ein_clean}.json")
         except Exception as exc:
-            log.errors.append({"ein": ein_clean, "error_class": type(exc).__name__, "message": str(exc)[:500]})
+            log.errors.append(
+                {"ein": ein_clean, "error_class": type(exc).__name__, "message": str(exc)[:500]}
+            )
             log.records_seen = 1
             return
         log.raw_payload = {"source_url": f"organizations/{ein_clean}.json", "sample": data}
@@ -142,7 +159,9 @@ class Command(BaseCommand):
             try:
                 data = client.get("search.json", params={"page": page, "c_code[id]": 3})
             except Exception as exc:
-                log.errors.append({"page": page, "error_class": type(exc).__name__, "message": str(exc)[:500]})
+                log.errors.append(
+                    {"page": page, "error_class": type(exc).__name__, "message": str(exc)[:500]}
+                )
                 break
             orgs = data.get("organizations", [])
             if not orgs:
@@ -154,7 +173,13 @@ class Command(BaseCommand):
                 try:
                     detail = client.get(f"organizations/{ein_clean}.json")
                 except Exception as exc:
-                    log.errors.append({"ein": ein_clean, "error_class": type(exc).__name__, "message": str(exc)[:300]})
+                    log.errors.append(
+                        {
+                            "ein": ein_clean,
+                            "error_class": type(exc).__name__,
+                            "message": str(exc)[:300],
+                        }
+                    )
                     log.records_skipped += 1
                     continue
                 log.records_seen += 1
@@ -163,14 +188,19 @@ class Command(BaseCommand):
             page += 1
 
     def _ingest_delta(self, client: ThrottledHTTPClient, since: str, log: IngestionLog) -> None:
-        # ProPublica doesn't have an "updated since" param — bootstrap-style hit with smaller limit.
-        # In practice nightly delta = re-process top 5K orgs; raw_data_hash short-circuit elides identical re-imports.
+        # ProPublica has no "updated since" param — this is a bootstrap-style hit
+        # with a smaller limit. In practice the nightly delta re-processes the top
+        # 5K orgs; the raw_data_hash short-circuit elides identical re-imports.
         match = re.match(r"^(\d+)([hd])$", since.lower())
         if match:
             window_seconds = int(match.group(1)) * (3600 if match.group(2) == "h" else 86400)
         else:
             window_seconds = 86400
-        logger.info("Delta sync window: %ds (note: ProPublica has no updated-since; using hash-shortcircuit)", window_seconds)
+        logger.info(
+            "Delta sync window: %ds (ProPublica has no updated-since; "
+            "relying on the hash short-circuit)",
+            window_seconds,
+        )
         self._ingest_bootstrap(client, limit=5000, log=log)
 
     # --- Per-record processing ---
@@ -178,14 +208,18 @@ class Command(BaseCommand):
     def _process_record(self, data: dict[str, Any], log: IngestionLog) -> None:
         org = data.get("organization") or {}
         if not org:
-            log.errors.append({"error_class": "ParseError", "message": "Missing 'organization' key"})
+            log.errors.append(
+                {"error_class": "ParseError", "message": "Missing 'organization' key"}
+            )
             log.records_skipped += 1
             return
 
         ein_clean = str(org.get("ein", "")).zfill(9)
         name = (org.get("name") or "").strip()
         if not name or not ein_clean:
-            log.errors.append({"ein": ein_clean, "error_class": "ParseError", "message": "Missing name or EIN"})
+            log.errors.append(
+                {"ein": ein_clean, "error_class": "ParseError", "message": "Missing name or EIN"}
+            )
             log.records_skipped += 1
             return
 
@@ -207,7 +241,9 @@ class Command(BaseCommand):
         try:
             with transaction.atomic():
                 charity = self._find_or_create(name, ein_clean)
-                mapping, created = SourceMapping.objects.select_for_update(skip_locked=True).get_or_create(
+                mapping, created = SourceMapping.objects.select_for_update(
+                    skip_locked=True
+                ).get_or_create(
                     charity=charity,
                     source=IngestionSource.PROPUBLICA,
                     defaults={"source_id": ein_clean, "raw_data_hash": record_hash},
@@ -223,7 +259,9 @@ class Command(BaseCommand):
                 self._upsert_filings(charity, data.get("filings_with_data", []))
                 log.records_upserted += 1
         except Exception as exc:
-            log.errors.append({"ein": ein_clean, "error_class": type(exc).__name__, "message": str(exc)[:500]})
+            log.errors.append(
+                {"ein": ein_clean, "error_class": type(exc).__name__, "message": str(exc)[:500]}
+            )
             log.records_skipped += 1
             logger.exception("Per-record ingestion failed for EIN %s", ein_clean)
 
@@ -308,10 +346,9 @@ class Command(BaseCommand):
 
         # Reliable from ProPublica filings_with_data:
         revenue = latest.get("totrevenue") or latest.get("totrev2")
-        # Total functional expenses (program + admin + fundraising combined).
-        # Useful for sanity-check and program_expense_pct denominator
-        # alternative, but does NOT give us the 3-way split.
-        total_expenses = latest.get("totfuncexpns")
+        # ProPublica also exposes `totfuncexpns` (program + admin + fundraising
+        # combined), but not the 3-way split we'd need to show where the money
+        # goes — so it is deliberately not stored rather than read and dropped.
         # Executive compensation — ProPublica exposes the Part VII total of
         # current officer/director/key-employee compensation directly:
         exec_comp = latest.get("compnsatncurrofcr")

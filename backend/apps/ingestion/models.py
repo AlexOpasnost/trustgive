@@ -1,4 +1,5 @@
 """ETL audit + provenance models (per ADR-004)."""
+
 from __future__ import annotations
 
 import uuid
@@ -20,7 +21,9 @@ class IngestionLog(models.Model):
     source = models.CharField(max_length=20, choices=IngestionSource.choices)
     started_at = models.DateTimeField(auto_now_add=True)
     finished_at = models.DateTimeField(null=True, blank=True)
-    status = models.CharField(max_length=10, choices=IngestionStatus.choices, default=IngestionStatus.RUNNING)
+    status = models.CharField(
+        max_length=10, choices=IngestionStatus.choices, default=IngestionStatus.RUNNING
+    )
     records_seen = models.PositiveIntegerField(default=0)
     records_upserted = models.PositiveIntegerField(default=0)
     records_skipped = models.PositiveIntegerField(default=0)
