@@ -259,7 +259,7 @@ async function handleImageProxy(request: Request): Promise<Response> {
 // v3.22: added /api. The first v3.22 deploy shipped without bumping this and
 // the edge kept serving the 810-URL body for hours — the very failure the
 // paragraph above describes, repeated by the person who wrote it.
-const SITEMAP_VERSION = "v3.23"
+const SITEMAP_VERSION = "v3.24"
 
 /**
  * Published research slugs, mirroring frontend/web/src/content/research.ts.
@@ -268,7 +268,10 @@ const SITEMAP_VERSION = "v3.23"
  * bundles with no shared module. Two entries is cheap to keep in step; if this
  * list grows, move it behind an API endpoint the way hubs and stats are.
  */
-const RESEARCH_SLUGS = ["what-we-could-not-verify"] as const
+const RESEARCH_SLUGS = [
+  "how-old-is-charity-financial-data",
+  "what-we-could-not-verify",
+] as const
 
 async function handleSitemap(): Promise<Response> {
   const cache = (caches as unknown as { default: Cache }).default
@@ -1448,6 +1451,14 @@ const RESEARCH_META: Record<
   string,
   { title: string; description: string; published: string }
 > = {
+  "how-old-is-charity-financial-data": {
+    title: "Nobody can tell you what a charity spent last year · TrustGive",
+    description:
+      "Across 365 organisations, not one has financial data covering a period that " +
+      "ended within the last twelve months. The median is 31 months, and that is " +
+      "the filing system working as designed.",
+    published: "2026-08-03",
+  },
   "what-we-could-not-verify": {
     title: "A third of the charities we assembled could not be verified · TrustGive",
     description:

@@ -16,7 +16,13 @@ import { HugeiconsIcon } from "@hugeicons/react"
 import { useTranslation } from "react-i18next"
 import { Link, useParams } from "react-router-dom"
 
-import { HEADLINE, RESEARCH_ARTICLES, VERIFICATION_BY_COUNTRY } from "@/content/research"
+import {
+  FILING_AGE,
+  FILING_AGE_BUCKETS,
+  HEADLINE,
+  RESEARCH_ARTICLES,
+  VERIFICATION_BY_COUNTRY,
+} from "@/content/research"
 import { useDocumentTitle } from "@/lib/useDocumentTitle"
 import { formatIsoDate } from "@/lib/utils"
 import { usePreferences } from "@/store/preferences"
@@ -101,6 +107,49 @@ export function ResearchArticlePage() {
 
       <hr className="border-rule my-12" />
 
+      {slug === "what-we-could-not-verify" ? (
+        <CoverageArticle lang={lang} />
+      ) : (
+        <FreshnessArticle lang={lang} />
+      )}
+
+      <hr className="border-rule my-12" />
+
+      <Section title={t("research.methodTitle")}>
+        <P className="text-ink-3">{t(`${key}.method`, { date: published })}</P>
+        <p className="mt-6 flex flex-wrap gap-x-6 gap-y-2">
+          <a
+            href="https://github.com/AlexOpasnost/trustgive/blob/main/backend/research_query.py"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-body-sm text-ink underline decoration-rule decoration-1 underline-offset-4 hover:decoration-ink"
+          >
+            {t("research.linkScript")}
+          </a>
+          <Link
+            to="/api"
+            className="text-body-sm text-ink underline decoration-rule decoration-1 underline-offset-4 hover:decoration-ink"
+          >
+            {t("research.linkApi")}
+          </Link>
+          <Link
+            to="/data-sources"
+            className="text-body-sm text-ink underline decoration-rule decoration-1 underline-offset-4 hover:decoration-ink"
+          >
+            {t("research.linkSources")}
+          </Link>
+        </p>
+      </Section>
+    </article>
+  )
+}
+
+/** "A third of the charities we assembled could not be verified." */
+function CoverageArticle({ lang }: { lang: "en" | "ru" }) {
+  const { t } = useTranslation()
+  const key = "research.articles.what-we-could-not-verify"
+  return (
+    <>
       <Section title={t(`${key}.s1Title`)}>
         <P>{t(`${key}.s1p1`, { assembled: HEADLINE.assembled, verified: HEADLINE.verified })}</P>
         <P className="mt-4">{t(`${key}.s1p2`, { unverified: HEADLINE.unverified })}</P>
@@ -140,35 +189,122 @@ export function ResearchArticlePage() {
         <P>{t(`${key}.s5p1`)}</P>
         <P className="mt-4">{t(`${key}.s5p2`)}</P>
       </Section>
+    </>
+  )
+}
 
-      <hr className="border-rule my-12" />
-
-      <Section title={t("research.methodTitle")}>
-        <P className="text-ink-3">{t(`${key}.method`, { date: published })}</P>
-        <p className="mt-6 flex flex-wrap gap-x-6 gap-y-2">
-          <a
-            href="https://github.com/AlexOpasnost/trustgive/blob/main/backend/research_query.py"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-body-sm text-ink underline decoration-rule decoration-1 underline-offset-4 hover:decoration-ink"
-          >
-            {t("research.linkScript")}
-          </a>
-          <Link
-            to="/api"
-            className="text-body-sm text-ink underline decoration-rule decoration-1 underline-offset-4 hover:decoration-ink"
-          >
-            {t("research.linkApi")}
-          </Link>
-          <Link
-            to="/data-sources"
-            className="text-body-sm text-ink underline decoration-rule decoration-1 underline-offset-4 hover:decoration-ink"
-          >
-            {t("research.linkSources")}
-          </Link>
-        </p>
+/** "Nobody has current financial data on a charity." */
+function FreshnessArticle({ lang }: { lang: "en" | "ru" }) {
+  const { t } = useTranslation()
+  const key = "research.articles.how-old-is-charity-financial-data"
+  return (
+    <>
+      <Section title={t(`${key}.s1Title`)}>
+        <P>{t(`${key}.s1p1`, { measured: FILING_AGE.measured })}</P>
+        <P className="mt-4">{t(`${key}.s1p2`)}</P>
       </Section>
-    </article>
+
+      <Section title={t(`${key}.s2Title`)} className="mt-12">
+        <P>
+          {t(`${key}.s2p1`, {
+            median: FILING_AGE.medianMonths,
+            older: FILING_AGE.olderThan24Months,
+            measured: FILING_AGE.measured,
+          })}
+        </P>
+        <AgeTable />
+        <P className="mt-6">{t(`${key}.s2p2`)}</P>
+      </Section>
+
+      <Section title={t(`${key}.s3Title`)} className="mt-12">
+        <P>{t(`${key}.s3p1`)}</P>
+        <ul className="mt-4 space-y-2">
+          {FILING_AGE.commonPeriodEnds.map((row) => (
+            <li key={row.date} className="text-body-sm text-ink-2">
+              <span className="font-mono text-ink">{row.date}</span>
+              <span className="mx-2 text-ink-3">·</span>
+              {t(`${key}.periodEndRow`, { count: row.count })}
+            </li>
+          ))}
+        </ul>
+        <P className="mt-6">{t(`${key}.s3p2`)}</P>
+      </Section>
+
+      <Section title={t(`${key}.s4Title`)} className="mt-12">
+        <P>{t(`${key}.s4p1`)}</P>
+        <ul className="mt-4 space-y-2">
+          {FILING_AGE.byCountry.map((row) => (
+            <li key={row.code} className="text-body-sm text-ink-2">
+              <span className="text-ink">{COUNTRY_NAME[row.code]?.[lang] ?? row.code}</span>
+              <span className="mx-2 text-ink-3">·</span>
+              <span className="font-mono">
+                {t(`${key}.medianMonths`, { count: row.median })}
+              </span>
+              <span className="mx-2 text-ink-3">·</span>
+              <span className="text-ink-3">n={row.n}</span>
+            </li>
+          ))}
+        </ul>
+        <P className="mt-6">
+          {t(`${key}.s4p2`, {
+            gbMin: FILING_AGE.gbRangeMonths.min,
+            gbMax: FILING_AGE.gbRangeMonths.max,
+            usMax: FILING_AGE.usRangeMonths.max,
+          })}
+        </P>
+      </Section>
+
+      <Section title={t(`${key}.s5Title`)} className="mt-12">
+        <P>{t(`${key}.s5p1`)}</P>
+        <P className="mt-4">{t(`${key}.s5p2`)}</P>
+      </Section>
+    </>
+  )
+}
+
+function AgeTable() {
+  const { t } = useTranslation()
+  const key = "research.articles.how-old-is-charity-financial-data"
+  return (
+    <div className="mt-6 overflow-x-auto">
+      <table className="w-full text-left border-collapse">
+        <thead>
+          <tr className="border-b border-rule">
+            <th className="py-2 pr-4 text-caption font-medium uppercase tracking-wide text-ink-3">
+              {t(`${key}.colAge`)}
+            </th>
+            <th className="py-2 pr-4 text-caption font-medium uppercase tracking-wide text-ink-3 text-right">
+              {t(`${key}.colCount`)}
+            </th>
+            <th className="py-2 text-caption font-medium uppercase tracking-wide text-ink-3 text-right">
+              {t("research.colRate")}
+            </th>
+          </tr>
+        </thead>
+        <tbody>
+          {FILING_AGE_BUCKETS.map((bucket) => {
+            const share = (100 * bucket.count) / FILING_AGE.measured
+            return (
+              <tr key={bucket.key} className="border-b border-rule/60">
+                <td className="py-2 pr-4 text-body-sm text-ink">
+                  {t(`${key}.bucket.${bucket.key}`)}
+                </td>
+                <td className="py-2 pr-4 text-body-sm text-ink-2 text-right font-mono">
+                  {bucket.count}
+                </td>
+                <td
+                  className={`py-2 text-body-sm text-right font-mono ${
+                    bucket.count === 0 ? "text-ink" : "text-ink-2"
+                  }`}
+                >
+                  {share.toFixed(1)}%
+                </td>
+              </tr>
+            )
+          })}
+        </tbody>
+      </table>
+    </div>
   )
 }
 
