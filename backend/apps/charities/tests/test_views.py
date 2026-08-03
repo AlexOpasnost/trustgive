@@ -3,8 +3,10 @@
 from __future__ import annotations
 
 import pytest
+from django.db import connection
+from django.test.utils import CaptureQueriesContext
 
-from apps.charities.models import Charity, Country, IngestionSource
+from apps.charities.models import Charity, Country, IngestionSource, SourceDocument
 
 
 @pytest.fixture
@@ -55,6 +57,90 @@ def test_charity_detail_404_on_unknown_slug(api_client):
     assert res.status_code == 404
     body = res.json()
     assert body["error"]["code"] == "NOT_FOUND"
+
+
+# --- v3.22: the catalogue card's source line ------------------------------- #
+#
+# The card wore a green "Verified" chip without ever saying what it was verified
+# against. STRATEGY §2 calls that the missing half of the product, so the summary
+# payload now names the document — and these tests hold it to naming a real one.
+
+
+@pytest.mark.django_db
+def test_summary_reports_the_document_backing_the_record(api_client, charity):
+    SourceDocument.objects.create(
+        charity=charity,
+        kind="irs_990",
+        label={"en": "IRS Form 990", "ru": "Форма IRS 990"},
+        url="https://projects.propublica.org/nonprofits/organizations/271661997",
+    )
+
+    body = api_client.get("/api/charities/").json()
+    card = next(c for c in body["results"] if c["slug"] == charity.slug)
+
+    assert card["primary_source_kind"] == "irs_990"
+
+
+@pytest.mark.django_db
+def test_summary_reports_null_rather_than_guessing(api_client, charity):
+    """No document, no claim. The card then renders no source line at all."""
+    body = api_client.get("/api/charities/").json()
+    card = next(c for c in body["results"] if c["slug"] == charity.slug)
+
+    assert card["primary_source_kind"] is None
+
+
+@pytest.mark.django_db
+def test_documents_without_a_url_are_not_offered_as_evidence(api_client, charity):
+    """A document nobody can open is not evidence, so it must not be named."""
+    SourceDocument.objects.create(
+        charity=charity,
+        kind="annual_report",
+        label={"en": "Annual report", "ru": "Годовой отчёт"},
+        url="",
+    )
+
+    body = api_client.get("/api/charities/").json()
+    card = next(c for c in body["results"] if c["slug"] == charity.slug)
+
+    assert card["primary_source_kind"] is None
+
+
+@pytest.mark.django_db
+def test_catalogue_does_not_issue_a_query_per_card(api_client, db):
+    """Guards the prefetch that keeps `primary_source_kind` from being an N+1.
+
+    Reading a related document per row would cost one query per card — 60 on a
+    catalogue page, 370 across a full crawl of the sitemap. The assertion is a
+    ceiling rather than an exact number so unrelated query-count changes don't
+    make this brittle; without the prefetch it lands in the twenties.
+    """
+    for i in range(12):
+        row = Charity.objects.create(
+            slug=f"org-{i}",
+            country=Country.US,
+            registration_id=f"reg-{i}",
+            ingestion_source=IngestionSource.PROPUBLICA,
+            name={"en": f"Org {i}", "ru": f"Org {i}"},
+            tagline={"en": "", "ru": ""},
+            description={"en": "", "ru": ""},
+            methodology_note={"en": "", "ru": ""},
+            cause_tags=[],
+            verification_status="verified",
+        )
+        SourceDocument.objects.create(
+            charity=row,
+            kind="irs_990",
+            label={"en": "IRS Form 990", "ru": "Форма IRS 990"},
+            url=f"https://projects.propublica.org/nonprofits/organizations/{i}",
+        )
+
+    with CaptureQueriesContext(connection) as captured:
+        res = api_client.get("/api/charities/?page_size=12")
+
+    assert res.status_code == 200
+    assert len(res.json()["results"]) == 12
+    assert len(captured) <= 8, [q["sql"][:120] for q in captured]
 
 
 @pytest.mark.django_db

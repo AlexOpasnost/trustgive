@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from typing import Any
 
+from drf_spectacular.utils import extend_schema_field
 from rest_framework import serializers
 
 from apps.charities.models import (
@@ -195,6 +196,7 @@ class CharitySummarySerializer(serializers.ModelSerializer):
     name = LocalizedSerializerField()
     tagline = LocalizedSerializerField()
     trust_badges = serializers.SerializerMethodField()
+    primary_source_kind = serializers.SerializerMethodField()
 
     class Meta:
         model = Charity
@@ -216,10 +218,41 @@ class CharitySummarySerializer(serializers.ModelSerializer):
             # --- v3.0 ---
             "hero_photo_url",
             "bucket",
+            # --- v3.22 ---
+            "primary_source_kind",
         )
 
     def get_trust_badges(self, obj: Charity) -> list[dict[str, Any]]:
         return TrustBadgeNestedSerializer(obj.charity_badges.all(), many=True).data
+
+    @extend_schema_field(
+        serializers.CharField(
+            allow_null=True,
+            help_text=(
+                "DocumentKind of the newest source document that has a URL, or "
+                "null when the organisation has none."
+            ),
+        )
+    )
+    def get_primary_source_kind(self, obj: Charity) -> str | None:
+        """What kind of document backs this record — for the catalogue card.
+
+        The card carried a green "Verified" chip but never said *what* it was
+        verified against, which STRATEGY §2 calls the missing half of the
+        product: the claim without its evidence. This is the smallest thing the
+        card can say that is still an actual fact — "IRS Form 990", "Charity
+        Commission filing" — rendered next to the fiscal year the card already
+        knows from `last_filed_date`.
+
+        Selection matches the detail page's verification line: the first
+        document with a URL, in the model's `-filed_date` order. Iterating the
+        prefetched list rather than issuing `.filter().first()` keeps the
+        catalogue at one query for 370 rows instead of 371.
+        """
+        for document in obj.source_documents.all():
+            if document.url:
+                return document.kind
+        return None
 
 
 class CharityDetailSerializer(CharitySummarySerializer):

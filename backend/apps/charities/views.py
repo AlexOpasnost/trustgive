@@ -109,7 +109,7 @@ def _select_featured(target_size: int = 6, bucket: str | None = None) -> list[Ch
     base_qs = Charity.objects.filter(
         verification_status="verified",
         total_revenue_usd__isnull=False,
-    ).prefetch_related("charity_badges__badge")
+    ).prefetch_related("charity_badges__badge", "source_documents")
 
     if bucket:
         # v3.0 bucket-scoped: just top-N by revenue desc, no country quota.
@@ -182,7 +182,12 @@ def _verified_total(bucket: str | None = None) -> int:
 
 
 class CharityViewSet(viewsets.ReadOnlyModelViewSet):
-    queryset = Charity.objects.filter(**PUBLISHED).prefetch_related("charity_badges__badge")
+    # `source_documents` is prefetched because CharitySummarySerializer reads it
+    # for `primary_source_kind`. Without it the catalogue would issue one extra
+    # query per card — 60 per page, 370 for a full crawl of the sitemap.
+    queryset = Charity.objects.filter(**PUBLISHED).prefetch_related(
+        "charity_badges__badge", "source_documents"
+    )
     serializer_class = CharitySummarySerializer
     filterset_class = CharityFilter
     lookup_field = "slug"

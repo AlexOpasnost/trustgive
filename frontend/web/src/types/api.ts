@@ -98,6 +98,12 @@ export type CharitySummary = {
   bucket: Bucket | null
   /** v3.0 — full-bleed photo URL for catalog cards + hero (DESIGN.md v3.0 §D). */
   hero_photo_url: string | null
+  /**
+   * v3.22 — kind of the newest source document that has a URL, or null.
+   * Backs the catalogue card's source line ("IRS Form 990 · FY2023"): the card
+   * showed a Verified chip but never what it was verified against.
+   */
+  primary_source_kind: SourceDocumentKind | null
 }
 
 export type Charity = CharitySummary & {

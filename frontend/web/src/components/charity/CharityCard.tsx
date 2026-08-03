@@ -88,6 +88,24 @@ export function CharityCard({ charity }: Props) {
       ? formatUsd(charity.total_revenue_usd, { compact: true })
       : null
 
+  // "IRS Form 990 · FY2023". The document name comes from the record's own
+  // primary source; the year is the fiscal period end the filing covers, which
+  // is what `last_filed_date` stores (ProPublica `tax_prd`) — not the day it was
+  // submitted. Either half may be missing, and neither is invented.
+  // An unrecognised kind resolves to "" rather than to a raw enum value like
+  // "irs_990ez" leaking into the card, and the whole line is then dropped.
+  const documentLabel = charity.primary_source_kind
+    ? t(`charity.docKind.${charity.primary_source_kind}`, { defaultValue: "" })
+    : ""
+  const sourceLine = documentLabel
+    ? {
+        document: documentLabel,
+        fiscalYear: charity.last_filed_date
+          ? `FY${charity.last_filed_date.slice(0, 4)}`
+          : null,
+      }
+    : null
+
   return (
     <Link
       to={`/charities/${charity.slug}`}
@@ -186,8 +204,25 @@ export function CharityCard({ charity }: Props) {
           </p>
         )}
 
+        {/* Source line — what the "Verified" chip above is actually claiming.
+            STRATEGY §2: the card carried the badge but never the evidence, and
+            "chem imenno podtverzhdeno" is the product. Rendered only when both
+            facts are real; a card that can't name its document says nothing
+            rather than something vague. */}
+        {sourceLine && (
+          <p className="mt-3 text-caption text-ink-2">
+            <span>{sourceLine.document}</span>
+            {sourceLine.fiscalYear && (
+              <>
+                <span className="mx-1.5 text-ink-3">·</span>
+                <span className="font-mono">{sourceLine.fiscalYear}</span>
+              </>
+            )}
+          </p>
+        )}
+
         {/* Meta row */}
-        <p className="mt-3 text-caption text-ink-3">
+        <p className="mt-1.5 text-caption text-ink-3">
           <span>{country}</span>
           {causeTag && (
             <>
