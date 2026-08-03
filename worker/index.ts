@@ -256,7 +256,10 @@ async function handleImageProxy(request: Request): Promise<Response> {
  * times: everything reports success while production serves the old thing.
  * Charity-count changes need no bump; the 6-hour TTL handles those.
  */
-const SITEMAP_VERSION = "v3.21"
+// v3.22: added /api. The first v3.22 deploy shipped without bumping this and
+// the edge kept serving the 810-URL body for hours — the very failure the
+// paragraph above describes, repeated by the person who wrote it.
+const SITEMAP_VERSION = "v3.22"
 
 async function handleSitemap(): Promise<Response> {
   const cache = (caches as unknown as { default: Cache }).default
@@ -1343,11 +1346,35 @@ async function handleStructuredDataPage(
     }
   }
 
+  const meta = STRUCTURED_PAGE_META[page]
   const headExtras =
     `<link rel="canonical" href="${escapeAttr(canonical)}">` +
+    `<meta property="og:url" content="${escapeAttr(canonical)}">` +
+    `<meta name="twitter:title" content="${escapeAttr(meta.title)}">` +
+    `<meta name="twitter:description" content="${escapeAttr(meta.description)}">` +
     `<script type="application/ld+json">${JSON.stringify(jsonLd).replace(/</g, "\\u003c")}</script>`
 
   const html = await new HTMLRewriter()
+    .on("title", {
+      element(el) {
+        el.setInnerContent(meta.title)
+      },
+    })
+    .on('meta[name="description"]', {
+      element(el) {
+        el.setAttribute("content", meta.description)
+      },
+    })
+    .on('meta[property="og:title"]', {
+      element(el) {
+        el.setAttribute("content", meta.title)
+      },
+    })
+    .on('meta[property="og:description"]', {
+      element(el) {
+        el.setAttribute("content", meta.description)
+      },
+    })
     .on("head", {
       element(el) {
         el.append(headExtras, { html: true })
@@ -1373,6 +1400,39 @@ const STRUCTURED_DATA_PAGES: Record<string, "data-sources" | "about" | "api"> = 
   "/data-sources": "data-sources",
   "/about": "about",
   "/api": "api",
+}
+
+/**
+ * Head copy for those pages, mirroring the English locale strings.
+ *
+ * The SPA sets `document.title` after it mounts, so a crawler reading the raw
+ * response saw the shell's generic "TrustGive — Verified charity discovery" on
+ * all three — the same title as the homepage, which is how a page ends up
+ * filed as a duplicate. Kept in English because that is what an unauthenticated
+ * crawler gets; the reader still sees their own language once React renders.
+ */
+const STRUCTURED_PAGE_META: Record<
+  "data-sources" | "about" | "api",
+  { title: string; description: string }
+> = {
+  "data-sources": {
+    title: "Data sources · TrustGive",
+    description:
+      "Everything in the catalogue comes from a public register. Which ones, " +
+      "what each covers, and where each falls short.",
+  },
+  about: {
+    title: "About · TrustGive",
+    description:
+      "Who builds and runs TrustGive, how it is funded, what it deliberately " +
+      "cannot do, and how to report an error in the data.",
+  },
+  api: {
+    title: "Public API · TrustGive",
+    description:
+      "The whole catalogue as JSON. No key, no account, 60 requests per minute. " +
+      "Endpoints, filters, examples and the generated OpenAPI schema.",
+  },
 }
 
 // Order matters: the legit page adds a `/legit` segment, so it's matched before
