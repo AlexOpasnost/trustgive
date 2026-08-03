@@ -17,14 +17,12 @@ import { cn } from "@/lib/utils"
 import { usePreferences } from "@/store/preferences"
 
 export function TopNav() {
-  const { t, i18n } = useTranslation()
+  const { t } = useTranslation()
   const lang = usePreferences((s) => s.lang)
-  const setLang = usePreferences((s) => s.setLang)
-
-  const switchLang = (newLang: "en" | "ru") => {
-    setLang(newLang)
-    void i18n.changeLanguage(newLang)
-  }
+  // Setting the store is the whole switch: lib/i18n subscribes and moves
+  // i18next with it. Calling changeLanguage here too would restore the
+  // two-writers arrangement that made the language not survive a reload.
+  const switchLang = usePreferences((s) => s.setLang)
 
   const navLinkClass = ({ isActive }: { isActive: boolean }) =>
     cn(

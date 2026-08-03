@@ -13,8 +13,11 @@ type PreferencesState = {
 
 /**
  * v3.0: hard EN default. RU is opt-in via the nav toggle.
- * Persisted to `trustgive.preferences`. The TopNav lang toggle still updates
- * both this store and i18next.
+ *
+ * Persisted to `trustgive.preferences`, and since v3.24 this is the *only* place
+ * the language lives. `lib/i18n` initialises i18next from it and subscribes for
+ * later changes, so callers set `lang` here and nothing else — see the note in
+ * lib/i18n.ts for the reload bug that came of having two stores.
  */
 export const usePreferences = create<PreferencesState>()(
   persist(
