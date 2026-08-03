@@ -72,3 +72,19 @@ jobs:
         env:
           RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
         run: railway run --service trustgive python manage.py audit_source_links
+
+      - name: Audit financial sources
+        # Added 2026-08-03 after DATA_INTEGRITY.md Finding 8: 43 revenue figures
+        # that no cited source supported sat on published charities until someone
+        # happened to look. Every other control here watches identifiers and
+        # links; nothing watched the money column.
+        #
+        # Detection only, and --strict so a new occurrence fails this job loudly.
+        # It deliberately does not delete: the signal is a heuristic, and a
+        # scheduled job must not destroy a genuinely round figure at 02:00.
+        # Remediation is `strip_unsourced_financials`, run deliberately after
+        # reading its --dry-run.
+        if: always()
+        env:
+          RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
+        run: railway run --service trustgive python manage.py audit_financial_sources --strict
