@@ -1,6 +1,7 @@
 {
   "nav": {
     "catalog": "Catalog",
+    "research": "Research",
     "methodology": "Methodology",
     "about": "About",
     "switchLang": "Switch language to Russian"
@@ -210,6 +211,47 @@
     "linkCode": "Source code",
     "linkMethodology": "Verification method",
     "linkApi": "Public API"
+  },
+  "research": {
+    "title": "Research",
+    "lead": "Findings from auditing this catalogue. Published because they hold outside it: anyone assembling charity data from public registers runs into the same walls, and most of them are invisible until you hit one.",
+    "minutes_one": "{{count}} min read",
+    "minutes_other": "{{count}} min read",
+    "footnote": "Every figure published here is reproducible from the script and the public API linked in each piece. If you find a number that doesn't hold up, hello@trustgive.org.",
+    "methodTitle": "Method",
+    "linkScript": "The script that produces these figures",
+    "linkApi": "Query the data yourself",
+    "linkSources": "Which registers the data comes from",
+    "colCountry": "Country",
+    "colAssembled": "Assembled",
+    "colVerified": "Verified",
+    "colRate": "Rate",
+    "backToIndex": "All research",
+    "unknownTitle": "No such piece",
+    "unknownBody": "This research piece doesn't exist. It may have been renamed — the index lists everything published.",
+    "articles": {
+      "what-we-could-not-verify": {
+        "title": "A third of the charities we assembled could not be verified — and it was almost never their fault",
+        "standfirst": "541 organisations went in. 369 came out with a regulator document you can open. The 172 that didn't cluster by country, not by charity, and the reason is what the regulator publishes — not what the organisation does.",
+        "s1Title": "What was measured",
+        "s1p1": "We assembled {{assembled}} organisations from public registers and tried to link each one to a document its own regulator published — a filing, a register entry, something a reader can open and check. {{verified}} of them made it.",
+        "s1p2": "The other {{unverified}} are not published. They stay in the database, and they reappear the moment a document can be found for them, but a directory whose claim is “every entry links to the regulator's own file” cannot carry entries that don't.",
+        "s2Title": "The failure is not broken links",
+        "s2p1": "This is the part that surprised us. Of the {{unverified}} unverified organisations, {{noDocument}} had no obtainable document at all — not a dead link, an absent one. Exactly {{deadLink}} had a document whose link stopped resolving.",
+        "s2p2": "So the common mental model — records rot, links die, catalogues decay — describes almost none of this. The records were never obtainable in the first place. That distinction matters, because the two problems have different fixes: rot needs monitoring, absence needs a different source.",
+        "s3Title": "It clusters by country",
+        "s3p1": "Sorting the same 541 records by country makes the pattern obvious. The verification rate has almost nothing to do with the organisations and almost everything to do with whether their regulator publishes a stable, per-organisation record that a machine can fetch and a human can read.",
+        "s3p2": "The United Kingdom is at 100% because the Charity Commission gives every registered charity a permanent page keyed to its registration number. The United States is at 87% because the IRS releases Form 990 data that ProPublica mirrors with a stable URL per organisation. At the other end sit countries whose registers exist but are search-only: you can look an organisation up by hand, but there is no address to link to, so there is nothing to show a reader.",
+        "s4Title": "Canada, and a check that would have lied",
+        "s4p1": "Canada is the sharpest case: {{tested}} organisations assembled, none published. It is also where we caught our own worst near-miss.",
+        "s4p2": "The first verification routine written for Canada accepted a registration number if the CRA's charity page returned HTTP 200. Tested against controls, that page returns 200 for a fabricated number — byte-for-byte the same 55,230-byte response as for a real one. Had that routine run, it would have stamped “verified” on every Canadian record including the invented controls. It was disabled before it ever ran.",
+        "s4p3": "Checking the same numbers against a CRA endpoint that returns data rather than a status code gave a different answer: {{genuine}} of {{tested}} resolved to the right organisation, {{wrongEntity}} resolved to a different organisation entirely — one of them to a local parish rather than the national body whose name we had stored — and {{unresolvable}} did not resolve at all. A government-issued identifier that renders on a page is not evidence that it belongs to the organisation next to it.",
+        "s5Title": "What this means if you use charity data",
+        "s5p1": "Two things worth carrying away. First, coverage of any charity directory reflects regulator publishing practice, not sector quality — so an organisation's absence from a directory says far less than its presence. Second, if you are building verification of your own, never accept an HTTP status as proof; require a response that names the organisation, and compare that name to the one you hold.",
+        "s5p2": "We publish only what survives that test, which is why this catalogue is smaller than the data we hold. The gap is the finding.",
+        "method": "Figures measured {{date}} across all records in the database, published and unpublished. “Verified” means at least one source document whose URL returned HTTP 200 at audit time and whose registry record names the organisation. The Canadian identifier testing, including the fabricated controls, is recorded in the project's data-integrity audit."
+      }
+    }
   },
   "api": {
     "title": "Public API",

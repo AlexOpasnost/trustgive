@@ -259,7 +259,16 @@ async function handleImageProxy(request: Request): Promise<Response> {
 // v3.22: added /api. The first v3.22 deploy shipped without bumping this and
 // the edge kept serving the 810-URL body for hours — the very failure the
 // paragraph above describes, repeated by the person who wrote it.
-const SITEMAP_VERSION = "v3.22"
+const SITEMAP_VERSION = "v3.23"
+
+/**
+ * Published research slugs, mirroring frontend/web/src/content/research.ts.
+ *
+ * Duplicated rather than imported because the Worker and the SPA are separate
+ * bundles with no shared module. Two entries is cheap to keep in step; if this
+ * list grows, move it behind an API endpoint the way hubs and stats are.
+ */
+const RESEARCH_SLUGS = ["what-we-could-not-verify"] as const
 
 async function handleSitemap(): Promise<Response> {
   const cache = (caches as unknown as { default: Cache }).default
@@ -275,6 +284,15 @@ async function handleSitemap(): Promise<Response> {
     { loc: `${base}/data-sources`, priority: "0.7" },
     { loc: `${base}/about`, priority: "0.6" },
     { loc: `${base}/api`, priority: "0.6" },
+    { loc: `${base}/research`, priority: "0.8" },
+    // Research pieces are listed individually: each is a standalone document
+    // that someone might cite, and the index alone would leave them one hop
+    // further from the crawler than they deserve. Kept in step with
+    // frontend/web/src/content/research.ts.
+    ...RESEARCH_SLUGS.map((slug) => ({
+      loc: `${base}/research/${slug}`,
+      priority: "0.7",
+    })),
   ]
 
   // Pull all slugs. The API caps page_size at 500 server-side, so we page
@@ -1259,7 +1277,7 @@ async function handleHomePage(request: Request, env: Env): Promise<Response> {
 async function handleStructuredDataPage(
   request: Request,
   env: Env,
-  page: "data-sources" | "about" | "api",
+  page: "data-sources" | "about" | "api" | "research",
 ): Promise<Response> {
   const url = new URL(request.url)
   const canonical = `${SITE_BASE}${url.pathname.replace(/\/$/, "")}`
@@ -1332,6 +1350,21 @@ async function handleStructuredDataPage(
       founder: { "@type": "Person", name: "Alex Diachenko" },
       sameAs: ["https://github.com/AlexOpasnost/trustgive"],
     }
+  } else if (page === "research") {
+    jsonLd = {
+      "@context": "https://schema.org",
+      "@type": "CollectionPage",
+      name: "TrustGive research",
+      url: canonical,
+      description: STRUCTURED_PAGE_META.research.description,
+      publisher: { "@type": "Organization", name: "TrustGive", url: SITE_BASE },
+      hasPart: Object.entries(RESEARCH_META).map(([slug, meta]) => ({
+        "@type": "Report",
+        headline: meta.title.replace(" · TrustGive", ""),
+        datePublished: meta.published,
+        url: `${SITE_BASE}/research/${slug}`,
+      })),
+    }
   } else {
     jsonLd = {
       "@context": "https://schema.org",
@@ -1396,10 +1429,32 @@ async function handleStructuredDataPage(
 
 /** Path → which structured-data block that page gets. Trailing slash stripped
  *  by the caller, so both `/about` and `/about/` resolve. */
-const STRUCTURED_DATA_PAGES: Record<string, "data-sources" | "about" | "api"> = {
+const STRUCTURED_DATA_PAGES: Record<string, "data-sources" | "about" | "api" | "research"> = {
   "/data-sources": "data-sources",
   "/about": "about",
   "/api": "api",
+  "/research": "research",
+}
+
+/**
+ * Per-article head copy and dates, mirroring the locale strings and
+ * content/research.ts.
+ *
+ * A research piece that a crawler sees under the homepage's title is a piece
+ * nobody will ever cite, and `Report` markup with `datePublished` is what makes
+ * it eligible to appear as a dated document rather than a page of a site.
+ */
+const RESEARCH_META: Record<
+  string,
+  { title: string; description: string; published: string }
+> = {
+  "what-we-could-not-verify": {
+    title: "A third of the charities we assembled could not be verified · TrustGive",
+    description:
+      "541 organisations in, 369 with a regulator document that opens. The 172 that " +
+      "failed cluster by country, not by charity — and almost none of it is broken links.",
+    published: "2026-08-03",
+  },
 }
 
 /**
@@ -1412,7 +1467,7 @@ const STRUCTURED_DATA_PAGES: Record<string, "data-sources" | "about" | "api"> = 
  * crawler gets; the reader still sees their own language once React renders.
  */
 const STRUCTURED_PAGE_META: Record<
-  "data-sources" | "about" | "api",
+  "data-sources" | "about" | "api" | "research",
   { title: string; description: string }
 > = {
   "data-sources": {
@@ -1433,7 +1488,110 @@ const STRUCTURED_PAGE_META: Record<
       "The whole catalogue as JSON. No key, no account, 60 requests per minute. " +
       "Endpoints, filters, examples and the generated OpenAPI schema.",
   },
+  research: {
+    title: "Research · TrustGive",
+    description:
+      "Findings from auditing a catalogue of regulator filings: what could not be " +
+      "verified, why it clusters by country, and where naive verification lies.",
+  },
 }
+
+/**
+ * `/research/{slug}` — head copy and `Report` markup for one published finding.
+ *
+ * Only the head is rendered here. The article body stays in the SPA and its
+ * locale files rather than being duplicated into the Worker: two copies of a
+ * thousand words of prose would drift, and a research piece that says different
+ * things in different places is worse than one Google renders a beat late. What
+ * decides whether the piece is indexed at all — a distinct title, a real
+ * description, a date and an author — is server-rendered.
+ */
+async function handleResearchArticle(
+  request: Request,
+  env: Env,
+  slug: string,
+): Promise<Response> {
+  const meta = RESEARCH_META[slug]
+  const shell = await env.ASSETS.fetch(request)
+  // Unknown slug: hand back the shell and let the SPA say "no such piece".
+  if (!meta) return shell
+
+  const canonical = `${SITE_BASE}/research/${slug}`
+  const cacheKey = new Request(`${canonical}?ld=${SITEMAP_VERSION}`)
+  const cache = (caches as unknown as { default: Cache }).default
+  const cached = await cache.match(cacheKey)
+  if (cached) return cached
+
+  const headline = meta.title.replace(" · TrustGive", "")
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "Report",
+    headline,
+    description: meta.description,
+    datePublished: meta.published,
+    url: canonical,
+    inLanguage: ["en", "ru"],
+    author: { "@type": "Organization", name: "TrustGive", url: SITE_BASE },
+    publisher: { "@type": "Organization", name: "TrustGive", url: SITE_BASE },
+    isAccessibleForFree: true,
+    license: undefined,
+  }
+  delete (jsonLd as Record<string, unknown>).license
+
+  const headExtras =
+    `<link rel="canonical" href="${escapeAttr(canonical)}">` +
+    `<meta property="og:url" content="${escapeAttr(canonical)}">` +
+    `<meta property="article:published_time" content="${escapeAttr(meta.published)}">` +
+    `<meta name="twitter:title" content="${escapeAttr(meta.title)}">` +
+    `<meta name="twitter:description" content="${escapeAttr(meta.description)}">` +
+    `<script type="application/ld+json">${JSON.stringify(jsonLd).replace(/</g, "\\u003c")}</script>`
+
+  const html = await new HTMLRewriter()
+    .on("title", {
+      element(el) {
+        el.setInnerContent(meta.title)
+      },
+    })
+    .on('meta[name="description"]', {
+      element(el) {
+        el.setAttribute("content", meta.description)
+      },
+    })
+    .on('meta[property="og:title"]', {
+      element(el) {
+        el.setAttribute("content", meta.title)
+      },
+    })
+    .on('meta[property="og:description"]', {
+      element(el) {
+        el.setAttribute("content", meta.description)
+      },
+    })
+    .on('meta[property="og:type"]', {
+      element(el) {
+        el.setAttribute("content", "article")
+      },
+    })
+    .on("head", {
+      element(el) {
+        el.append(headExtras, { html: true })
+      },
+    })
+    .transform(shell)
+    .text()
+
+  const response = new Response(html, {
+    status: 200,
+    headers: {
+      "Content-Type": "text/html; charset=utf-8",
+      "Cache-Control": HTML_CACHE_CONTROL,
+    },
+  })
+  await cache.put(cacheKey, response.clone())
+  return response
+}
+
+const RESEARCH_ARTICLE = /^\/research\/([^/]+)\/?$/
 
 // Order matters: the legit page adds a `/legit` segment, so it's matched before
 // the single-segment detail regex below.
@@ -1536,6 +1694,11 @@ export default {
       const structured = STRUCTURED_DATA_PAGES[url.pathname.replace(/\/$/, "")]
       if (structured) {
         return handleStructuredDataPage(request, env, structured)
+      }
+      // Checked after the index so "/research" itself doesn't fall in here.
+      const researchMatch = RESEARCH_ARTICLE.exec(url.pathname)
+      if (researchMatch) {
+        return handleResearchArticle(request, env, decodeURIComponent(researchMatch[1]))
       }
     }
 

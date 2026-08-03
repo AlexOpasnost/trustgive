@@ -12,6 +12,8 @@ import { HubPage } from "./pages/HubPage"
 import { LegitPage } from "./pages/LegitPage"
 import { MethodologyPage } from "./pages/MethodologyPage"
 import { NotFoundPage } from "./pages/NotFoundPage"
+import { ResearchArticlePage } from "./pages/ResearchArticlePage"
+import { ResearchPage } from "./pages/ResearchPage"
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -45,6 +47,8 @@ export function App() {
             <Route path="about" element={<AboutPage />} />
             <Route path="data-sources" element={<DataSourcesPage />} />
             <Route path="api" element={<ApiPage />} />
+            <Route path="research" element={<ResearchPage />} />
+            <Route path="research/:slug" element={<ResearchArticlePage />} />
             <Route path="ru" element={<Navigate to="/" replace />} />
             <Route path="*" element={<NotFoundPage />} />
           </Route>

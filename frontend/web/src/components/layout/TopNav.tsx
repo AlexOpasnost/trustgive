@@ -61,6 +61,9 @@ export function TopNav() {
           <NavLink to="/charities" className={navLinkClass}>
             {t("nav.catalog")}
           </NavLink>
+          <NavLink to="/research" className={navLinkClass}>
+            {t("nav.research")}
+          </NavLink>
           <NavLink to="/methodology" className={navLinkClass}>
             {t("nav.methodology")}
           </NavLink>
