@@ -228,6 +228,65 @@ and are now fixed.
 
 ---
 
+## Finding 8 — 43 revenue figures the cited source did not support (severity: critical, fixed)
+
+Found 2026-08-03 while preparing a research piece, not by a scheduled check —
+which is itself the lesson: every existing control watches *identifiers and
+links*, and none watched the money column.
+
+The trail started at Compassion International, whose `last_filed_date` of
+2019-06-30 looked like a stale-field bug. It wasn't: ProPublica's newest filing
+with data for that EIN really is FY2019. The wrong thing was a `Financial` row
+for **FY2023** carrying exactly **$1,100,000,000** and labelled
+"IRS Form 990, FY 2023 (ProPublica)" — a period that source does not have.
+
+Sweeping for the same shape found the scale. **43 of 385 financial rows had a
+revenue that is an exact multiple of $10,000,000**, and every one sat on a
+*published* charity; 35 of them were the figure rendered on the card and profile.
+A genuine Form 990 or Charity Commission total landing on a round ten million is
+vanishingly unlikely; 43 of them is the signature of seeded data.
+
+| Cited as | Rows |
+|---|---:|
+| Annual report & accounts (Charity Commission UK) | 21 |
+| Annual report (organisation's own publication) | 11 |
+| IRS Form 990, FY 2023 (ProPublica) | 8 |
+| IRS Form 990, FY 2022 (ProPublica direct PDF) | 3 |
+
+Four were checked against the source they name; none held up:
+
+| Charity | Displayed | Source says |
+|---|---|---|
+| catholic-relief-services | $1,100,000,000 | 0 filings with data for that EIN |
+| catholic-charities-usa | $240,000,000 | 0 filings with data |
+| compassion-international | FY2023 row | newest period is FY2019 |
+| donorschoose | FY2023 row | newest period is FY2022 |
+
+This is the §5 defect class moved into the money column: a figure that looks like
+it came from a government filing, cited to that filing, where the filing does not
+exist. It is the single worst thing this catalogue can publish.
+
+**Resolution.** `strip_unsourced_financials` re-checked every flagged row against
+ProPublica where an EIN existed, repaired the 6 it could, and deleted the 37 it
+could not. UK and self-published figures are unrecoverable — the currency and
+basis of the conversion were never stored, so there is nothing to check them
+against. 35 charities now show no revenue at all.
+
+Two of the repairs show what was at stake: ACLU Foundation was displaying
+$400,000,000 against an actual $185,146,988, and CARE USA $700,000,000 against
+$909,098,267 — wrong in both directions.
+
+No charity was demoted. Their *registration* is still verified against a document
+that opens; only the money was unsourced, which is exactly the line the profile's
+"What we didn't check" block already draws.
+
+The command distinguishes "the source says no" from "we could not reach the
+source", and skips rather than deletes on the latter. That distinction was added
+after two consecutive dry runs disagreed by one row: a timeout had silently
+downgraded to "unsupported", which would have deleted a sound figure.
+
+---
+
 ## What now prevents recurrence
 
 | Control | Mechanism |
@@ -237,6 +296,7 @@ and are now fixed.
 | Evidence outliving its badge | `audit_source_links` nightly; demotes on a dead link |
 | Freshness visible to the reader | `updated_at` bumped per re-check, rendered on every profile |
 | Search-engine currency | IndexNow submits all 1,085 URLs daily from the Cloudflare Worker |
+| Unsourced money figures | `strip_unsourced_financials`; `check_financial_rows.py` re-runs the sweep |
 
 ## Open items
 
@@ -245,6 +305,11 @@ and are now fixed.
    assert nothing, but they should not sit in the catalogue unexamined).
 3. Non-US coverage: 175 charities remain `listed`; Canada (28) is tooled but
    unmapped — see [`VERIFICATION_COVERAGE.md`](VERIFICATION_COVERAGE.md).
+4. 35 charities now display no revenue (Finding 8). For the 21 UK ones the figure
+   is recoverable in principle — the Charity Commission publishes income on the
+   register — but not from anything currently stored, and its API needs a key.
+5. Nothing runs the Finding 8 sweep on a schedule. `check_financial_rows.py` is
+   manual; it belongs in the nightly ETL alongside `audit_source_links`.
 
 ## Method
 

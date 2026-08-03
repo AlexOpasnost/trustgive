@@ -123,6 +123,45 @@ def main() -> None:
     for kind, n in kinds.most_common():
         print(f"  {kind:<28} {n:>5}")
 
+    print()
+    print("=" * 70)
+    print("PART 3 - shape of the lag")
+    print("=" * 70)
+
+    # `last_filed_date` is the END of the fiscal period the filing covers, not
+    # the day it was submitted. So these buckets answer "how old is the period
+    # the freshest available filing describes", which is the question a donor
+    # actually has, and not "how slow is the regulator" — which this data cannot
+    # answer, because we do not store publication dates.
+    buckets = [
+        ("within 12 months", 0, 365),
+        ("12-24 months", 365, 730),
+        ("24-36 months", 730, 1096),
+        ("36-48 months", 1096, 1461),
+        ("over 48 months", 1461, 10**6),
+    ]
+    print(f"{'bucket':<20} {'n':>5}  share")
+    for label, lo, hi in buckets:
+        n = sum(1 for d in all_lags if lo <= d < hi)
+        print(f"  {label:<18} {n:>5}  {100 * n / len(all_lags):5.1f}%")
+
+    print("\nfiscal-period end dates that occur most (clustering check):")
+    ends = Counter(
+        d.isoformat()
+        for d in pub.exclude(last_filed_date=None).values_list("last_filed_date", flat=True)
+    )
+    for day, n in ends.most_common(8):
+        print(f"  {day}  {n:>4}")
+
+    print("\noldest still-published filings:")
+    oldest = (
+        pub.exclude(last_filed_date=None)
+        .order_by("last_filed_date")
+        .values_list("slug", "country", "last_filed_date")[:5]
+    )
+    for slug, code, filed in oldest:
+        print(f"  {slug:<38} {code}  {filed}  ({(today - filed).days / 365.25:.1f} years)")
+
 
 if __name__ == "__main__":
     main()
