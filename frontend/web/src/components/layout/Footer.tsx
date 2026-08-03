@@ -54,9 +54,11 @@ export function Footer() {
           <FooterCol title={t("footer.method.title")}>
             <FooterLink to="/methodology">{t("footer.method.howWeVerify")}</FooterLink>
             <FooterLink to="/data-sources">{t("footer.method.dataSources")}</FooterLink>
-            <FooterExternalLink href="https://api.trustgive.org/api/docs/">
-              {t("footer.method.api")}
-            </FooterExternalLink>
+            {/* Points at our own /api page rather than straight at Swagger on
+                the API host: the documentation is now a page on this site, which
+                is both the better read and an internal link the crawler can
+                follow (an off-site link to api.trustgive.org was neither). */}
+            <FooterLink to="/api">{t("footer.method.api")}</FooterLink>
           </FooterCol>
 
           <FooterCol title={t("footer.about.title")}>

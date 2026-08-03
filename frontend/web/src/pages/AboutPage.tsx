@@ -97,14 +97,12 @@ export function AboutPage() {
           >
             {t("about.linkMethodology")}
           </Link>
-          <a
-            href="https://api.trustgive.org/api/docs/"
-            target="_blank"
-            rel="noopener noreferrer"
+          <Link
+            to="/api"
             className="text-body text-ink underline decoration-rule decoration-1 underline-offset-4 hover:decoration-ink"
           >
             {t("about.linkApi")}
-          </a>
+          </Link>
         </p>
       </Section>
     </article>

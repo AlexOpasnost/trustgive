@@ -271,6 +271,7 @@ async function handleSitemap(): Promise<Response> {
     { loc: `${base}/methodology`, priority: "0.8" },
     { loc: `${base}/data-sources`, priority: "0.7" },
     { loc: `${base}/about`, priority: "0.6" },
+    { loc: `${base}/api`, priority: "0.6" },
   ]
 
   // Pull all slugs. The API caps page_size at 500 server-side, so we page
@@ -799,6 +800,27 @@ async function fetchHubIndex(): Promise<HubIndex | null> {
   }
 }
 
+interface CatalogueStats {
+  charities?: number
+  countries?: number
+  last_checked?: string | null
+}
+
+/** Catalogue counts. Shared by the homepage meta and the Dataset markup so the
+ *  two can never state different sizes for the same catalogue. */
+async function fetchStats(): Promise<CatalogueStats | null> {
+  try {
+    const res = await fetch(`${API_BASE}/api/stats/`, {
+      headers: { Accept: "application/json" },
+      cf: { cacheTtl: 3600 } as RequestInit["cf"],
+    })
+    if (!res.ok) return null
+    return (await res.json()) as CatalogueStats
+  } catch {
+    return null
+  }
+}
+
 async function fetchCharityPage(query: string): Promise<CharityPage | null> {
   try {
     const res = await fetch(`${API_BASE}/api/charities/?${query}`, {
@@ -1172,17 +1194,9 @@ async function handleHomePage(request: Request, env: Env): Promise<Response> {
 
   const shell = await env.ASSETS.fetch(request)
 
-  let stats: { charities?: number; countries?: number } | null = null
-  try {
-    const res = await fetch(`${API_BASE}/api/stats/`, {
-      headers: { Accept: "application/json" },
-      cf: { cacheTtl: 3600 } as RequestInit["cf"],
-    })
-    if (res.ok) stats = await res.json()
-  } catch {
-    // API unreachable — fall through to the untouched shell.
-  }
-
+  // API unreachable → untouched shell, whose static description carries no
+  // counts and therefore stays true.
+  const stats = await fetchStats()
   if (!stats?.charities || !stats.countries) return shell
 
   const description =
@@ -1217,6 +1231,148 @@ async function handleHomePage(request: Request, env: Env): Promise<Response> {
   })
   await cache.put(cacheKey, response.clone())
   return response
+}
+
+/**
+ * Structured data for the three editorial pages (STRATEGY §10, Block C).
+ *
+ *   /data-sources → Dataset      — the markup Google Dataset Search reads. It is
+ *                                  a near-empty index compared with web search,
+ *                                  and a catalogue of regulator filings is
+ *                                  squarely the kind of thing it indexes.
+ *   /about        → Organization — with `sameAs` and a named founder. This is
+ *                                  the E-E-A-T groundwork STRATEGY calls the
+ *                                  project's weakest point: a site about trust
+ *                                  that never says who is behind it.
+ *   /api          → WebAPI       — makes the documentation page machine-readable
+ *                                  as what it is.
+ *
+ * Two things are deliberately absent from the Dataset block. There is no
+ * `license`: no licence has been chosen for the catalogue, and Google treats
+ * that field as a claim about reuse rights — inventing one would be asserting
+ * terms on the operator's behalf. And `dateModified` is read from /api/stats/
+ * rather than written here, for the same reason the homepage counts are.
+ */
+async function handleStructuredDataPage(
+  request: Request,
+  env: Env,
+  page: "data-sources" | "about" | "api",
+): Promise<Response> {
+  const url = new URL(request.url)
+  const canonical = `${SITE_BASE}${url.pathname.replace(/\/$/, "")}`
+  const cacheKey = new Request(`${canonical}?ld=${SITEMAP_VERSION}`)
+  const cache = (caches as unknown as { default: Cache }).default
+  const cached = await cache.match(cacheKey)
+  if (cached) return cached
+
+  const shell = await env.ASSETS.fetch(request)
+
+  let jsonLd: Record<string, unknown>
+
+  if (page === "data-sources") {
+    const [stats, hubs] = await Promise.all([fetchStats(), fetchHubIndex()])
+    // No catalogue figures, no Dataset block: a dataset description that can't
+    // say how big or how fresh the dataset is has nothing worth indexing.
+    if (!stats?.charities) return shell
+
+    jsonLd = {
+      "@context": "https://schema.org",
+      "@type": "Dataset",
+      name: "TrustGive verified charity catalogue",
+      description:
+        `${stats.charities} charities across ${stats.countries} countries, each linked to ` +
+        `the filing its own regulator published — IRS Form 990, the UK Charity ` +
+        `Commission register, the Australian Business Register. Organisations whose ` +
+        `filing cannot be opened are not published.`,
+      url: canonical,
+      isAccessibleForFree: true,
+      creator: {
+        "@type": "Organization",
+        name: "TrustGive",
+        url: SITE_BASE,
+      },
+      ...(stats.last_checked ? { dateModified: stats.last_checked } : {}),
+      distribution: [
+        {
+          "@type": "DataDownload",
+          encodingFormat: "application/json",
+          contentUrl: `${API_BASE}/api/charities/`,
+        },
+        {
+          "@type": "DataDownload",
+          encodingFormat: "application/rss+xml",
+          contentUrl: `${API_BASE}/api/feed.rss`,
+        },
+      ],
+      // The registers the records come from, named from the live hub index so
+      // this list can't quietly disagree with the catalogue.
+      ...(hubs?.registries?.length
+        ? {
+            isBasedOn: hubs.registries.map((registry) => ({
+              "@type": "Dataset",
+              name: registry.publisher ?? registry.label.en ?? registry.slug,
+            })),
+          }
+        : {}),
+      keywords: ["charity", "nonprofit", "regulator filings", "IRS Form 990", "transparency"],
+    }
+  } else if (page === "about") {
+    jsonLd = {
+      "@context": "https://schema.org",
+      "@type": "Organization",
+      name: "TrustGive",
+      url: SITE_BASE,
+      description:
+        "Charity discovery that links every claim to the regulator's own filing. " +
+        "No ratings, no fees, no account.",
+      email: "hello@trustgive.org",
+      founder: { "@type": "Person", name: "Alex Diachenko" },
+      sameAs: ["https://github.com/AlexOpasnost/trustgive"],
+    }
+  } else {
+    jsonLd = {
+      "@context": "https://schema.org",
+      "@type": "WebAPI",
+      name: "TrustGive API",
+      description:
+        "Anonymous, read-only JSON API over the TrustGive charity catalogue. " +
+        "No key and no account; 60 requests per minute per IP.",
+      url: canonical,
+      documentation: canonical,
+      provider: { "@type": "Organization", name: "TrustGive", url: SITE_BASE },
+    }
+  }
+
+  const headExtras =
+    `<link rel="canonical" href="${escapeAttr(canonical)}">` +
+    `<script type="application/ld+json">${JSON.stringify(jsonLd).replace(/</g, "\\u003c")}</script>`
+
+  const html = await new HTMLRewriter()
+    .on("head", {
+      element(el) {
+        el.append(headExtras, { html: true })
+      },
+    })
+    .transform(shell)
+    .text()
+
+  const response = new Response(html, {
+    status: 200,
+    headers: {
+      "Content-Type": "text/html; charset=utf-8",
+      "Cache-Control": HTML_CACHE_CONTROL,
+    },
+  })
+  await cache.put(cacheKey, response.clone())
+  return response
+}
+
+/** Path → which structured-data block that page gets. Trailing slash stripped
+ *  by the caller, so both `/about` and `/about/` resolve. */
+const STRUCTURED_DATA_PAGES: Record<string, "data-sources" | "about" | "api"> = {
+  "/data-sources": "data-sources",
+  "/about": "about",
+  "/api": "api",
 }
 
 // Order matters: the legit page adds a `/legit` segment, so it's matched before
@@ -1311,6 +1467,16 @@ export default {
     // Homepage: put the catalogue's real size into the meta description.
     if (request.method === "GET" && (url.pathname === "/" || url.pathname === "")) {
       return handleHomePage(request, env)
+    }
+
+    // Editorial pages that carry structured data (Dataset / Organization /
+    // WebAPI). Client-rendered, so the JSON-LD has to be injected at the edge —
+    // Dataset Search and the rich-result parsers don't run our JavaScript.
+    if (request.method === "GET") {
+      const structured = STRUCTURED_DATA_PAGES[url.pathname.replace(/\/$/, "")]
+      if (structured) {
+        return handleStructuredDataPage(request, env, structured)
+      }
     }
 
     // "Is X legitimate?" landing (`/charities/{slug}/legit`, GET only) gets its

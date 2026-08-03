@@ -4,6 +4,7 @@ import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom"
 import { Layout } from "./components/layout/Layout"
 import { CatalogPage } from "./pages/CatalogPage"
 import { AboutPage } from "./pages/AboutPage"
+import { ApiPage } from "./pages/ApiPage"
 import { CharityDetailPage } from "./pages/CharityDetailPage"
 import { DataSourcesPage } from "./pages/DataSourcesPage"
 import { HomePage } from "./pages/HomePage"
@@ -43,6 +44,7 @@ export function App() {
             <Route path="methodology" element={<MethodologyPage />} />
             <Route path="about" element={<AboutPage />} />
             <Route path="data-sources" element={<DataSourcesPage />} />
+            <Route path="api" element={<ApiPage />} />
             <Route path="ru" element={<Navigate to="/" replace />} />
             <Route path="*" element={<NotFoundPage />} />
           </Route>

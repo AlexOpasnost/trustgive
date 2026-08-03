@@ -23,6 +23,20 @@ export default defineConfig({
         target: process.env.VITE_API_BASE_URL || "http://127.0.0.1:8000",
         changeOrigin: true,
         secure: false,
+        // In production the SPA and the API are different hosts
+        // (trustgive.org vs api.trustgive.org), so the site is free to have a
+        // page at /api — and since v3.22 it does: the public API
+        // documentation. In development this proxy stands in for that host
+        // split and would swallow the route, serving DRF's root listing
+        // instead of the page. Bypassing the two spellings of the page itself
+        // restores it; everything deeper ("/api/charities/", "/api/stats/")
+        // still proxies. Browsers normalise "/api" to "/api/", so both forms
+        // have to be handled.
+        bypass(req) {
+          const path = (req.url ?? "").split("?")[0]
+          if (path === "/api" || path === "/api/") return "/index.html"
+          return undefined
+        },
       },
     },
   },
