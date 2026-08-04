@@ -9,9 +9,14 @@
  *
  * Every figure here is real: the rate limit is DEFAULT_THROTTLE_RATES in
  * settings/base.py, the endpoints are the ones in urls.py, and the counts in the
- * example come from the live catalogue. Nothing about licensing is asserted,
- * because no licence has been chosen — saying "free to reuse" would be inventing
- * terms on the operator's behalf.
+ * example come from the live catalogue.
+ *
+ * The "Using the data" block draws a line the page has to keep drawing: the
+ * *compilation* is CC0 (operator's decision, 2026-08-04), the *filings* are the
+ * registers' and carry whatever terms each register sets. Those are two
+ * different things and merging them would be asserting rights over documents
+ * this project does not own. The same licence URL is emitted as the Dataset
+ * `license` in worker/index.ts; if one changes, change both.
  */
 
 import { ArrowRight01Icon } from "@hugeicons/core-free-icons"

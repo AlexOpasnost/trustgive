@@ -259,7 +259,17 @@ async function handleImageProxy(request: Request): Promise<Response> {
 // v3.22: added /api. The first v3.22 deploy shipped without bumping this and
 // the edge kept serving the 810-URL body for hours — the very failure the
 // paragraph above describes, repeated by the person who wrote it.
-const SITEMAP_VERSION = "v3.24"
+const SITEMAP_VERSION = "v3.25"
+
+/**
+ * Licence on the *compilation* — the list of organisations, the identifier held
+ * for each, and the document each links to. Chosen by the operator 2026-08-04.
+ *
+ * Not a licence on the filings. Those belong to the registers that published
+ * them, and TrustGive asserts nothing about redistributing them; the /api page
+ * draws that line in words and this constant must not be read as blurring it.
+ */
+const CATALOGUE_LICENCE = "https://creativecommons.org/publicdomain/zero/1.0/"
 
 /**
  * Published research slugs, mirroring frontend/web/src/content/research.ts.
@@ -1271,11 +1281,15 @@ async function handleHomePage(request: Request, env: Env): Promise<Response> {
  *   /api          → WebAPI       — makes the documentation page machine-readable
  *                                  as what it is.
  *
- * Two things are deliberately absent from the Dataset block. There is no
- * `license`: no licence has been chosen for the catalogue, and Google treats
- * that field as a claim about reuse rights — inventing one would be asserting
- * terms on the operator's behalf. And `dateModified` is read from /api/stats/
- * rather than written here, for the same reason the homepage counts are.
+ * `license` on the Dataset is CC0 1.0, chosen by the operator on 2026-08-04. It
+ * covers the **compilation** — which organisations are listed, the identifier
+ * held for each, the document each links to — and nothing else. The filings are
+ * the registers' and TrustGive claims no licence over them, which is what the
+ * /api page says in words. Google Dataset Search reads this field, and a dataset
+ * that declares no terms ranks below one that does.
+ *
+ * `dateModified` is still read from /api/stats/ rather than written here, for
+ * the same reason the homepage counts are.
  */
 async function handleStructuredDataPage(
   request: Request,
@@ -1310,6 +1324,7 @@ async function handleStructuredDataPage(
         `filing cannot be opened are not published.`,
       url: canonical,
       isAccessibleForFree: true,
+      license: CATALOGUE_LICENCE,
       creator: {
         "@type": "Organization",
         name: "TrustGive",
@@ -1545,9 +1560,11 @@ async function handleResearchArticle(
     author: { "@type": "Organization", name: "TrustGive", url: SITE_BASE },
     publisher: { "@type": "Organization", name: "TrustGive", url: SITE_BASE },
     isAccessibleForFree: true,
-    license: undefined,
   }
-  delete (jsonLd as Record<string, unknown>).license
+  // No `license` here on purpose. CATALOGUE_LICENCE covers the compilation —
+  // the list of organisations and what each links to. The research pieces are
+  // written prose, which the operator has not put terms on, and quietly
+  // extending the dataset's CC0 to them would be deciding that for them.
 
   const headExtras =
     `<link rel="canonical" href="${escapeAttr(canonical)}">` +

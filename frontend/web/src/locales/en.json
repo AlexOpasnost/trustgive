@@ -317,7 +317,7 @@
     "exampleTitle": "Example",
     "exampleBody": "Look an organisation up by name or registration number:",
     "termsTitle": "Using the data",
-    "termsBody": "The catalogue is assembled from public registers, and every record links to the document its regulator published. TrustGive claims no licence over those documents: if you intend to redistribute the filings themselves, the terms are the register's, and each register states its own.",
+    "termsBody": "The compilation — which organisations are listed, the identifier held for each, and the document each one links to — is released under CC0 1.0, into the public domain. Take it, republish it, build on it, no attribution required. The filings themselves are a separate matter: TrustGive claims no licence over them, so if you intend to redistribute the documents, the terms are the register's, and each register states its own.",
     "termsLink": "Which registers the data comes from",
     "schemaTitle": "Schema",
     "schemaBody": "The OpenAPI 3.1 schema is generated from the code on every deploy, so it can't drift from what the API actually does. Point a client generator at it, or read it in the browser.",
