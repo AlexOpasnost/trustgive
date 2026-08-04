@@ -8,6 +8,7 @@ Usage:
 
 from __future__ import annotations
 
+import calendar
 import hashlib
 import json
 import logging
@@ -51,6 +52,57 @@ def _bucket_for(revenue: float | None) -> str:
     return SizeBucket.LARGE
 
 
+# Words that carry no identifying signal in a charity's legal name. Stripped
+# before comparison so "Sea Shepherd Conservation Society" and "Sea Shepherd
+# Conservation Society Inc" are the same organisation, while "Chesapeake Climate
+# Action Network" and "Climate Action Network" stay different ones.
+_NAME_NOISE = frozenset(
+    """inc incorporated corp corporation co company the of and for a an in usa us
+    america american national foundation fund trust association society institute
+    org organization international global charitable charity center centre council
+    group ltd llc services service""".split()
+)
+
+
+def _name_tokens(name: str) -> set[str]:
+    name = re.sub(r"\(.*?\)", " ", name or "")
+    # Apostrophes are deleted, not turned into a separator: registries write
+    # "Cure Alzheimers Fund" where the charity writes "Cure Alzheimer's Fund", and
+    # splitting on the apostrophe makes those two different words.
+    name = name.replace("'", "").replace("’", "")
+    name = re.sub(r"[^a-z0-9 ]", " ", name.lower())
+    return {t for t in name.split() if t and t not in _NAME_NOISE and len(t) > 1}
+
+
+def _names_match(catalogue_name: str, registry_name: str) -> bool:
+    """Do these two names describe the same organisation?
+
+    Equality of the identifying-token sets — not a substring test and not a
+    subset test. Both of the looser tests were measured against real ProPublica
+    search results on 2026-08-03 and both waved through wrong entities:
+    "Chesapeake Climate Action Network" for *Climate Action Network*, and
+    "Sickle Cell Disease Association Of America Michigan Chapter Inc" for the
+    national body of the same name. An extra identifying word is usually a
+    *different* organisation, so any surplus token is disqualifying.
+
+    Returns False when either side has no identifying tokens — an unanswerable
+    question is not a yes.
+
+    **Known limit, by construction.** Where two distinct organisations reduce to
+    the same identifying tokens ("Climate Action Network" vs "The US Climate
+    Action Network"; "NeighborWorks America" vs "National NeighborWorks
+    Association") no name comparison can separate them. That is why this gate
+    only guards records ingested *from* the registry, whose name comes from the
+    registry itself, and why re-pointing an existing curated row at a new
+    identifier stays a reviewed step in `fix_us_eins` rather than an automatic
+    one. See `apps/ingestion/tests/test_propublica_evidence.py`.
+    """
+    a, b = _name_tokens(catalogue_name), _name_tokens(registry_name)
+    if not a or not b:
+        return False
+    return a == b
+
+
 def _slug_base(name: str, ein: str) -> str:
     base = slugify(name)[:180] or f"charity-{ein}"
     return base
@@ -65,6 +117,27 @@ def _filing_for_charity(filings: list[dict[str, Any]]) -> dict[str, Any] | None:
     if not filings:
         return None
     return max(filings, key=lambda f: f.get("tax_prd_yr", 0) or 0)
+
+
+def _period_end(filing: dict[str, Any]) -> date | None:
+    """Real fiscal-period end from ProPublica's `tax_prd` (YYYYMM).
+
+    202312 -> 2023-12-31. Returns None when the field is missing or malformed, so
+    callers store null rather than inventing day precision.
+
+    This mirrors `refresh_us_filings._period_end` deliberately. The two used to
+    disagree: this module stored `date(tax_prd_yr + 1, 1, 1)`, which put a
+    fabricated "2024-01-01" on 71 charities and rendered it to users as a factual
+    "Last filed" date (DATA_INTEGRITY.md Finding 1). That finding was fixed in the
+    repair commands but not here, so every fresh ingest re-introduced it.
+    """
+    raw = str(filing.get("tax_prd") or "").strip()
+    if not re.fullmatch(r"\d{6}", raw):
+        return None
+    year, month = int(raw[:4]), int(raw[4:])
+    if not (1 <= month <= 12) or not (1900 <= year <= 2100):
+        return None
+    return date(year, month, calendar.monthrange(year, month)[1])
 
 
 class Command(BaseCommand):
@@ -256,7 +329,13 @@ class Command(BaseCommand):
                 mapping.save(update_fields=["source_id", "raw_data_hash", "last_synced_at"])
 
                 self._update_charity_fields(charity, org)
-                self._upsert_filings(charity, data.get("filings_with_data", []))
+                has_evidence = self._upsert_filings(charity, data.get("filings_with_data", []))
+                self._set_verification(
+                    charity,
+                    org_name=name,
+                    trade_name=(org.get("sort_name") or "").strip(),
+                    has_evidence=has_evidence,
+                )
                 log.records_upserted += 1
         except Exception as exc:
             log.errors.append(
@@ -315,10 +394,56 @@ class Command(BaseCommand):
             except ValueError:
                 pass
 
-        charity.verification_status = VerificationStatus.VERIFIED
         charity.save()
 
-    def _upsert_filings(self, charity: Charity, filings: list[dict[str, Any]]) -> None:
+    def _set_verification(
+        self, charity: Charity, *, org_name: str, trade_name: str, has_evidence: bool
+    ) -> None:
+        """Promote to verified only when the record can prove itself.
+
+        Two conditions, both required, matching the published methodology:
+          * ProPublica exposes a filing with real financial data, and
+          * a name it returns describes the charity we are stamping.
+
+        Either of the registry's two names counts. The IRS holds a legal name and
+        a trade name, and for a good number of charities the recognisable one is
+        the trade name: EIN 03-0355315 is legally "Us Working Group Inc" and
+        publicly Forest Stewardship Council US; 52-1886511 is legally "Rape Abuse
+        And Incest National Network Inc" and publicly RAINN. Matching only the
+        legal name would reject the registry's own answer about its own entity.
+
+        Neither condition is optional. This method used to be a single
+        unconditional `verification_status = VERIFIED` executed before the filings
+        were even read, so an EIN that merely *resolved* — with zero filings, or
+        belonging to a different organisation entirely — earned the badge. That is
+        the defect class behind DATA_INTEGRITY.md Findings 3, 6 and 7: a resolving
+        identifier is not evidence.
+
+        Demotion is never done here; that stays with `audit_source_links`, which
+        can tell a dead link from an unreachable one.
+        """
+        catalogue_name = (charity.name or {}).get("en") or ""
+        name_matches = _names_match(catalogue_name, org_name) or _names_match(
+            catalogue_name, trade_name
+        )
+        if has_evidence and name_matches:
+            charity.verification_status = VerificationStatus.VERIFIED
+            charity.save(update_fields=["verification_status", "updated_at"])
+            return
+        if charity.verification_status != VerificationStatus.VERIFIED:
+            return
+        logger.info(
+            "Leaving %s at its existing status: has_evidence=%s name_match=%s (%r vs %r / %r)",
+            charity.slug,
+            has_evidence,
+            name_matches,
+            catalogue_name,
+            org_name,
+            trade_name,
+        )
+
+    def _upsert_filings(self, charity: Charity, filings: list[dict[str, Any]]) -> bool:
+        """Return True when a filing carrying real financial data was stored."""
         # TODO H-002: ProPublica's filings_with_data JSON only reliably exposes
         # totrevenue and totfuncexpns at the line-item level. The Form 990 Part
         # IX 3-way split (program / admin / fundraising) requires either:
@@ -335,14 +460,20 @@ class Command(BaseCommand):
         # and was the cause of GiveDirectly's 56.8% "fundraising" red flag in
         # screenshots. Cleanup of bad rows handled by migration 0007 + 0008.
         if not filings:
-            return
-        latest = _filing_for_charity(filings)
+            return False
+        # Only a filing that actually carries a revenue figure can support the
+        # badge — "has a filing" and "has a filing with data" are different
+        # claims, and the published methodology makes the second one.
+        with_data = [f for f in filings if f.get("totrevenue") or f.get("totrev2")]
+        if not with_data:
+            return False
+        latest = _filing_for_charity(with_data)
         if not latest:
-            return
+            return False
 
         year = int(latest.get("tax_prd_yr") or latest.get("tax_period") or 0)
         if year == 0:
-            return
+            return False
 
         # Reliable from ProPublica filings_with_data:
         revenue = latest.get("totrevenue") or latest.get("totrev2")
@@ -381,12 +512,12 @@ class Command(BaseCommand):
         # program_expense_pct is NULL (DESIGN.md v2.0 §A.2 / §F.4).
         charity.program_expense_pct = None
 
-        # Approximate filing date as Jan 1 of year+1 if no specific date present
-        try:
-            charity.last_filed_date = date(year + 1, 1, 1)
-            charity.is_stale = (date.today() - charity.last_filed_date).days > 730
-        except ValueError:
-            pass
+        # The real fiscal-period end, read from the filing's `tax_prd`. Null when
+        # the source doesn't carry one — see `_period_end` for why this must never
+        # be synthesised.
+        period_end = _period_end(latest)
+        charity.last_filed_date = period_end
+        charity.is_stale = True if period_end is None else (date.today() - period_end).days > 730
         charity.save()
 
         # Source document
@@ -404,3 +535,4 @@ class Command(BaseCommand):
                 "file_format": FileFormat.PDF,
             },
         )
+        return True

@@ -2,7 +2,7 @@
 
 > Worldwide catalogue coverage: how many charities carry a **confirmation**
 > (verified status) backed by a **report** (a live regulator source document).
-> Generated from the production API (`api.trustgive.org`); last updated 2026-07-27.
+> Generated from the production API (`api.trustgive.org`); last updated 2026-08-04.
 >
 > **The catalogue is verified-only as of 2026-07-27.** Rows that could not be
 > confirmed are hidden from the public API rather than shown with a caveat, and
@@ -13,13 +13,14 @@
 
 ## Executive summary
 
-| Metric | Value |
-|---|---|
-| Rows in the database | **541** |
-| **Published** (verified + live regulator document) | **371** |
-| Hidden (no confirmed source yet — retained, not deleted) | **170** |
-| Published without a source document | **0** |
-| Countries | 27 |
+| Metric | Value | Was 2026-07-27 |
+|---|---|---|
+| Rows in the database | **541** | 541 |
+| **Published** (verified + live regulator document) | **390** | 371 |
+| Hidden (no confirmed source yet — retained, not deleted) | **151** | 170 |
+| Published without a source document | **0** | 0 |
+| Countries represented in the database | 27 | 27 |
+| Countries actually published | **10** | 10 |
 
 The catalogue is genuinely worldwide, but **35% of it (190 orgs) had no confirmed
 regulator document** after the v3.18 source-link audit demoted every unverifiable
@@ -93,6 +94,79 @@ python manage.py fix_us_eins --file=../us_manual_eins.json             # apply
 `fix_us_eins` re-verifies each EIN against ProPublica at apply time, pulls the real
 revenue/exec-comp, and rebuilds the IRS-990 source document. Curated content
 (name/tagline/description/photo) is never touched.
+
+---
+
+## 2026-08-04 — the hidden US set, re-searched by name (+21 published)
+
+Block E opens with the US because ProPublica needs no key. The 39 US rows still
+hidden all carried a registration number, so the first question was whether those
+numbers were real. **37 of the 39 returned HTTP 404** — the identifiers were
+wrong, not the organisations. (The other two failed with a dropped connection;
+those were retried rather than counted as absent, which is the distinction §8
+below is about.)
+
+Each was then re-searched on ProPublica by name. A candidate had to clear three
+gates before it was written:
+
+1. the EIN resolves;
+2. a name the registry returns — legal **or** IRS trade name — matches the
+   catalogue entry on its identifying words, exactly;
+3. the organisation has a Form 990 carrying real revenue, and the document page
+   the profile will link to opens **and contains the organisation's name**.
+
+Gate 3's second half is checked on page content, never on status code — the
+lesson from Finding 6.
+
+**21 recovered.** Every one re-verified at write time by `fix_us_eins`:
+
+| slug | corrected EIN | ProPublica record | latest filing |
+|---|---|---|---|
+| als-tdi | 043462719 | Als Therapy Development Foundation Inc | FY2023 · $11.6M |
+| american-foundation-for-blind | 135562161 | American Foundation For The Blind Inc | FY2023 · $8.6M |
+| center-for-victims-of-torture | 363383933 | Center For Victims Of Torture | FY2023 · $31.1M |
+| code-org | 460858543 | Code Org | FY2023 · $42.8M |
+| cure-alzheimers-fund | 522396428 | *Alzheimers Disease Research Foundation* / **Cure Alzheimers Fund** | FY2023 · $37.7M |
+| equal-justice-initiative | 631135091 | Equal Justice Initiative | FY2023 · $67.3M |
+| frac-food-policy | 237200739 | Food Research & Action Center Inc | FY2023 · $16.6M |
+| fsc-us | 030355315 | *Us Working Group Inc* / **Forest Stewardship Council Us** | FY2023 · $1.9M |
+| lirs | 132574854 | Lutheran Immigration And Refugee Service | FY2023 · $232.8M |
+| movember-foundation-us | 770714052 | Movember Foundation | FY2024 · $16.8M |
+| oats-tech | 550882599 | Older Adults Technology Services Inc | FY2023 · $13.3M |
+| pacific-environment | 942628924 | Pacific Environment And Resources Center | FY2023 · $5.5M |
+| pheasants-forever | 411429149 | Pheasants Forever Inc | FY2023 · $89.6M |
+| rainn | 521886511 | *Rape Abuse And Incest National Network Inc* / **Rainn** | FY2024 · $24.2M |
+| reading-is-fundamental | 520976257 | Reading Is Fundamental Inc | FY2023 · $11.2M |
+| sickle-cell-disease-association | 237175985 | Sickle Cell Disease Association Of America Inc | FY2022 · $1.1M |
+| sustainable-conservation | 943232437 | Sustainable Conservation | FY2023 · $5.4M |
+| the-end-fund | 273941186 | End Fund Inc | FY2023 · $56.4M |
+| uscri | 131878704 | U S Committee For Refugees And Immigrants Inc | FY2023 · $291.9M |
+| whale-dolphin-conservation-us | 020749188 | Whale And Dolphin Conservation Inc | FY2023 · $1.1M |
+| whale-sanctuary-project | 812276219 | Whale Sanctuary Project | FY2023 · $1.8M |
+
+Rows in *italic / **bold*** matched on the IRS **trade name**, not the legal one.
+That field (`sort_name`) turned out to matter: three charities are legally
+something unrecognisable and are known publicly only by the trade name the same
+registry publishes. Checking only the legal name would have been rejecting the
+registry's own answer about its own entity.
+
+`pheasants-forever` was the one federated pick accepted, and only after checking
+all 28 namesake entities: the Saint Paul body reports $89.6M and the next largest
+$356K, a 250× gap that leaves no ambiguity about which is the national one.
+
+### The 18 that stay hidden, and why
+
+| Reason | Rows |
+|---|---|
+| **Duplicate of an already-published record** — merge, don't verify | `jdrf-breakthrough-t1d` (= `jdrf`), `sea-shepherd-conservation-society` (= `sea-shepherd`), `lcv-education-fund` (= `league-conservation-voters`), `whale-and-dolphin-conservation-usa` (= `whale-dolphin-conservation-us`) |
+| **Federated — name cannot pick the national body** | `ducks-unlimited` (25 namesakes, none with filing data), `pflag` (25 chapters, none with filing data), `volunteers-of-america` (the largest exact match is *VOA National Services*, a subsidiary, not the national body) |
+| **Resolves and the name matches, but zero filings with data** | `save-the-elephants-usa` — registry presence alone does not meet the published methodology, exactly as `creative-commons` was excluded in July |
+| **Distinct organisation with a near-identical name** | `climate-action-network` (the US match is *US Climate Action Network*, a different entity from CAN International), `educate-girls` (*Educate Girls Globally* is not *Educate Girls*), `neighborworks-america`, `humane-society-international` |
+| **No search result under any phrasing tried** | `carbon180`, `earthday-org`, `trans-lifeline`, `vibrant-emotional-health`, `climate-reality-project`, `nclr` |
+
+The four duplicates are the actionable item here: they are not a verification
+problem but a data-model one, and they inflate the "unverified" count with rows
+that should not exist separately.
 
 ---
 

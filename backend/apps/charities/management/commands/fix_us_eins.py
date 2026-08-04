@@ -27,6 +27,8 @@ from __future__ import annotations
 import calendar
 import json
 import re
+import time
+import urllib.error
 import urllib.request
 from datetime import date
 from decimal import Decimal
@@ -49,16 +51,34 @@ PP_ORG = "https://projects.propublica.org/nonprofits/organizations/{ein}"
 PP_API = "https://projects.propublica.org/nonprofits/api/v2/organizations/{ein}.json"
 
 
-def _fetch(ein: str) -> dict[str, Any] | None:
-    """Return ProPublica's org payload for `ein`, or None if it doesn't resolve."""
-    try:
-        req = urllib.request.Request(PP_API.format(ein=ein), headers={"User-Agent": UA})
-        with urllib.request.urlopen(req, timeout=25) as resp:
-            if resp.getcode() != 200:
-                return None
-            return json.load(resp)
-    except Exception:
-        return None
+def _fetch(ein: str) -> tuple[dict[str, Any] | None, str | None]:
+    """Return (payload, error) for `ein` on ProPublica.
+
+    `(None, None)` means the registry answered and has no such organisation.
+    `(None, "...")` means we could not ask — a timeout, a reset connection, a 5xx.
+    The caller must treat those differently: "the source says no" is a verdict,
+    "we could not reach the source" is not (DATA_INTEGRITY.md Finding 8). An
+    earlier version collapsed both into None and printed "does not resolve on
+    ProPublica" for a dropped TCP connection, which silently under-applied a
+    batch whose EINs had all verified moments before.
+    """
+    last: str | None = None
+    for attempt in range(3):
+        try:
+            req = urllib.request.Request(PP_API.format(ein=ein), headers={"User-Agent": UA})
+            with urllib.request.urlopen(req, timeout=25) as resp:
+                if resp.getcode() != 200:
+                    last = f"HTTP {resp.getcode()}"
+                    continue
+                return json.load(resp), None
+        except urllib.error.HTTPError as exc:
+            if exc.code == 404:
+                return None, None  # the registry has no such EIN
+            last = f"HTTP {exc.code}"
+        except Exception as exc:
+            last = f"{type(exc).__name__}: {exc}"
+        time.sleep(2.0 * (attempt + 1))
+    return None, last
 
 
 def _latest_filing(filings: list[dict[str, Any]]) -> dict[str, Any] | None:
@@ -113,7 +133,7 @@ class Command(BaseCommand):
         dry_run: bool = options["dry_run"]
         self.stdout.write(f"Loaded {len(mapping)} slug->EIN rows from {options['file']}")
 
-        applied = skipped = no_filing = 0
+        applied = skipped = no_filing = unreachable = 0
         with transaction.atomic():
             for slug, ein in mapping.items():
                 charity = Charity.objects.filter(slug=slug).first()
@@ -134,11 +154,20 @@ class Command(BaseCommand):
                     self.stdout.write(f"[SKIP]  {slug} -- EIN {ein} already used by {clash.slug}")
                     continue
 
-                payload = _fetch(ein)
+                payload, fetch_error = _fetch(ein)
                 org = (payload or {}).get("organization") or {}
                 if not org:
                     skipped += 1
-                    self.stdout.write(f"[SKIP]  {slug} -- EIN {ein} does not resolve on ProPublica")
+                    if fetch_error:
+                        unreachable += 1
+                        self.stdout.write(
+                            f"[RETRY] {slug} -- could not reach ProPublica for EIN {ein} "
+                            f"({fetch_error}); left unchanged, re-run to apply"
+                        )
+                    else:
+                        self.stdout.write(
+                            f"[SKIP]  {slug} -- EIN {ein} does not resolve on ProPublica"
+                        )
                     continue
 
                 filing = _latest_filing((payload or {}).get("filings_with_data", []))
@@ -236,5 +265,15 @@ class Command(BaseCommand):
 
         verb = "would apply" if dry_run else "applied"
         self.stdout.write(
-            self.style.SUCCESS(f"\nDone. {verb}={applied} skipped={skipped} no_filing={no_filing}")
+            self.style.SUCCESS(
+                f"\nDone. {verb}={applied} skipped={skipped} no_filing={no_filing} "
+                f"unreachable={unreachable}"
+            )
         )
+        if unreachable:
+            self.stdout.write(
+                self.style.WARNING(
+                    f"{unreachable} row(s) were left unchanged because ProPublica could not be "
+                    f"reached, not because their EIN is wrong. Re-run to finish them."
+                )
+            )

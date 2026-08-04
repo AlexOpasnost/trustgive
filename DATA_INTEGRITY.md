@@ -287,6 +287,60 @@ downgraded to "unsupported", which would have deleted a sound figure.
 
 ---
 
+## Finding 9 — The ingest command would have re-created Findings 1, 3 and 7 (severity: high, fixed)
+
+Found 2026-08-04, on opening `ingest_propublica` to start growing the catalogue —
+which is the point. Every previous finding was repaired in the *repair* commands.
+Nobody had re-read the command that **adds** rows, and it still carried the
+original defects, so each new ingest would have reintroduced them at the same rate
+they were being cleaned up.
+
+| Defect | What it did | Matches |
+|---|---|---|
+| `charity.last_filed_date = date(year + 1, 1, 1)` | Stored a synthesised 1 January as a factual filing date | Finding 1, verbatim |
+| `verification_status = VERIFIED`, set unconditionally *before* the filings were read | Any EIN that merely resolved earned the badge — no filing needed, no name check | Findings 3, 6, 7 |
+| `fix_us_eins._fetch()` returned `None` for every failure | A dropped TCP connection printed "EIN does not resolve on ProPublica" | Finding 8's distinction, missing here |
+
+The third one fired during this session's own batch: three rows whose EINs had
+verified seconds earlier were skipped with a message stating their identifier was
+wrong. Harmless in that direction — a skip is not a deletion — but the message was
+false, and the same code shape is what silently downgraded a timeout to
+"unsupported" in Finding 8.
+
+**The fix.**
+- `_period_end()` reads `tax_prd`, null when absent. Same function as
+  `refresh_us_filings`, and now tested rather than duplicated on trust.
+- Promotion requires **both** a filing carrying real revenue **and** a name match
+  against what the registry returns.
+- `_fetch()` distinguishes 404 ("the registry has no such EIN") from a transport
+  failure ("we could not ask"), retries the latter, and reports it as retryable
+  rather than as a verdict.
+
+**On the name check.** It compares identifying-token *sets for equality*. A
+substring test and a subset test were both measured against live ProPublica
+search results on 2026-08-03 and both accepted wrong entities — "Chesapeake
+Climate Action Network" for *Climate Action Network*, and "Sickle Cell Disease
+Association Of America Michigan Chapter Inc" for the national body. An extra
+identifying word is usually a different organisation.
+
+It also accepts the IRS **trade name** (`sort_name`), not only the legal one:
+EIN 03-0355315 is legally "Us Working Group Inc" and publicly Forest Stewardship
+Council US; 52-1886511 is legally "Rape Abuse And Incest National Network Inc"
+and publicly RAINN. Ignoring that field would mean refusing an answer the registry
+itself publishes about its own entity.
+
+**Its limit, stated rather than hidden.** Where two real organisations reduce to
+the same identifying words — *Climate Action Network* vs *The US Climate Action
+Network*, *NeighborWorks America* vs *National NeighborWorks Association* — no
+comparison of the two strings can separate them. There is a test that asserts
+this, so the limit lives in the suite instead of being discovered on a public
+page. What contains it: the check guards rows ingested *from* the registry, where
+the catalogue name is the registry name and the ambiguity cannot arise. Pointing
+an existing curated row at a new identifier stays a reviewed step in
+`fix_us_eins`.
+
+---
+
 ## What now prevents recurrence
 
 | Control | Mechanism |
@@ -297,19 +351,29 @@ downgraded to "unsupported", which would have deleted a sound figure.
 | Freshness visible to the reader | `updated_at` bumped per re-check, rendered on every profile |
 | Search-engine currency | IndexNow submits all 1,085 URLs daily from the Cloudflare Worker |
 | Unsourced money figures | `strip_unsourced_financials`; `check_financial_rows.py` re-runs the sweep |
+| A fresh ingest re-creating repaired defects | `apps/ingestion/tests/test_propublica_evidence.py` pins the date and name-match rules |
 
 ## Open items
 
 1. Decide the treatment of the 6 registry-only "verified" charities.
-2. 45 US EINs do not resolve on ProPublica — triage (most are `listed`, so they
-   assert nothing, but they should not sit in the catalogue unexamined).
-3. Non-US coverage: 175 charities remain `listed`; Canada (28) is tooled but
+2. ~~45 US EINs do not resolve on ProPublica — triage.~~ **Done 2026-08-04**:
+   39 hidden US rows re-searched by name, 37 of their stored EINs were 404s,
+   21 recovered and published, 18 documented with a reason in
+   [`VERIFICATION_COVERAGE.md`](VERIFICATION_COVERAGE.md).
+3. Non-US coverage: 151 charities remain `listed`; Canada (28) is tooled but
    unmapped — see [`VERIFICATION_COVERAGE.md`](VERIFICATION_COVERAGE.md).
 4. 35 charities now display no revenue (Finding 8). For the 21 UK ones the figure
    is recoverable in principle — the Charity Commission publishes income on the
    register — but not from anything currently stored, and its API needs a key.
 5. Nothing runs the Finding 8 sweep on a schedule. `check_financial_rows.py` is
    manual; it belongs in the nightly ETL alongside `audit_source_links`.
+6. **Four duplicate catalogue rows** found while doing (2): `jdrf-breakthrough-t1d`
+   / `jdrf`, `sea-shepherd-conservation-society` / `sea-shepherd`,
+   `lcv-education-fund` / `league-conservation-voters`, and
+   `whale-and-dolphin-conservation-usa` / `whale-dolphin-conservation-us`. Each
+   pair is one organisation held twice, so the unique-registration constraint
+   permanently keeps the second copy unverifiable. They need merging, not
+   verifying, and until then they inflate the unverified count by four.
 
 ## Method
 
