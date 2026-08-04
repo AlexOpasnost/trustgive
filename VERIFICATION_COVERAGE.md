@@ -16,11 +16,14 @@
 | Metric | Value | Was 2026-07-27 |
 |---|---|---|
 | Rows in the database | **541** | 541 |
-| **Published** (verified + live regulator document) | **390** | 371 |
-| Hidden (no confirmed source yet — retained, not deleted) | **151** | 170 |
+| **Published** (verified + live regulator document) | **397** | 371 |
+| Hidden (no confirmed source yet — retained, not deleted) | **144** | 170 |
 | Published without a source document | **0** | 0 |
 | Countries represented in the database | 27 | 27 |
 | Countries actually published | **10** | 10 |
+
+Published by country, 2026-08-04: US 278 · GB 77 · **AU 23** · ES 6 · IT 4 ·
+IN 3 · RU 2 · DE 2 · NL 1 · BR 1.
 
 The catalogue is genuinely worldwide, but **35% of it (190 orgs) had no confirmed
 regulator document** after the v3.18 source-link audit demoted every unverifiable
@@ -167,6 +170,59 @@ $356K, a 250× gap that leaves no ambiguity about which is the national one.
 The four duplicates are the actionable item here: they are not a verification
 problem but a data-model one, and they inflate the "unverified" count with rows
 that should not exist separately.
+
+---
+
+## 2026-08-04 — Australia, on evidence this time (+7 published, 1 badge corrected)
+
+Australia was next in Block E because the ABR publishes a per-charity page. On
+opening `fix_au_abns` it turned out its check was the CRA trap again: it accepted
+an ABN whenever `abr.business.gov.au/ABN/View?abn={abn}` returned **HTTP 200**,
+and that URL returns 200 for invented numbers too — 99999999999, 12345678901 and
+00000000000 each answer with an 8,777-byte "not found" body and a 200 status.
+
+Unlike CRA, the ABR body *does* discriminate, so the check moved onto the content.
+Three conditions now, all read out of the page:
+
+1. the register lists a name for this ABN;
+2. one of those names is the charity — the page carries the entity name plus any
+   business and trading names, and any one of them may be the familiar one;
+3. the page says the entity is **registered as a charity with the ACNC** — an ABN
+   alone is issued to any business and is not the claim the badge makes.
+
+**All 25 Australian rows were then re-checked on that basis.** The 16 already
+carrying a badge every one held up — the old check had been getting the right
+answer for the wrong reason, because the ABNs had been sourced by hand from the
+ACNC register.
+
+**7 newly published**, each ABN found by name search on ABN Lookup and confirmed
+on its own record page:
+
+| slug | ABN | Register entity | Note |
+|---|---|---|---|
+| acrf-australia | 27076461360 | Australian Cancer Research Foundation | |
+| asrc-refugee | 64114965815 | Asylum Seeker Resource Centre Inc. | |
+| mater-foundation-au | 96723184640 | The Trustee for Mater Foundation | |
+| oz-harvest | 33107782196 | Oz Harvest Limited / OzHarvest | |
+| vinnies-australia | 50748098845 | St Vincent de Paul Society National Council of Australia | **stored ABN was right all along** — it had simply never been checked |
+| walter-eliza-hall-institute | 12004251423 | The Walter and Eliza Hall Institute of Medical Research | |
+| wilderness-society-australia | 18611229086 | The Wilderness Society Ltd. | |
+
+**1 badge corrected.** `rfds-australia` presents the national Royal Flying Doctor
+Service, and its verified ABN 71004196230 belongs to *Royal Flying Doctor Service
+of Australia (Victorian Section)*. A live wrong-entity badge, the same shape as
+the Canadian "Salvation Army Comox Valley" case. Re-pointed to **74438059643**,
+the national body in the ACT.
+
+### The 2 that stay hidden
+
+- **`salvation-army-australia`** — every ABN under that name is a state property
+  trust. There is no single national entity to point at, so the row would have to
+  claim one state's registration for a national organisation.
+- **`kids-helpline-yourtown`** — the register knows the entity as *yourtown*;
+  Kids Helpline is the service it runs. The name check rejects it, correctly:
+  confirming a name the registry does not carry would be inventing the link. The
+  fix is a decision about the catalogue entry's own name, not a verification step.
 
 ---
 

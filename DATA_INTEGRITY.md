@@ -341,6 +341,52 @@ an existing curated row at a new identifier stays a reviewed step in
 
 ---
 
+## Finding 10 — The Australian check was the Canadian one, and it had already shipped (severity: high, fixed)
+
+Found 2026-08-04, immediately after Finding 9 and by the same move: reading the
+command instead of trusting its docstring.
+
+`fix_au_abns` promoted a charity when
+`https://abr.business.gov.au/ABN/View?abn={abn}` returned **HTTP 200**. Tested
+against controls:
+
+| ABN | Real? | ABR response |
+|---|---|---|
+| 28004778081 (World Vision Australia) | yes | 200, 21,147 bytes, entity named |
+| 99668654249 (RSPCA Australia) | yes | 200, 19,161 bytes, entity named |
+| **99999999999** | **fabricated** | 200, 8,777 bytes, no entity |
+| **12345678901** | **fabricated** | 200, 8,777 bytes, no entity |
+| **00000000000** | **fabricated** | 200, 8,777 bytes, no entity |
+
+This is Finding 6 verbatim — a status code standing in for evidence — with one
+difference that matters: the CRA command was caught before it ever ran, and this
+one had already promoted **16 live rows**.
+
+**Were any of them wrong?** No. All 16 were re-checked against the page body and
+all 16 hold up. But that is a property of the input, not of the check: the ABNs
+had been sourced by hand from the ACNC register, so the check was never asked a
+question it could get wrong. A control that cannot fail is not evidence that the
+data is right.
+
+**What the check reads now**, all from the page body: that the register lists a
+name for the ABN, that one of the names it lists is the charity, and that the
+entity is *registered as a charity with the ACNC*. The last one is not redundant —
+an ABN is issued to any business, and "this business exists" is not the claim a
+verification badge makes.
+
+**One real defect surfaced by the new check.** `rfds-australia` — presented as the
+national Royal Flying Doctor Service — was verified against ABN 71004196230,
+which the register names *Royal Flying Doctor Service of Australia (Victorian
+Section)*. A live wrong-entity badge, the same shape as the Canadian
+`salvation-army-canada` → local church case in Finding 7. Corrected to the
+national body's ABN, 74438059643.
+
+**The general rule, now applied twice in one day:** ask the registry for *data
+about the entity* and compare it to the entity you are claiming. Every registry
+whose front door is a web page will answer 200 to nonsense.
+
+---
+
 ## What now prevents recurrence
 
 | Control | Mechanism |
@@ -352,6 +398,7 @@ an existing curated row at a new identifier stays a reviewed step in
 | Search-engine currency | IndexNow submits all 1,085 URLs daily from the Cloudflare Worker |
 | Unsourced money figures | `strip_unsourced_financials`; `check_financial_rows.py` re-runs the sweep |
 | A fresh ingest re-creating repaired defects | `apps/ingestion/tests/test_propublica_evidence.py` pins the date and name-match rules |
+| A status code standing in for evidence (AU) | `apps/charities/tests/test_au_registry_evidence.py` runs the parser over a real record, the 200-with-no-entity body, and a non-charity |
 
 ## Open items
 
@@ -360,8 +407,9 @@ an existing curated row at a new identifier stays a reviewed step in
    39 hidden US rows re-searched by name, 37 of their stored EINs were 404s,
    21 recovered and published, 18 documented with a reason in
    [`VERIFICATION_COVERAGE.md`](VERIFICATION_COVERAGE.md).
-3. Non-US coverage: 151 charities remain `listed`; Canada (28) is tooled but
-   unmapped — see [`VERIFICATION_COVERAGE.md`](VERIFICATION_COVERAGE.md).
+3. Non-US coverage: 144 charities remain `listed`; Canada (28) is still blocked —
+   see [`VERIFICATION_COVERAGE.md`](VERIFICATION_COVERAGE.md). Australia is now
+   23 of 25.
 4. 35 charities now display no revenue (Finding 8). For the 21 UK ones the figure
    is recoverable in principle — the Charity Commission publishes income on the
    register — but not from anything currently stored, and its API needs a key.
