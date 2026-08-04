@@ -387,6 +387,46 @@ whose front door is a web page will answer 200 to nonsense.
 
 ---
 
+## Finding 11 — Five of seven New Zealand numbers belong to other organisations (severity: high, partly fixed)
+
+Found 2026-08-04, applying the Finding 10 method to a third registry.
+
+`register.charities.govt.nz/Charity/{cc}` answers **200 for CC99999999 and for
+ZZ12345**, so the status code was never going to help here either. It is
+server-rendered though, and carries the legal name, the registration number and
+the current status. Checking the 7 stored numbers against those fields:
+
+| Outcome | Count | Rows |
+|---|---:|---|
+| Correct | 2 | `forest-and-bird-nz`, `salvation-army-nz` |
+| Registered to a **different organisation** | 4 | `canteen-nz` → *Ashburton Seniors Centre Trust*; `fred-hollows-foundation-nz` → *St Vincent de Paul, Hutt Valley*; `nz-cancer-society` → *The Fred Hollows Foundation (NZ)*; `world-vision-nz` → *St Vincent de Paul, Kaiapoi* (**deregistered**) |
+| Not in the register at all | 1 | `nz-red-cross` |
+
+**5 of 7 (71%)** stored a government identifier that is not theirs — the Canada
+result from Finding 7 (79%) repeating in an unrelated country. Two countries
+failing the same way says the fault is in how the seed data was assembled, not in
+any one registry.
+
+None of the seven was published, so nothing false reached a reader. That is the
+verified-only filter working as designed, and it is the second time it has caught
+this exact thing.
+
+**`world-vision-nz` is the instructive one.** CC36358 is a genuine record for a
+genuine organisation which is **deregistered** — New Zealand removes charities
+that stop filing and keeps serving their page. A check that stopped at "the page
+exists and names an organisation" would have passed it. `fix_nz_ccnumbers`
+therefore requires the status to read *Registered*, on top of the name match.
+
+**Partly fixed.** 3 rows published (including `fred-hollows-foundation-nz`, whose
+correct number was the one `nz-cancer-society` had been holding). The remaining
+wrong numbers cannot all be cleared yet: `registration_id` is a non-null
+`CharField` under a `(country, registration_id)` unique constraint, so exactly one
+row per country can hold the empty string. **Making that field nullable is the
+prerequisite for removing a known-false identifier**, and it is now the blocker
+for finishing this in NZ, Canada, and anywhere else the same shape turns up.
+
+---
+
 ## What now prevents recurrence
 
 | Control | Mechanism |
@@ -399,6 +439,7 @@ whose front door is a web page will answer 200 to nonsense.
 | Unsourced money figures | `strip_unsourced_financials`; `check_financial_rows.py` re-runs the sweep |
 | A fresh ingest re-creating repaired defects | `apps/ingestion/tests/test_propublica_evidence.py` pins the date and name-match rules |
 | A status code standing in for evidence (AU) | `apps/charities/tests/test_au_registry_evidence.py` runs the parser over a real record, the 200-with-no-entity body, and a non-charity |
+| Another organisation's registration, or a deregistered one (NZ) | `fix_nz_ccnumbers` requires legal name + the number asked for + status `Registered`; `apps/charities/tests/test_nz_registry_evidence.py` pins it against the five real mismatches |
 
 ## Open items
 
@@ -407,9 +448,9 @@ whose front door is a web page will answer 200 to nonsense.
    39 hidden US rows re-searched by name, 37 of their stored EINs were 404s,
    21 recovered and published, 18 documented with a reason in
    [`VERIFICATION_COVERAGE.md`](VERIFICATION_COVERAGE.md).
-3. Non-US coverage: 144 charities remain `listed`; Canada (28) is still blocked —
+3. Non-US coverage: 141 charities remain `listed`; Canada (28) is still blocked —
    see [`VERIFICATION_COVERAGE.md`](VERIFICATION_COVERAGE.md). Australia is now
-   23 of 25.
+   23 of 25 and New Zealand 3 of 7.
 4. 35 charities now display no revenue (Finding 8). For the 21 UK ones the figure
    is recoverable in principle — the Charity Commission publishes income on the
    register — but not from anything currently stored, and its API needs a key.
@@ -422,6 +463,11 @@ whose front door is a web page will answer 200 to nonsense.
    pair is one organisation held twice, so the unique-registration constraint
    permanently keeps the second copy unverifiable. They need merging, not
    verifying, and until then they inflate the unverified count by four.
+7. **`Charity.registration_id` cannot be emptied.** It is a non-null `CharField`
+   inside a `(country, registration_id)` unique constraint, so at most one row per
+   country can hold `""`. Removing a *known-false* identifier is therefore
+   impossible beyond the first one — which is the blocker for finishing Finding 11
+   in New Zealand and for acting on Finding 7 in Canada. Make it nullable.
 
 ## Method
 

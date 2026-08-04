@@ -16,14 +16,14 @@
 | Metric | Value | Was 2026-07-27 |
 |---|---|---|
 | Rows in the database | **541** | 541 |
-| **Published** (verified + live regulator document) | **397** | 371 |
-| Hidden (no confirmed source yet — retained, not deleted) | **144** | 170 |
+| **Published** (verified + live regulator document) | **400** | 371 |
+| Hidden (no confirmed source yet — retained, not deleted) | **141** | 170 |
 | Published without a source document | **0** | 0 |
 | Countries represented in the database | 27 | 27 |
-| Countries actually published | **10** | 10 |
+| Countries actually published | **11** | 10 |
 
 Published by country, 2026-08-04: US 278 · GB 77 · **AU 23** · ES 6 · IT 4 ·
-IN 3 · RU 2 · DE 2 · NL 1 · BR 1.
+IN 3 · **NZ 3** · RU 2 · DE 2 · NL 1 · BR 1.
 
 The catalogue is genuinely worldwide, but **35% of it (190 orgs) had no confirmed
 regulator document** after the v3.18 source-link audit demoted every unverifiable
@@ -223,6 +223,59 @@ the national body in the ACT.
   Kids Helpline is the service it runs. The name check rejects it, correctly:
   confirming a name the registry does not carry would be inventing the link. The
   fix is a decision about the catalogue entry's own name, not a verification step.
+
+---
+
+## 2026-08-04 — New Zealand: a new country, and four numbers belonging to strangers (+3 published)
+
+The Charities Register turned out to be usable after all: the July roadmap had it
+as "API blocks HEAD", but the per-charity page at
+`register.charities.govt.nz/Charity/{CC}` is plain server-rendered HTML carrying
+the legal name, the registration number and the current status. It also returns
+**HTTP 200 for CC99999999 and for ZZ12345**, so — third registry running — the
+status code says nothing and the content says everything.
+
+New command `fix_nz_ccnumbers`, same shape as the US and AU ones. It requires
+three things off the record: the legal name is this charity, the registration
+number on the page is the one asked for, and the status is **Registered**.
+
+Checking all 7 stored numbers against that produced this:
+
+| slug | stored | the register answers | |
+|---|---|---|---|
+| forest-and-bird-nz | CC26943 | Royal Forest & Bird Protection Society of New Zealand Inc | ✅ correct |
+| salvation-army-nz | CC37312 | The Salvation Army New Zealand | ✅ correct |
+| nz-cancer-society | CC23722 | **The Fred Hollows Foundation (NZ)** | ❌ another catalogue entry's number |
+| fred-hollows-foundation-nz | CC36306 | **Society of St Vincent de Paul, Hutt Valley** | ❌ |
+| canteen-nz | CC11146 | **Ashburton Seniors Centre Trust** | ❌ |
+| world-vision-nz | CC36358 | **Society of St Vincent de Paul, Kaiapoi** — *Deregistered* | ❌ |
+| nz-red-cross | CC11663 | not in the register | ❌ |
+
+**Five of seven stored a number that is not theirs.** None was published, so
+nothing false was ever shown — the `listed` status was doing its job again — but
+the figures were sitting in the database as fact. This is Finding 7's Canada
+result repeating in a second country, which says the defect is in how the seed
+data was assembled rather than in any one registry.
+
+`world-vision-nz` is the one that justifies the status gate on its own: CC36358 is
+a real record for a real organisation that was **deregistered**. A check that
+stopped at "the page exists and names someone" would have passed it.
+
+**3 published.** Two were already correct and had simply never been checked;
+`fred-hollows-foundation-nz` was given CC23722 — the number `nz-cancer-society`
+had been holding, which the register says is Fred Hollows'. Taking it required
+clearing the wrong value off the Cancer Society row first, because
+`(country, registration_id)` is unique.
+
+### Still open in New Zealand
+
+- `canteen-nz`, `nz-red-cross`, `world-vision-nz` still store a number that is
+  demonstrably not theirs. They should be cleared, but only one row per country
+  can hold an empty `registration_id` under the current unique constraint — so
+  the model needs a nullable identifier before the other two can be emptied.
+- `nz-cancer-society` now stores nothing, which is the honest state. Its real
+  number has to come from the register's own search, which is POST-driven and
+  reCAPTCHA-fronted, so it is not scriptable from here.
 
 ---
 
