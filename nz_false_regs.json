@@ -1,0 +1,20 @@
+[
+  {
+    "slug": "canteen-nz",
+    "country": "NZ",
+    "expect": "CC11146",
+    "why": "register.charities.govt.nz/Charity/CC11146 is registered to 'Ashburton Seniors Centre Trust', not CanTeen (DATA_INTEGRITY Finding 11)"
+  },
+  {
+    "slug": "nz-red-cross",
+    "country": "NZ",
+    "expect": "CC11663",
+    "why": "the register returns no record for CC11663 — the page falls back to the search form (DATA_INTEGRITY Finding 11)"
+  },
+  {
+    "slug": "world-vision-nz",
+    "country": "NZ",
+    "expect": "CC36358",
+    "why": "register.charities.govt.nz/Charity/CC36358 is registered to 'Society of St Vincent De Paul St Patricks Vinnies Kaiapoi', status Deregistered (DATA_INTEGRITY Finding 11)"
+  }
+]

@@ -85,7 +85,12 @@ export type CharitySummary = {
   tagline: LocalizedString
   logo_url: string | null
   country: "US" | "GB" | "RU"
-  registration_id: string
+  /**
+   * Null when the charity has no registration number this project will stand
+   * behind — either it was never established, or the stored one turned out to
+   * belong to a different organisation and was removed rather than kept.
+   */
+  registration_id: string | null
   cause_tags: string[]
   size_bucket: "small" | "medium" | "large" | ""
   verification_status: "verified" | "listed" | "stale"

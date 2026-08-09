@@ -200,7 +200,22 @@ class Charity(models.Model):
     )
 
     country = models.CharField(max_length=2, choices=Country.choices)
-    registration_id = models.CharField(max_length=64)
+    # Nullable since 2026-08-05, so a *known-false* government identifier can be
+    # removed rather than kept for tidiness.
+    #
+    # It used to be non-null, inside the (country, registration_id) unique
+    # constraint below, which meant at most one row per country could hold "".
+    # That is not a theoretical limit: New Zealand had four numbers registered to
+    # other organisations (DATA_INTEGRITY Finding 11) and Canada has twenty-two
+    # (Finding 7), and after clearing the first one the rest were stuck. Storing
+    # a registration number that belongs to somebody else is the defect; the
+    # field being NOT NULL made the defect unfixable.
+    #
+    # Postgres treats NULLs as distinct in a unique index, so any number of rows
+    # per country may now hold NULL while real numbers stay unique. Use NULL, not
+    # "", for "we do not know this charity's registration" — an empty string is a
+    # value, and it collides.
+    registration_id = models.CharField(max_length=64, null=True, blank=True)
     cause_tags = ArrayField(models.SlugField(max_length=100), default=list)
 
     size_bucket = models.CharField(

@@ -54,6 +54,11 @@ export function LiveProof() {
 
   const filing = charity.source_documents.find((doc) => doc.url)
   if (!filing) return null
+  // The block's whole argument is "here is the number, here is the document it
+  // came from". Without the number there is no worked example, so it withdraws
+  // rather than showing a placeholder where a government identifier belongs —
+  // same rule as the missing filing above.
+  if (!charity.registration_id) return null
 
   const name = charity.name[lang] || charity.name.en || charity.slug
   // Document *type*, not the document's own label: labels already carry the

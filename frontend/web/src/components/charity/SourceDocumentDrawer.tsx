@@ -14,7 +14,8 @@ import { usePreferences } from "@/store/preferences"
 type Props = {
   document: SourceDocument | null
   charityName: string
-  registrationId: string
+  /** Null when the charity has no registration number we can stand behind. */
+  registrationId: string | null
   onClose: () => void
 }
 
@@ -44,7 +45,13 @@ export function SourceDocumentDrawer({ document, charityName, registrationId, on
                   <div>
                     <Dialog.Title className="text-h3 font-semibold text-ink">{label}</Dialog.Title>
                     <Dialog.Description className="text-body-sm text-ink-2 mt-1">
-                      {charityName} · {registrationId && <span className="font-mono">EIN/Reg {registrationId}</span>}
+                      {charityName}
+                      {registrationId && (
+                        <>
+                          {" · "}
+                          <span className="font-mono">EIN/Reg {registrationId}</span>
+                        </>
+                      )}
                     </Dialog.Description>
                     {document.source_label && (
                       <p className="text-caption text-ink-3 font-mono mt-2">

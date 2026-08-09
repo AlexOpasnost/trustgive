@@ -160,8 +160,17 @@ export function CharityDetailPage() {
                   return (ProPublica `tax_prd`), not the day it was submitted —
                   the verification line labels it for exactly that. */}
               <p className="text-body-sm text-ink-3 mt-4">
-                <span className="font-mono">EIN/Reg {charity.registration_id}</span>
-                <span className="mx-2">·</span>
+                {/* Dropped entirely when unknown rather than rendered empty.
+                    `registration_id` is nullable, and a row with none is one
+                    whose stored number turned out to belong to a different
+                    organisation — "EIN/Reg" followed by nothing would read as a
+                    display bug rather than as an absent fact. */}
+                {charity.registration_id && (
+                  <>
+                    <span className="font-mono">EIN/Reg {charity.registration_id}</span>
+                    <span className="mx-2">·</span>
+                  </>
+                )}
                 <span>{charity.country}</span>
                 {charity.founded_year && (
                   <>

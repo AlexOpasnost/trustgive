@@ -39,6 +39,11 @@ def _evidence(charity: Charity, lang: str) -> str:
         "RU": "Минюст-зарегистрированная НКО",
     }
     label = country_label.get(charity.country, "registered charity")
+    # `registration_id` is nullable (migration 0059). Every verified charity has
+    # one today, and this view is verified-only, but the sentence is built rather
+    # than interpolated blind: a None would render the literal "None" as a
+    # government registration number on a page whose entire job is to be checkable.
+    reg = charity.registration_id or ""
     if lang == "ru":
         form = (
             "зарегистрированная 501(c)(3)"
@@ -46,12 +51,14 @@ def _evidence(charity: Charity, lang: str) -> str:
             else "зарегистрированная организация"
         )
         filed = charity.last_filed_date or "неизвестно"
+        subject = f"{name} (рег. №{reg})" if reg else name
         return (
-            f"{name} (рег. №{charity.registration_id}) — {form} "
+            f"{subject} — {form} "
             f"в {charity.country}, последняя финансовая отчётность подана {filed}."
         )
+    subject = f"{name} (registration {reg})" if reg else name
     return (
-        f"{name} (registration {charity.registration_id}) is a {label}, in good standing, "
+        f"{subject} is a {label}, in good standing, "
         f"with most recent financial filing on {charity.last_filed_date or 'unknown'}."
     )
 
@@ -105,10 +112,9 @@ class SeoCharityView(APIView):
 
         title = f"{h1[:60]} · TrustGive" if len(h1) > 60 else f"{h1} · TrustGive"
         canonical_url = f"/{lang}/charities/{slug}/"
-        meta_description = (
-            f"Verification status: {charity.verification_status}. "
-            f"EIN/Reg: {charity.registration_id}."
-        )
+        meta_description = f"Verification status: {charity.verification_status}."
+        if charity.registration_id:
+            meta_description += f" EIN/Reg: {charity.registration_id}."
 
         body: dict[str, Any] = {
             "slug": slug,
@@ -127,7 +133,10 @@ class SeoCharityView(APIView):
                     "@context": "https://schema.org",
                     "@type": "NGO",
                     "name": (charity.name or {}).get("en", charity.slug),
-                    "identifier": charity.registration_id,
+                    # Omitted rather than emitted as null when unknown: a
+                    # schema.org `identifier` is a claim about the organisation,
+                    # and an absent claim is honest where an empty one is noise.
+                    **({"identifier": charity.registration_id} if charity.registration_id else {}),
                     "url": charity.donation_url or f"https://trustgive.org/charities/{slug}/",
                 },
             },

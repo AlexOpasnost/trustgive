@@ -480,6 +480,61 @@ number. Handing a badge back on a bare 200 is the defect this report opens with.
 
 ---
 
+## Finding 13 — A field that made its own defect unfixable (severity: high, fixed)
+
+`registration_id` was a non-null `CharField` inside the
+`(country, registration_id)` unique constraint. "We do not know this charity's
+registration" therefore had to be spelled `""` — which is a value, and collides.
+**Exactly one row per country could say it.**
+
+That is why Findings 7 and 11 both ended with known-false government identifiers
+left in place: after clearing the first one, the rest were stuck. The defect was
+found, written up, and structurally impossible to remove.
+
+Migration `0059` makes the field nullable and folds the one existing `""` into
+NULL. Postgres treats NULLs as distinct in a unique index, so any number of rows
+per country may now hold NULL while real numbers stay unique — pinned by three
+tests in `test_models.py`, including one asserting the constraint did not loosen
+for actual numbers.
+
+New command `clear_false_registrations`, the inverse of every other command here:
+it deletes an identifier instead of writing one. It requires the caller to state
+the value it expects to find (so it cannot act on a row that has changed under
+it) and a written reason, and it refuses to touch a **published** charity — a
+live badge sits beside a printed number, and pulling one out from under the other
+is not a decision this command may make alone.
+
+**Cleared, 5 rows.** New Zealand: `canteen-nz` (CC11146 → *Ashburton Seniors
+Centre Trust*), `nz-red-cross` (CC11663, no record), `world-vision-nz` (CC36358 →
+a deregistered St Vincent de Paul branch). Canada: `boys-girls-clubs-canada`
+(→ *Blenheim United Church Endowment Fund*) and `salvation-army-canada`
+(→ *The Salvation Army Comox Valley Community Church*, a congregation rather than
+the national body).
+
+Six rows now honestly hold no registration number, and no row holds `""`.
+
+**The 20 unresolvable Canadian numbers stay.** Finding 7's caveat still governs:
+HTTP 417 is well-supported as "not in the registry" but is not the registry
+saying so in words, and they should be re-derived from CRA's search by name
+rather than deleted on that signal.
+
+### A false finding, caught by controls
+
+Re-checking Canada nearly produced one. The catalogue stores business numbers
+hyphenated (`11930-4954-RR0001`); the CRA data endpoint wants them bare. Passing
+the stored form through returned **417 — the same answer a fabricated number
+gets — for charities Finding 7 had confirmed as genuine**. Read at face value,
+that was "Canada is even worse than we thought".
+
+It was a formatting bug. The only reason it did not become a finding is that the
+run carried known-good and known-fabricated controls, and the known-good ones
+failed too, which is not something a real result does. With normalisation the
+sweep reproduces Finding 7 exactly: 8 resolve, 20 do not, and the 8 are the same
+8. **Put controls in every registry sweep** — they are what distinguishes a
+discovery from a bug in the harness.
+
+---
+
 ## What now prevents recurrence
 
 | Control | Mechanism |
@@ -495,6 +550,8 @@ number. Handing a badge back on a bare 200 is the defect this report opens with.
 | Another organisation's registration, or a deregistered one (NZ) | `fix_nz_ccnumbers` requires legal name + the number asked for + status `Registered`; `apps/charities/tests/test_nz_registry_evidence.py` pins it against the five real mismatches |
 | A registry outage emptying the catalogue | `verdict_for()` demotes only on a real 404/410; unreachable is reported, never acted on. Pinned by `test_source_link_verdicts.py` |
 | A stale freshness stamp on a row the ETL just changed | every `save()` in `audit_source_links` now names `updated_at` alongside `verification_status` |
+| A known-false identifier that cannot be removed | `registration_id` is nullable (migration 0059); `clear_false_registrations` deletes one against a stated expected value and a written reason |
+| A harness bug reported as a data finding | every registry sweep carries known-good and known-fabricated controls; if the known-good ones fail, the run is discarded |
 
 ## Open items
 
@@ -518,11 +575,9 @@ number. Handing a badge back on a bare 200 is the defect this report opens with.
    pair is one organisation held twice, so the unique-registration constraint
    permanently keeps the second copy unverifiable. They need merging, not
    verifying, and until then they inflate the unverified count by four.
-7. **`Charity.registration_id` cannot be emptied.** It is a non-null `CharField`
-   inside a `(country, registration_id)` unique constraint, so at most one row per
-   country can hold `""`. Removing a *known-false* identifier is therefore
-   impossible beyond the first one — which is the blocker for finishing Finding 11
-   in New Zealand and for acting on Finding 7 in Canada. Make it nullable.
+7. ~~**`Charity.registration_id` cannot be emptied.**~~ **Done 2026-08-09** —
+   migration 0059 + `clear_false_registrations`; 5 false identifiers removed.
+   See Finding 13.
 8. **Two UK charities are hidden by a bug that no longer exists.**
    `breast-cancer-now` and `donkey-sanctuary` were demoted overnight by the
    Finding 12 defect, and nothing re-promotes automatically. Both documents
@@ -530,7 +585,10 @@ number. Handing a badge back on a bare 200 is the defect this report opens with.
    were: the Charity Commission's page carries no charity name in its
    server-rendered HTML. They come back when the UK path has a real name check —
    which is what the Charity Commission API key is for.
-9. **`donkey-sanctuary` may hold the wrong number.** Its stored registration is
+9. **20 Canadian numbers remain unverifiable.** They answer 417, the same as a
+   fabricated control, but the registry has not said "no such charity" in words.
+   Re-derive them from CRA's search by name; do not delete on the 417 alone.
+10. **`donkey-sanctuary` may hold the wrong number.** Its stored registration is
    `264818`, and that register page prints "THE DONKEY SANCTUARY — 1207593".
    Whether `264818` is a superseded record or the wrong charity entirely has not
    been established; it is unpublished either way, so nothing false is on display.

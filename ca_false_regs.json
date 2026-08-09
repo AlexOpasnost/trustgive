@@ -1,0 +1,14 @@
+[
+  {
+    "slug": "boys-girls-clubs-canada",
+    "country": "CA",
+    "expect": "11881-1306-RR0001",
+    "why": "CRA retrieveReportingPeriod returns 'BLENHEIM UNITED CHURCH ENDOWMENT FUND' for this business number — a different organisation entirely (DATA_INTEGRITY Finding 7, re-confirmed live 2026-08-09)"
+  },
+  {
+    "slug": "salvation-army-canada",
+    "country": "CA",
+    "expect": "10795-1618-RR0002",
+    "why": "CRA returns 'THE SALVATION ARMY COMOX VALLEY COMMUNITY CHURCH' — a local congregation, not the national body the catalogue entry describes (DATA_INTEGRITY Finding 7, re-confirmed live 2026-08-09)"
+  }
+]
