@@ -21,9 +21,22 @@ registry and, per charity:
         rows (their figures came from the fabricated filing).
 
   * working == 0, only ambiguous failures (all timeouts/5xx, no 200, no 404):
-        demote verification_status → listed (safe, reversible), but DO NOT
-        delete anything — flag it [REVIEW] instead, so a transient registry
-        outage can never destroy possibly-real data.
+        change NOTHING. Flag it [REVIEW] and move on.
+
+        This branch used to demote — "safe, because reversible". It is not safe,
+        and a dry run on 2026-08-05 showed why: with ProPublica throttling the
+        calling IP, 235 links came back unreachable and the command proposed
+        demoting **232 of 398 published charities**. A registry having a bad
+        night would have emptied more than half the catalogue, and the same
+        mechanism had already silently pulled the badge off two UK charities
+        overnight while the Charity Commission was slow.
+
+        The standing rule is the one written after Finding 8: distinguish "the
+        source said no" from "we could not reach the source", and act only on
+        the first. A timeout is not a registry saying a filing does not exist,
+        and the badge's claim — a regulator published this document — does not
+        stop being true because a server did not answer in ten seconds.
+        Demotion now requires an actual 404/410, or no source document at all.
 
 The command is data-driven and re-runnable: once a charity is properly
 re-sourced (a real working link added), the next run re-promotes nothing
@@ -72,6 +85,29 @@ def _probe(url: str, *, retries: int, timeout: int) -> int | str:
         except Exception:  # network error / timeout
             last = "ERR"
     return last
+
+
+def verdict_for(statuses: list[int | str]) -> str:
+    """What a charity's probed link statuses justify doing to its badge.
+
+    Pure, so the rule that decides whether a charity disappears from the public
+    catalogue can be tested without a database or a network.
+
+      "keep"   at least one link answered 200. Individually dead links may still
+               be pruned, but the charity stands.
+      "clean"  nothing worked and a registry actually answered 404/410 about it.
+               The only outcome that removes a badge and its data.
+      "review" nothing worked and nothing answered — timeouts, 5xx, blocked.
+               We could not ask. Change nothing and report it.
+      "empty"  no links at all to probe.
+    """
+    if not statuses:
+        return "empty"
+    if any(s == 200 for s in statuses):
+        return "keep"
+    if any(s in DEFINITIVE_DEAD for s in statuses):
+        return "clean"
+    return "review"
 
 
 class Command(BaseCommand):
@@ -128,15 +164,21 @@ class Command(BaseCommand):
                         demoted += 1
                         if not dry_run:
                             c.verification_status = VerificationStatus.LISTED
-                            c.save(update_fields=["verification_status"])
+                            # `updated_at` is auto_now, and Django does not touch
+                            # an auto_now field unless it is named in
+                            # update_fields — the Finding 2 trap. Without it a row
+                            # this command demoted tonight still tells the reader
+                            # it was last re-checked months ago.
+                            c.save(update_fields=["verification_status", "updated_at"])
                         self.stdout.write(f"[DEMOTE] {c.slug} ({c.country}) — no source document")
                     continue
 
                 working = [d for d in docs if status.get(d.url) == 200]
                 dead = [d for d in docs if status.get(d.url) in DEFINITIVE_DEAD]
                 ambiguous = [d for d in docs if d not in working and d not in dead]
+                verdict = verdict_for([status.get(d.url, "ERR") for d in docs])
 
-                if working:
+                if verdict == "keep":
                     healthy += 1
                     # Prune only individually-dead links; keep working + ambiguous.
                     if dead:
@@ -150,8 +192,8 @@ class Command(BaseCommand):
                     continue
 
                 # No working source.
-                if dead:
-                    # Proven fake → full clean.
+                if verdict == "clean":
+                    # A registry answered 404/410 → proven fake, full clean.
                     demoted += 1
                     cleaned_financials += c.financial_history.count()
                     pruned_docs += len(dead) + len(ambiguous)
@@ -175,20 +217,18 @@ class Command(BaseCommand):
                                 "total_revenue_usd",
                                 "program_expense_pct",
                                 "methodology_note",
+                                # See the note above — auto_now needs naming.
+                                "updated_at",
                             ]
                         )
                 else:
-                    # Only timeouts/5xx — could be a transient registry outage.
-                    # Demote the badge (safe) but DESTROY NOTHING.
+                    # Only timeouts/5xx: we could not ask, which is not the same
+                    # as being told no. Nothing changes — see the module
+                    # docstring for the run that made the difference concrete.
                     review += 1
-                    if c.verification_status == VerificationStatus.VERIFIED:
-                        demoted += 1
-                        if not dry_run:
-                            c.verification_status = VerificationStatus.LISTED
-                            c.save(update_fields=["verification_status"])
                     self.stdout.write(
                         f"[REVIEW] {c.slug} ({c.country}) — {len(ambiguous)} link(s) "
-                        f"unreachable (not a 404); demoted, kept data for manual check"
+                        f"unreachable (not a 404); left unchanged, needs a manual check"
                     )
 
             if dry_run:
@@ -202,3 +242,15 @@ class Command(BaseCommand):
                 f"manual_review={review} no_source={nodoc}"
             )
         )
+        # A run where most links were unreachable did not measure link rot, it
+        # measured the network. Say so, rather than letting a healthy=166 line
+        # read as a finding about the catalogue.
+        if review and review > healthy:
+            self.stdout.write(
+                self.style.WARNING(
+                    f"{review} of {review + healthy} charities with a source could not be "
+                    f"reached at all, which is more than were reachable. That is a network "
+                    f"or rate-limit problem on this machine, not link rot — nothing was "
+                    f"demoted on it. Re-run from a different host before drawing conclusions."
+                )
+            )

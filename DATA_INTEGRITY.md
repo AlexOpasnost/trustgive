@@ -427,19 +427,74 @@ for finishing this in NZ, Canada, and anywhere else the same shape turns up.
 
 ---
 
+## Finding 12 — The nightly job removed badges when it could not reach the registry (severity: critical, fixed)
+
+Found 2026-08-05, not by a scheduled check but by running the scheduled check
+by hand and reading what it proposed.
+
+`audit_source_links` classified each charity's links three ways: at least one
+returns 200 (keep), none work and one answered 404/410 (clean), or none work and
+none answered at all (timeouts, 5xx, rate limits). The third case **demoted the
+charity**, with the reasoning that a demotion destroys nothing and is reversible.
+
+A dry run said what that costs. ProPublica was throttling the calling host, 235
+links came back unreachable, and the command proposed demoting **232 of 398
+published charities** — a registry having a bad night would have emptied more
+than half the catalogue, silently, at 02:00.
+
+It had already happened at small scale. The published count moved 400 → 398
+overnight while the Charity Commission was slow: `breast-cancer-now` and
+`donkey-sanctuary` lost their badges to timeouts, not to dead links. Both
+documents return 200 today.
+
+This is the Finding 8 rule broken in a different command. That command was
+explicitly built to *"distinguish the source says no from we could not reach the
+source, and skip rather than delete on the latter"*. `audit_source_links` made
+the distinction for **deletion** and ignored it for **demotion** — but a demoted
+charity is hidden from the public API, so demotion is the user-visible act.
+
+**The fix.** Unreachable now changes nothing; it prints `[REVIEW]` and moves on.
+Demotion requires a registry actually answering 404/410, or no source document at
+all. A timeout is not a regulator saying a filing does not exist, and the badge's
+claim does not stop being true because a server did not answer in ten seconds.
+
+The decision is now a pure function, `verdict_for(statuses)`, so the rule that
+can remove a charity from the catalogue is testable without a database or a
+network — `apps/charities/tests/test_source_link_verdicts.py` pins it, including
+the shape of the 2026-08-05 sweep. The command also warns when unreachable links
+outnumber reachable ones, so a run that measured the network cannot be read as a
+finding about the catalogue.
+
+**Also fixed here:** three `save(update_fields=[...])` calls changed
+`verification_status` without naming `updated_at`. That is the Finding 2 trap
+again — Django does not refresh an `auto_now` field unless it is listed — so a
+row this command demoted tonight still told the reader it was last re-checked
+months ago. The "freshness stamp is bumped per re-check" control was only ever
+true of `refresh_us_filings`.
+
+**Not restored.** The two demoted UK rows stay hidden. Re-promotion needs the
+register to name the charity, and it will not: the Charity Commission page for
+`1160558` carries no charity name in its server-rendered HTML, and the page for
+`264818` names "THE DONKEY SANCTUARY — **1207593**", a different registration
+number. Handing a badge back on a bare 200 is the defect this report opens with.
+
+---
+
 ## What now prevents recurrence
 
 | Control | Mechanism |
 |---|---|
 | Dates always sourced, never derived | `_period_end()` reads `tax_prd`; null when absent |
 | Data currency | `refresh_us_filings` nightly via GitHub Actions → Railway |
-| Evidence outliving its badge | `audit_source_links` nightly; demotes on a dead link |
-| Freshness visible to the reader | `updated_at` bumped per re-check, rendered on every profile |
+| Evidence outliving its badge | `audit_source_links` nightly; demotes on a link the registry answers 404/410 for — never on one it merely failed to answer (Finding 12) |
+| Freshness visible to the reader | `updated_at` bumped per re-check *and* per demotion, rendered on every profile |
 | Search-engine currency | IndexNow submits all 1,085 URLs daily from the Cloudflare Worker |
 | Unsourced money figures | `strip_unsourced_financials`; `check_financial_rows.py` re-runs the sweep |
 | A fresh ingest re-creating repaired defects | `apps/ingestion/tests/test_propublica_evidence.py` pins the date and name-match rules |
 | A status code standing in for evidence (AU) | `apps/charities/tests/test_au_registry_evidence.py` runs the parser over a real record, the 200-with-no-entity body, and a non-charity |
 | Another organisation's registration, or a deregistered one (NZ) | `fix_nz_ccnumbers` requires legal name + the number asked for + status `Registered`; `apps/charities/tests/test_nz_registry_evidence.py` pins it against the five real mismatches |
+| A registry outage emptying the catalogue | `verdict_for()` demotes only on a real 404/410; unreachable is reported, never acted on. Pinned by `test_source_link_verdicts.py` |
+| A stale freshness stamp on a row the ETL just changed | every `save()` in `audit_source_links` now names `updated_at` alongside `verification_status` |
 
 ## Open items
 
@@ -468,6 +523,17 @@ for finishing this in NZ, Canada, and anywhere else the same shape turns up.
    country can hold `""`. Removing a *known-false* identifier is therefore
    impossible beyond the first one — which is the blocker for finishing Finding 11
    in New Zealand and for acting on Finding 7 in Canada. Make it nullable.
+8. **Two UK charities are hidden by a bug that no longer exists.**
+   `breast-cancer-now` and `donkey-sanctuary` were demoted overnight by the
+   Finding 12 defect, and nothing re-promotes automatically. Both documents
+   return 200, but neither can be re-verified the way the US, AU and NZ rows
+   were: the Charity Commission's page carries no charity name in its
+   server-rendered HTML. They come back when the UK path has a real name check —
+   which is what the Charity Commission API key is for.
+9. **`donkey-sanctuary` may hold the wrong number.** Its stored registration is
+   `264818`, and that register page prints "THE DONKEY SANCTUARY — 1207593".
+   Whether `264818` is a superseded record or the wrong charity entirely has not
+   been established; it is unpublished either way, so nothing false is on display.
 
 ## Method
 
