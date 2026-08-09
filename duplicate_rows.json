@@ -1,0 +1,22 @@
+[
+  {
+    "keep": "jdrf",
+    "drop": "jdrf-breakthrough-t1d",
+    "why": "same organisation. `jdrf` holds EIN 231907729, which ProPublica returns as 'Breakthrough T1d' with a live filing; `jdrf-breakthrough-t1d` holds 232356733, which 404s"
+  },
+  {
+    "keep": "sea-shepherd",
+    "drop": "sea-shepherd-conservation-society",
+    "why": "same organisation. `sea-shepherd` holds EIN 930792021 with a live Form 990; `sea-shepherd-conservation-society` holds 953220919, which 404s"
+  },
+  {
+    "keep": "league-conservation-voters",
+    "drop": "lcv-education-fund",
+    "why": "both rows describe the LCV Education Fund. `league-conservation-voters` holds its real EIN 521379661 with a live filing; `lcv-education-fund` holds 521823083, which 404s. Note the surviving slug is misleading — see DATA_INTEGRITY"
+  },
+  {
+    "keep": "whale-dolphin-conservation-us",
+    "drop": "whale-and-dolphin-conservation-usa",
+    "why": "same organisation. `whale-dolphin-conservation-us` holds EIN 020749188, which ProPublica returns as 'Whale And Dolphin Conservation Inc' with a live filing; the other holds 043170933, which 404s"
+  }
+]

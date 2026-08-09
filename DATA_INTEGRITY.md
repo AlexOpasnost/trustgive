@@ -535,6 +535,45 @@ discovery from a bug in the harness.
 
 ---
 
+## Finding 14 — Four organisations were in the catalogue twice (severity: low, fixed)
+
+Every pair had the same shape: one row verified against a working regulator
+document, one row `listed`, holding an EIN that 404s, with no documents at all.
+Because `(country, registration_id)` is unique, the second copy could never be
+verified — it would have to claim the identifier the first already holds. So it
+was not an unverified charity awaiting confirmation. It was the same charity,
+twice.
+
+| Kept | Dropped | Identifiers |
+|---|---|---|
+| `jdrf` | `jdrf-breakthrough-t1d` | 231907729 (live, "Breakthrough T1d") vs 232356733 (404) |
+| `sea-shepherd` | `sea-shepherd-conservation-society` | 930792021 (live) vs 953220919 (404) |
+| `league-conservation-voters` | `lcv-education-fund` | 521379661 (live) vs 521823083 (404) |
+| `whale-dolphin-conservation-us` | `whale-and-dolphin-conservation-usa` | 020749188 (live) vs 043170933 (404) |
+
+**The cost was not tidiness.** They read as missed work: any sweep of "hidden US
+rows that ought to be recoverable" picks them up, and this session did exactly
+that — time went into re-deriving an EIN for `jdrf-breakthrough-t1d` that the
+catalogue already had under `jdrf`.
+
+`merge_duplicate_charities` carries over only what the survivor is *missing*
+(hero photo with its credit and licence, logo, founded year, donation URL) and
+unions the cause tags; curated prose on the survivor is never overwritten. It
+refuses to delete a row that holds a source document or a financial row, refuses
+to delete a published row, and refuses to merge into an unverified one. Those
+refusals are the tested part (`test_merge_duplicates.py`) — it is the only
+command here that deletes a charity.
+
+537 rows now, 398 published. No published row changed.
+
+**Left as-is:** the surviving `league-conservation-voters` slug is misleading —
+the row holds the *Education Fund* (the 501(c)(3)), not the League of
+Conservation Voters (the 501(c)(4)), and its name and EIN both say so. Renaming a
+slug breaks its URL, and the URL is what search engines and any citation point
+at, so the mismatch is documented rather than silently repaired.
+
+---
+
 ## What now prevents recurrence
 
 | Control | Mechanism |
@@ -566,15 +605,17 @@ discovery from a bug in the harness.
 4. 35 charities now display no revenue (Finding 8). For the 21 UK ones the figure
    is recoverable in principle — the Charity Commission publishes income on the
    register — but not from anything currently stored, and its API needs a key.
-5. Nothing runs the Finding 8 sweep on a schedule. `check_financial_rows.py` is
-   manual; it belongs in the nightly ETL alongside `audit_source_links`.
-6. **Four duplicate catalogue rows** found while doing (2): `jdrf-breakthrough-t1d`
-   / `jdrf`, `sea-shepherd-conservation-society` / `sea-shepherd`,
-   `lcv-education-fund` / `league-conservation-voters`, and
-   `whale-and-dolphin-conservation-usa` / `whale-dolphin-conservation-us`. Each
-   pair is one organisation held twice, so the unique-registration constraint
-   permanently keeps the second copy unverifiable. They need merging, not
-   verifying, and until then they inflate the unverified count by four.
+5. ~~Nothing runs the Finding 8 sweep on a schedule.~~ **Already done, and this
+   item was stale**: `audit_financial_sources --strict` has been in the nightly
+   ETL since 2026-08-03, and it implements *both* of the manual script's
+   heuristics (round revenue, and a period newer than the charity's own newest
+   filing) plus a third the script never had — revenue displayed with no
+   financial row behind it at all. Verified 2026-08-09: 369 rows, 0 flagged.
+   `backend/check_financial_rows.py` was a second implementation of the same
+   rule sitting outside the scheduler; deleted, because two stores of one rule is
+   how they drift apart.
+6. ~~**Four duplicate catalogue rows.**~~ **Done 2026-08-09** — merged with the
+   new `merge_duplicate_charities`. See below.
 7. ~~**`Charity.registration_id` cannot be emptied.**~~ **Done 2026-08-09** —
    migration 0059 + `clear_false_registrations`; 5 false identifiers removed.
    See Finding 13.
