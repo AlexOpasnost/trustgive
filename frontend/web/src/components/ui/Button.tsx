@@ -2,9 +2,13 @@
  * Button — three-tier hierarchy per DESIGN.md v2.0 §E.
  *
  * Tiers:
- *   - primary   → forest-green filled, the single most important action (donate)
+ *   - primary   → accent-filled, the single most important action (donate)
  *   - secondary → outlined ink, transparent fill that flips on hover
  *   - tertiary  → underline link, inherits surrounding text size
+ *
+ * Primary was forest green — the same green as the Verified badge, on the
+ * donate button. "Confirmed by a regulator" and "press this" are not the same
+ * statement and must not be the same colour.
  *
  * Polymorphic via `as` prop:
  *   - <Button>...</Button>            renders as <button type="button">
@@ -40,9 +44,9 @@ const buttonVariants = cva(
     variants: {
       variant: {
         primary: cn(
-          "bg-verified text-verified-on rounded-md",
-          "hover:bg-verified/90",
-          "active:bg-verified/80",
+          "bg-accent text-accent-on rounded-md",
+          "hover:bg-accent/90",
+          "active:bg-accent/80",
           "disabled:bg-rule disabled:text-ink-3"
         ),
         secondary: cn(

@@ -83,22 +83,10 @@ export function ApiPage() {
   useDocumentTitle(t("api.title"))
 
   return (
-    <article className="max-w-(--container-narrow) mx-auto px-6 lg:px-12 py-16 lg:py-24">
+    <article className="max-w-(--container-narrow) mx-auto px-6 lg:px-12 band">
       <header>
-        <h1
-          className="font-serif text-ink mb-6"
-          style={{
-            fontSize: "clamp(34px, 4.5vw, 52px)",
-            lineHeight: 1.1,
-            fontWeight: 700,
-            letterSpacing: "-0.02em",
-          }}
-        >
-          {t("api.title")}
-        </h1>
-        <p className="text-body text-ink-2" style={{ fontSize: "20px", lineHeight: "34px" }}>
-          {t("api.lead")}
-        </p>
+        <h1 className="font-serif text-display font-bold text-ink mb-6">{t("api.title")}</h1>
+        <p className="text-lead text-ink-2">{t("api.lead")}</p>
       </header>
 
       <hr className="border-rule my-12" />
@@ -205,12 +193,7 @@ function Section({ title, children }: { title: string; children: React.ReactNode
 
 function P({ children, className = "" }: { children: React.ReactNode; className?: string }) {
   return (
-    <p
-      className={`text-body leading-relaxed text-ink-2 ${className}`}
-      style={{ fontSize: "19px", lineHeight: "32px" }}
-    >
-      {children}
-    </p>
+    <p className={`text-prose text-ink-2 ${className}`}>{children}</p>
   )
 }
 

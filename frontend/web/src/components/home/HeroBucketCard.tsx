@@ -128,20 +128,11 @@ export function HeroBucketCard({
 
       {/* Bottom-left: bucket name + subtitle */}
       <div className="absolute bottom-8 left-6 right-6 md:bottom-12 md:left-8 md:right-8 z-10">
-        <h2
-          className="font-serif text-white"
-          style={{
-            fontSize: "clamp(48px, 6vw, 80px)",
-            lineHeight: 1.05,
-            letterSpacing: "-0.02em",
-            fontWeight: 700,
-          }}
-        >
-          {label}
-        </h2>
-        <p className="mt-3 text-body-lg text-white/85 max-w-[28ch]">
-          {subtitle}
-        </p>
+        <h2 className="font-serif text-banner font-bold text-white">{label}</h2>
+        {/* Was `text-body-lg`, a class with no token behind it — Tailwind
+            generated nothing for it, so this line had been silently inheriting
+            its size rather than setting one. */}
+        <p className="mt-3 text-lead text-white/85 max-w-[28ch]">{subtitle}</p>
       </div>
 
       {/* Bottom-right: photo credit microtext */}

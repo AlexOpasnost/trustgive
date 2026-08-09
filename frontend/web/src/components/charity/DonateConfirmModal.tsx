@@ -64,7 +64,7 @@ export function DonateConfirmModal({ open, onClose, charityName, charitySlug, do
           <button
             type="button"
             onClick={onContinue}
-            className="w-full bg-verified text-verified-on rounded-md px-4 py-3 font-medium inline-flex items-center justify-center gap-2 hover:opacity-90"
+            className="w-full bg-accent text-accent-on rounded-md px-4 py-3 font-medium inline-flex items-center justify-center gap-2 hover:opacity-90"
           >
             {t("charity.continueTo", { site: siteHost })}
             <HugeiconsIcon icon={ArrowUpRight01Icon} size={16} />

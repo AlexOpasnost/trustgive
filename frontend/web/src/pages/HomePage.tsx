@@ -130,12 +130,7 @@ function HeroSubtitle() {
     : t("home.hero.subtitleNoCounts")
 
   return (
-    <p
-      className="text-body text-ink-2 mb-8 max-w-[60ch]"
-      style={{ fontSize: "19px", lineHeight: "32px" }}
-    >
-      {text}
-    </p>
+    <p className="text-prose text-ink-2 mb-8 max-w-[60ch]">{text}</p>
   )
 }
 
@@ -166,11 +161,8 @@ export function HomePage() {
           something up — a visitor holding a charity's name had nowhere to put
           it. This block is deliberately plain: the claim, the scale, the field. */}
       <section className="bg-paper border-b border-rule">
-        <div className="max-w-(--container-default) mx-auto px-6 lg:px-12 py-16 lg:py-24">
-          <h1
-            className="font-serif text-ink mb-5 max-w-[20ch]"
-            style={{ fontSize: "clamp(32px, 4.5vw, 52px)", lineHeight: 1.1, fontWeight: 700, letterSpacing: "-0.02em" }}
-          >
+        <div className="max-w-(--container-default) mx-auto px-6 lg:px-12 band">
+          <h1 className="font-serif text-display font-bold text-ink mb-5 max-w-[20ch]">
             {t("home.hero.title")}
           </h1>
           <HeroSubtitle />
@@ -200,28 +192,15 @@ export function HomePage() {
 
       {/* === MANIFESTO (demoted below the buckets) === */}
       <section className="bg-paper">
-        <div className="max-w-(--container-narrow) mx-auto px-6 py-20 lg:py-28">
+        <div className="max-w-(--container-narrow) mx-auto px-6 band-loose">
           <Reveal>
             <p className="text-caption uppercase tracking-widest text-ink-3 font-medium mb-6">
               {t("home.editorial.eyebrow")}
             </p>
-            <h2
-              className="font-serif text-ink mb-8"
-              style={{
-                fontSize: "clamp(28px, 3.5vw, 40px)",
-                lineHeight: 1.2,
-                fontWeight: 600,
-                letterSpacing: "-0.01em",
-              }}
-            >
+            <h2 className="font-serif text-section font-semibold text-ink mb-8">
               {t("home.editorial.title")}
             </h2>
-            <p
-              className="text-ink-2"
-              style={{ fontSize: "18px", lineHeight: "30px" }}
-            >
-              {t("home.editorial.p1")}
-            </p>
+            <p className="text-prose text-ink-2">{t("home.editorial.p1")}</p>
             <Link
               to="/methodology"
               className="inline-flex items-center gap-2 mt-10 text-body text-ink underline-offset-4 underline decoration-rule hover:decoration-ink"

@@ -28,24 +28,17 @@ export function DataSourcesPage() {
   useDocumentTitle(t("sources.title"))
 
   return (
-    <article className="max-w-(--container-narrow) mx-auto px-6 lg:px-12 py-16 lg:py-24">
+    <article className="max-w-(--container-narrow) mx-auto px-6 lg:px-12 band">
       <header>
-        <h1
-          className="font-serif text-ink mb-6"
-          style={{ fontSize: "clamp(34px, 4.5vw, 52px)", lineHeight: 1.1, fontWeight: 700, letterSpacing: "-0.02em" }}
-        >
-          {t("sources.title")}
-        </h1>
-        <p className="text-body text-ink-2" style={{ fontSize: "20px", lineHeight: "34px" }}>
-          {t("sources.lead")}
-        </p>
+        <h1 className="font-serif text-display font-bold text-ink mb-6">{t("sources.title")}</h1>
+        <p className="text-lead text-ink-2">{t("sources.lead")}</p>
       </header>
 
       <hr className="border-rule my-12" />
 
       <section className="mb-12">
         <h2 className="text-h2 font-semibold text-ink mb-4 font-sans">{t("sources.howTitle")}</h2>
-        <p className="text-body leading-relaxed text-ink-2" style={{ fontSize: "19px", lineHeight: "32px" }}>
+        <p className="text-prose text-ink-2">
           {t("sources.howBody")}
         </p>
       </section>
@@ -60,7 +53,7 @@ export function DataSourcesPage() {
             <p className="text-caption text-ink-3 font-mono mb-4">
               {t(`sources.${source.key}.meta`)}
             </p>
-            <p className="text-body leading-relaxed text-ink-2" style={{ fontSize: "19px", lineHeight: "32px" }}>
+            <p className="text-prose text-ink-2">
               {t(`sources.${source.key}.body`)}
             </p>
             <p className="text-body-sm text-ink-2 mt-4 border-l-2 border-rule pl-4">
@@ -86,13 +79,10 @@ export function DataSourcesPage() {
       {/* Absence, stated as plainly as presence. */}
       <section>
         <h2 className="text-h2 font-semibold text-ink mb-4 font-sans">{t("sources.missingTitle")}</h2>
-        <p className="text-body leading-relaxed text-ink-2" style={{ fontSize: "19px", lineHeight: "32px" }}>
+        <p className="text-prose text-ink-2">
           {t("sources.missingBody")}
         </p>
-        <ul
-          className="mt-6 space-y-3 list-disc list-inside text-body text-ink-2 font-sans"
-          style={{ fontSize: "17px", lineHeight: "28px" }}
-        >
+        <ul className="mt-6 space-y-3 list-disc list-inside text-prose-sm text-ink-2 font-sans">
           <li>{t("sources.missingCanada")}</li>
           <li>{t("sources.missingEurope")}</li>
         </ul>
@@ -102,7 +92,7 @@ export function DataSourcesPage() {
 
       <section>
         <h2 className="text-h2 font-semibold text-ink mb-4 font-sans">{t("sources.useTitle")}</h2>
-        <p className="text-body leading-relaxed text-ink-2" style={{ fontSize: "19px", lineHeight: "32px" }}>
+        <p className="text-prose text-ink-2">
           {t("sources.useBody")}
         </p>
         <p className="mt-6">

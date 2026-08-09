@@ -36,8 +36,10 @@ const SIZE_PX: Record<BrandedAvatarSize, number> = {
 const PALETTE: { bg: string; text: string }[] = [
   // Children / education — info family (5.6:1)
   { bg: "bg-info-soft", text: "text-info" },
-  // Climate / environment — verified family (4.7:1)
-  { bg: "bg-verified-soft", text: "text-verified" },
+  // Climate / environment — clay family. Was the verified green, which put a
+  // green letter avatar next to the green Verified chip on the same card and
+  // made the badge look like decoration.
+  { bg: "bg-clay/25", text: "text-ink-2" },
   // Health / medicine — error family (5.4:1)
   { bg: "bg-error-soft", text: "text-error" },
   // Animals / refugees / humanitarian — warning family (5.1:1)
@@ -97,8 +99,13 @@ export function BrandedAvatar({ slug, name, size = "md", className }: Props) {
       style={{
         width: `${px}px`,
         height: `${px}px`,
+        /* The letter is sized as a fraction of the avatar (see fontPx above),
+           so this is derived from a prop rather than picked by hand — the one
+           case the type-scale rule in eslint.config.js cannot express. */
+        /* eslint-disable no-restricted-syntax */
         fontSize: `${fontPx}px`,
         lineHeight: 1,
+        /* eslint-enable no-restricted-syntax */
       }}
       aria-hidden="true"
     >

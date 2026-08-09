@@ -60,6 +60,30 @@ export default [
       // deliberate. Kept visible so the count can't grow unnoticed.
       "@typescript-eslint/no-explicit-any": "warn",
 
+      // Type sizes come from the scale in index.css, never from a style prop.
+      //
+      // Before this rule there were 41 inline `fontSize` declarations sitting on
+      // top of `text-body` classes they silently overrode, and the drift is what
+      // you would expect from a value nobody could see in one place: four page
+      // titles at 52/52/46/44px, body prose at 18px in two files and 19px in
+      // six, all differences that no one chose. The scale now holds those
+      // numbers once; putting one back inline re-opens the divergence.
+      //
+      // A size computed from a prop is the legitimate exception (BrandedAvatar
+      // scales its letter to the avatar), and it disables the rule explicitly
+      // with a reason rather than slipping past it.
+      "no-restricted-syntax": [
+        "error",
+        {
+          selector:
+            "JSXAttribute[name.name='style'] Property[key.name=/^(fontSize|lineHeight|letterSpacing)$/]",
+          message:
+            "Use a type-scale class (text-display / text-section / text-banner / text-lead / " +
+            "text-prose / text-prose-sm, or the UI steps) instead of an inline font size. " +
+            "See the scale in src/index.css.",
+        },
+      ],
+
       // Underscore-prefixed arguments are the established convention here for
       // "required by the signature, deliberately unused".
       "@typescript-eslint/no-unused-vars": [

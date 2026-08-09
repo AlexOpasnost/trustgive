@@ -65,13 +65,13 @@ export function LiveProof() {
 
   return (
     <section className="bg-surface-raised border-b border-rule">
-      <div className="max-w-(--container-default) mx-auto px-6 lg:px-12 py-12 lg:py-16">
+      <div className="max-w-(--container-default) mx-auto px-6 lg:px-12 band-tight">
         <p className="text-caption uppercase tracking-widest text-ink-3 font-medium mb-5">
           {t("home.proof.eyebrow")}
         </p>
 
         <div className="border border-rule rounded-md p-6 lg:p-8 max-w-[760px]">
-          <p className="text-body text-ink" style={{ fontSize: "19px", lineHeight: "32px" }}>
+          <p className="text-prose text-ink">
             {t("home.proof.lead", { name })}{" "}
             <span className="font-mono text-ink-2">{charity.registration_id}</span>
             {". "}

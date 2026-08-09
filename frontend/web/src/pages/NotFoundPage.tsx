@@ -7,9 +7,9 @@ export function NotFoundPage() {
   const { t } = useTranslation()
   useDocumentTitle(t("common.notFound"))
   return (
-    <div className="max-w-(--container-narrow) mx-auto px-6 py-24 text-center">
+    <div className="max-w-(--container-narrow) mx-auto px-6 band-state text-center">
       <h1 className="text-h1 font-semibold text-ink mb-4">{t("common.notFound")}</h1>
-      <Link to="/" className="text-verified hover:underline">
+      <Link to="/" className="text-ink underline decoration-rule underline-offset-4 hover:decoration-ink">
         {t("nav.catalog")} →
       </Link>
     </div>

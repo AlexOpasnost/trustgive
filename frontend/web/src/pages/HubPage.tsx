@@ -57,7 +57,7 @@ export function HubPage({ kind }: { kind: HubKind }) {
 
   if (!hubs && isLoading) {
     return (
-      <div className="max-w-(--container-default) mx-auto px-6 lg:px-12 py-12">
+      <div className="max-w-(--container-default) mx-auto px-6 lg:px-12 band-tight">
         <div className="skeleton h-9 w-1/2 mb-4" />
         <div className="skeleton h-4 w-2/3" />
       </div>
@@ -66,7 +66,7 @@ export function HubPage({ kind }: { kind: HubKind }) {
 
   if (!hub) {
     return (
-      <div className="max-w-(--container-narrow) mx-auto px-6 py-24 text-center">
+      <div className="max-w-(--container-narrow) mx-auto px-6 band-state text-center">
         <h1 className="text-h2 font-semibold text-ink mb-3">
           {t("hubs.unknownTitle")}
         </h1>
@@ -90,7 +90,7 @@ export function HubPage({ kind }: { kind: HubKind }) {
       : t(`hubs.intro.${hub.kind}`, { label, count: hub.count })
 
   return (
-    <div className="max-w-(--container-default) mx-auto px-6 lg:px-12 py-12">
+    <div className="max-w-(--container-default) mx-auto px-6 lg:px-12 band-tight">
       {/* Breadcrumb — gives the crawler the parent relationship and the reader
           a way back that isn't the browser button. */}
       <nav className="mb-6 text-body-sm text-ink-3" aria-label={t("hubs.breadcrumb")}>

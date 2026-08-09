@@ -54,7 +54,7 @@ export function ResearchArticlePage() {
 
   if (!article) {
     return (
-      <div className="max-w-(--container-narrow) mx-auto px-6 py-24 text-center">
+      <div className="max-w-(--container-narrow) mx-auto px-6 band-state text-center">
         <h1 className="text-h2 font-semibold text-ink mb-3">{t("research.unknownTitle")}</h1>
         <p className="text-body text-ink-2 mb-8 max-w-[60ch] mx-auto">
           {t("research.unknownBody")}
@@ -74,7 +74,7 @@ export function ResearchArticlePage() {
   const published = formatIsoDate(article.published, lang)
 
   return (
-    <article className="max-w-(--container-narrow) mx-auto px-6 lg:px-12 py-16 lg:py-24">
+    <article className="max-w-(--container-narrow) mx-auto px-6 lg:px-12 band">
       <Link
         to="/research"
         className="inline-flex items-center gap-2 text-body-sm text-ink-3 hover:text-ink mb-8"
@@ -89,20 +89,8 @@ export function ResearchArticlePage() {
           <span className="mx-2">·</span>
           {t("research.minutes", { count: article.minutes })}
         </p>
-        <h1
-          className="font-serif text-ink mb-6"
-          style={{
-            fontSize: "clamp(30px, 4vw, 46px)",
-            lineHeight: 1.15,
-            fontWeight: 700,
-            letterSpacing: "-0.02em",
-          }}
-        >
-          {t(`${key}.title`)}
-        </h1>
-        <p className="text-body text-ink-2" style={{ fontSize: "20px", lineHeight: "34px" }}>
-          {t(`${key}.standfirst`)}
-        </p>
+        <h1 className="font-serif text-display font-bold text-ink mb-6">{t(`${key}.title`)}</h1>
+        <p className="text-lead text-ink-2">{t(`${key}.standfirst`)}</p>
       </header>
 
       <hr className="border-rule my-12" />
@@ -378,11 +366,6 @@ function Section({
 
 function P({ children, className = "" }: { children: React.ReactNode; className?: string }) {
   return (
-    <p
-      className={`text-body leading-relaxed text-ink-2 ${className}`}
-      style={{ fontSize: "19px", lineHeight: "32px" }}
-    >
-      {children}
-    </p>
+    <p className={`text-prose text-ink-2 ${className}`}>{children}</p>
   )
 }

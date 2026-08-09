@@ -112,7 +112,7 @@ export function CatalogPage() {
     : { title: t("catalog.noResults"), body: t("catalog.tryRemoving") }
 
   return (
-    <div className="max-w-(--container-default) mx-auto px-6 lg:px-12 py-12">
+    <div className="max-w-(--container-default) mx-auto px-6 lg:px-12 band-tight">
       <header className="mb-8">
         <h1 className="font-serif text-h1 font-semibold text-ink leading-tight">
           {headerTitle}

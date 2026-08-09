@@ -16,9 +16,26 @@
   --color-rule: #d8d2bd;         /* warm hairline borders */
   --color-clay: #bfb6a0;         /* abstract shapes + decorative dividers */
 
+  /* Green means verified. Nothing else.
+   *
+   * It used to mean verified *and* "this is the brand" *and* "press this" — the
+   * donate button, the active filter chip, the focus ring, the logo and one of
+   * the six letter-avatar colours were all the same forest green as the
+   * Verified badge. A colour that marks everything marks nothing, and the one
+   * thing this palette has to be able to say is "a regulator confirmed this".
+   * So the interactive/brand role moved to --color-accent below, and these
+   * three tokens are now reserved: use them only where the subject really is
+   * verification status. */
   --color-verified: #0e7c5c;
   --color-verified-on: #fafaf7;
   --color-verified-soft: #e6f2ee;
+
+  /* Brand + interactive. Ink rather than a second hue: the palette already
+   * carries paper and ink, a filled ink button is unmistakably the primary
+   * action, and adding a third colour would just be re-opening the question
+   * green got wrong. */
+  --color-accent: #181612;
+  --color-accent-on: #f5f1e8;
 
   --color-warning: #9a6b00;
   --color-warning-soft: #fbf3de;
@@ -32,9 +49,53 @@
   --font-serif: "Source Serif 4", "Georgia", serif;
   --font-mono: "Geist Mono", "Menlo", "Consolas", monospace;
 
-  /* Type scale (per DESIGN.md §3.2) */
-  --text-display: 56px;
-  --text-display--line-height: 60px;
+  /*
+   * Type scale.
+   *
+   * Two groups, and the split is the point. The UI scale (h1…caption) was here
+   * from the start and is used by roughly 230 call sites. The *editorial* scale
+   * below it did not exist: prose pages set their sizes with
+   * `style={{ fontSize: "19px", lineHeight: "32px" }}` written out 41 times, on
+   * top of a `text-body` class that the inline rule then overrode. Two places
+   * holding the same fact, which is how four page titles ended up as four
+   * almost-identical clamps — 52px, 52px, 46px and 44px, no reason for any of
+   * the differences.
+   *
+   * These tokens carry size, line-height and tracking only. Weight stays at the
+   * call site as `font-bold` / `font-semibold`, because weight is a decision
+   * about the role of the text rather than about its size, and baking it in
+   * here would put it in a specificity race with the `font-*` utilities.
+   *
+   * Inline font sizes are now an ESLint error (eslint.config.js). The one
+   * legitimate exception is a size computed from a prop — see BrandedAvatar.
+   */
+
+  /* --- Editorial scale: 6 steps, and no seventh --- */
+  --text-display: clamp(32px, 4.5vw, 52px); /* page titles */
+  --text-display--line-height: 1.1;
+  --text-display--letter-spacing: -0.02em;
+  --text-section: clamp(28px, 3.5vw, 40px); /* section headings inside a page */
+  --text-section--line-height: 1.2;
+  --text-section--letter-spacing: -0.01em;
+  --text-banner: clamp(48px, 6vw, 80px); /* label over a full-bleed image */
+  --text-banner--line-height: 1.05;
+  --text-banner--letter-spacing: -0.02em;
+  --text-lead: 20px; /* the paragraph under a page title */
+  --text-lead--line-height: 34px;
+  --text-prose: 19px; /* body prose */
+  --text-prose--line-height: 32px;
+  --text-prose-sm: 17px; /* list items, asides, notes */
+  --text-prose-sm--line-height: 28px;
+
+  /* --- Brand wordmark --- */
+  --text-wordmark-lg: 44px;
+  --text-wordmark-lg--line-height: 1;
+  --text-wordmark-lg--letter-spacing: -0.02em;
+  --text-wordmark: 22px;
+  --text-wordmark--line-height: 1;
+  --text-wordmark--letter-spacing: -0.01em;
+
+  /* --- UI scale (per DESIGN.md §3.2) --- */
   --text-h1: 40px;
   --text-h1--line-height: 48px;
   --text-h2: 28px;
@@ -61,7 +122,14 @@
   --container-wide: 1280px;
 }
 
-/* Dark mode override (per DESIGN.md §2.4) — activated via .dark class on <html> */
+/* Dark mode override (per DESIGN.md §2.4) — activated via .dark class on <html>.
+ *
+ * Nothing puts that class there. `colorScheme` is stored in the preferences
+ * store and never applied to the document, and no component uses a `dark:`
+ * variant, so this whole block is currently unreachable in the running site.
+ * The values are correct — they were checked by mounting a probe element inside
+ * a `.dark` wrapper — and are kept ready rather than deleted. See the note in
+ * store/preferences.ts. */
 .dark {
   --color-paper: #0e141c;
   --color-surface: #141b26;
@@ -74,6 +142,11 @@
   --color-verified: #34d399;
   --color-verified-on: #0e141c;
   --color-verified-soft: #0e2a24;
+
+  /* Ink and paper swap over, so the primary action stays "filled with the text
+   * colour" rather than becoming a light button nobody expects. */
+  --color-accent: #e8e5dc;
+  --color-accent-on: #0e141c;
 
   --color-warning: #e2b65a;
   --color-error: #e36b6b;
@@ -99,9 +172,11 @@ body {
   box-sizing: border-box;
 }
 
-/* Visible focus ring (DESIGN.md §9.2) */
+/* Visible focus ring (DESIGN.md §9.2). Accent, not verified green — a focus
+   ring follows the keyboard around the page and says nothing about the thing
+   it lands on. */
 :focus-visible {
-  outline: 2px solid var(--color-verified);
+  outline: 2px solid var(--color-accent);
   outline-offset: 2px;
   border-radius: var(--radius-sm);
 }
@@ -113,6 +188,48 @@ body {
   ::after {
     animation-duration: 0.001ms !important;
     transition-duration: 0.001ms !important;
+  }
+}
+
+/* --- Vertical rhythm ---
+ *
+ * Four bands, each tied to what the block is rather than to how it looked on
+ * the day it was written. Before this, sections alternated `py-12 lg:py-16`,
+ * `py-14 lg:py-20`, `py-16 lg:py-24`, `py-20 lg:py-28` and bare `py-12` /
+ * `py-16` / `py-24` with no rule connecting any of them to the others, so two
+ * adjacent bands could differ by 2px of padding for no reason a reader could
+ * perceive but every reason a designer would flinch at.
+ *
+ *   band-tight  continues the block above it — sections of one record, a
+ *               related-links strip. Reads as "still the same subject".
+ *   band        the default: a page body or an article.
+ *   band-loose  stands alone and wants air around it — the manifesto.
+ *   band-state  the page is one short message: empty result, 404, error.
+ *               No large-screen step, because the message does not get longer.
+ *
+ * lg = 64rem, matching Tailwind's own breakpoint.
+ */
+.band-tight {
+  padding-block: 3rem;
+}
+.band {
+  padding-block: 4rem;
+}
+.band-loose {
+  padding-block: 5rem;
+}
+.band-state {
+  padding-block: 6rem;
+}
+@media (width >= 64rem) {
+  .band-tight {
+    padding-block: 4rem;
+  }
+  .band {
+    padding-block: 6rem;
+  }
+  .band-loose {
+    padding-block: 7rem;
   }
 }
 

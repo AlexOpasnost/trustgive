@@ -50,7 +50,7 @@ export function LegitPage() {
 
   if (isLoading) {
     return (
-      <div className="max-w-(--container-narrow) mx-auto px-6 lg:px-12 py-16">
+      <div className="max-w-(--container-narrow) mx-auto px-6 lg:px-12 band">
         <div className="skeleton h-10 w-3/4 mb-6" />
         <div className="skeleton h-8 w-40 mb-8" />
         <div className="skeleton h-4 w-full max-w-[60ch] mb-2" />
@@ -62,7 +62,7 @@ export function LegitPage() {
 
   if (isError || !data) {
     return (
-      <div className="max-w-(--container-narrow) mx-auto px-6 py-24 text-center">
+      <div className="max-w-(--container-narrow) mx-auto px-6 band-state text-center">
         <h1 className="text-h2 font-semibold text-ink mb-3">
           {isNotFound ? t("catalog.notFound") : t("common.error")}
         </h1>
@@ -93,14 +93,9 @@ export function LegitPage() {
 
   return (
     <div className="bg-surface-raised">
-      <div className="max-w-(--container-narrow) mx-auto px-6 lg:px-12 py-14 lg:py-20">
+      <div className="max-w-(--container-narrow) mx-auto px-6 lg:px-12 band">
         {/* Question as H1 — matches the searched query verbatim. */}
-        <h1
-          className="font-serif text-ink leading-tight mb-6"
-          style={{ fontSize: "clamp(30px, 4vw, 44px)", fontWeight: 700, letterSpacing: "-0.02em" }}
-        >
-          {data.h1}
-        </h1>
+        <h1 className="font-serif text-display font-bold text-ink mb-6">{data.h1}</h1>
 
         {/* One-line verdict — green chip when verified, muted otherwise. */}
         {isVerified ? (
@@ -170,7 +165,7 @@ export function LegitPage() {
             <button
               type="button"
               onClick={() => setDonateOpen(true)}
-              className="inline-flex items-center justify-center gap-2 bg-verified text-verified-on rounded-md px-5 py-3 text-body font-medium hover:opacity-90"
+              className="inline-flex items-center justify-center gap-2 bg-accent text-accent-on rounded-md px-5 py-3 text-body font-medium hover:opacity-90"
             >
               {t("detail.donate.cta", { hostname: donationHost })}
               <HugeiconsIcon icon={ArrowRight01Icon} size={16} aria-hidden="true" />

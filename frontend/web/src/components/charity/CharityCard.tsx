@@ -113,7 +113,7 @@ export function CharityCard({ charity }: Props) {
         group block bg-surface-raised border border-rule rounded-md overflow-hidden
         transition-all duration-200 ease-out
         hover:border-ink-3 hover:shadow-md
-        focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-verified focus-visible:ring-offset-2
+        focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2
       "
       aria-label={name}
     >

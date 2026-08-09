@@ -27,32 +27,26 @@ export function TopNav() {
   const navLinkClass = ({ isActive }: { isActive: boolean }) =>
     cn(
       "text-body-sm font-medium px-2 py-1 transition-colors",
-      isActive ? "text-ink border-b-2 border-verified" : "text-ink-3 hover:text-ink"
+      // Accent, not verified green: an underline marks which page you are on.
+      isActive ? "text-ink border-b-2 border-accent" : "text-ink-3 hover:text-ink"
     )
 
   return (
     <header className="sticky top-0 z-30 bg-paper/95 backdrop-blur border-b border-rule">
       <div className="max-w-(--container-wide) mx-auto px-6 lg:px-12 h-16 flex items-center justify-between">
         {/*
-          Brand wordmark. Dagger (†) = academic citation mark — specific to
-          what TrustGive does: cite the source filing instead of grading.
-          Wordmark in Source Serif Bold, dagger in forest-green verified
-          accent. No icon library — these are the brand.
+          Wordmark only. It used to be preceded by a dagger (†) in verified
+          green — chosen as the academic citation mark, which is exactly what
+          this project does. The joke was good and the glyph was wrong: at
+          wordmark size it reads as a Christian cross, which a secular global
+          charity catalogue should not be wearing, and in a list it reads as the
+          "deceased" marker. Two misreadings are more than one pun is worth.
+
+          The green went with it. That colour now means one thing — a regulator
+          confirmed this record — and a logo is not a verification claim.
         */}
-        <Link to="/" className="flex items-baseline gap-1.5" aria-label="TrustGive">
-          <span
-            className="font-serif text-verified"
-            style={{ fontSize: "26px", lineHeight: "1", fontWeight: 700 }}
-            aria-hidden="true"
-          >
-            †
-          </span>
-          <span
-            className="font-serif text-ink"
-            style={{ fontSize: "22px", lineHeight: "1", fontWeight: 700, letterSpacing: "-0.01em" }}
-          >
-            TrustGive
-          </span>
+        <Link to="/" className="flex items-baseline" aria-label="TrustGive">
+          <span className="font-serif text-wordmark font-bold text-ink">TrustGive</span>
         </Link>
 
         <nav className="hidden md:flex items-center gap-1">

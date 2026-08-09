@@ -12,12 +12,13 @@ export function MethodologyPage() {
   })
 
   return (
-    <article className="max-w-(--container-narrow) mx-auto px-6 py-24 font-serif">
+    <article className="max-w-(--container-narrow) mx-auto px-6 band font-serif">
       <header className="mb-12">
-        <h1 className="text-display font-normal leading-tight text-ink mb-4">
-          {t("methodology.title")}
-        </h1>
-        <p className="text-h4 leading-relaxed text-ink-2 max-w-2xl">{t("methodology.lead")}</p>
+        {/* Was `font-normal` with `leading-tight`, so this page's title was the
+            one page title on the site in light serif with its own line-height.
+            Same element, same role as every other H1 — same treatment. */}
+        <h1 className="text-display font-bold text-ink mb-4">{t("methodology.title")}</h1>
+        <p className="text-lead text-ink-2 max-w-2xl">{t("methodology.lead")}</p>
         <p className="text-caption text-ink-3 mt-4 font-sans font-mono">
           {t("methodology.lastReviewed", { date: today })}
         </p>
@@ -29,7 +30,7 @@ export function MethodologyPage() {
         <h2 className="text-h2 font-semibold text-ink mb-4 font-sans">
           {t("methodology.verifiedMeansTitle")}
         </h2>
-        <p className="text-body leading-relaxed text-ink-2" style={{ fontSize: "19px", lineHeight: "32px" }}>
+        <p className="text-prose text-ink-2">
           {t("methodology.verifiedMeansBody")}
         </p>
       </section>
@@ -45,10 +46,10 @@ export function MethodologyPage() {
         <h2 className="text-h2 font-semibold text-ink mb-4 font-sans">
           {t("methodology.catalogueTitle")}
         </h2>
-        <p className="text-body leading-relaxed text-ink-2" style={{ fontSize: "19px", lineHeight: "32px" }}>
+        <p className="text-prose text-ink-2">
           {t("methodology.catalogueBody")}
         </p>
-        <p className="text-body leading-relaxed text-ink-2 mt-4" style={{ fontSize: "19px", lineHeight: "32px" }}>
+        <p className="text-prose text-ink-2 mt-4">
           {t("methodology.catalogueBody2")}
         </p>
       </section>
@@ -59,7 +60,7 @@ export function MethodologyPage() {
         <h2 className="text-h2 font-semibold text-ink mb-4 font-sans">
           {t("methodology.doNotVerifyTitle")}
         </h2>
-        <p className="text-body leading-relaxed text-ink-2" style={{ fontSize: "19px", lineHeight: "32px" }}>
+        <p className="text-prose text-ink-2">
           {t("methodology.doNotVerifyBody")}
         </p>
       </section>
@@ -70,16 +71,16 @@ export function MethodologyPage() {
         <h2 className="text-h2 font-semibold text-ink mb-4 font-sans">
           {t("methodology.complianceTitle")}
         </h2>
-        <p className="text-body leading-relaxed text-ink-2" style={{ fontSize: "19px", lineHeight: "32px" }}>
+        <p className="text-prose text-ink-2">
           {t("methodology.complianceBody")}
         </p>
-        <ul className="mt-6 space-y-3 list-disc list-inside text-body text-ink-2 font-sans" style={{ fontSize: "17px", lineHeight: "28px" }}>
+        <ul className="mt-6 space-y-3 list-disc list-inside text-prose-sm text-ink-2 font-sans">
           <li>{t("methodology.complianceItem1")}</li>
           <li>{t("methodology.complianceItem2")}</li>
           <li>{t("methodology.complianceItem3")}</li>
           <li>{t("methodology.complianceItem4")}</li>
         </ul>
-        <p className="text-body leading-relaxed text-ink-2 mt-6" style={{ fontSize: "19px", lineHeight: "32px" }}>
+        <p className="text-prose text-ink-2 mt-6">
           {t("methodology.complianceFooter")}
         </p>
       </section>
@@ -90,7 +91,7 @@ export function MethodologyPage() {
         <h2 className="text-h2 font-semibold text-ink mb-4 font-sans">
           {t("methodology.deeperTitle")}
         </h2>
-        <p className="text-body leading-relaxed text-ink-2" style={{ fontSize: "19px", lineHeight: "32px" }}>
+        <p className="text-prose text-ink-2">
           {t("methodology.deeperBody")}
         </p>
       </section>

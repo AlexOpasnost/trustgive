@@ -2,6 +2,21 @@ import { create } from "zustand"
 import { persist } from "zustand/middleware"
 
 export type Lang = "en" | "ru"
+
+/**
+ * Stored, persisted to localStorage — and read by nobody.
+ *
+ * Nothing in the app puts the `dark` class on the document, and no component
+ * uses a `dark:` variant, so `setColorScheme("dark")` writes a value that
+ * changes no pixel. The `.dark` palette in index.css is complete and correct
+ * (verified 2026-08-05 by mounting a probe inside a `.dark` wrapper), it is
+ * simply never switched on.
+ *
+ * Left in place rather than deleted: the palette is real work and the decision
+ * to ship dark mode is the operator's, not a side effect of a typography pass.
+ * But it is recorded here so the next reader does not assume, as the type name
+ * invites, that this preference does something.
+ */
 export type ColorScheme = "light" | "dark" | "system"
 
 type PreferencesState = {

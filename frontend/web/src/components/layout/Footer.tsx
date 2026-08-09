@@ -18,21 +18,9 @@ export function Footer() {
       <div className="max-w-(--container-wide) mx-auto px-6 lg:px-12 pt-20 pb-12">
         {/* Wordmark + tagline row */}
         <div className="flex items-end justify-between gap-8 mb-16 pb-12 border-b border-rule">
-          <div className="flex items-baseline gap-3">
-            {/* Dagger citation mark — see TopNav for rationale. */}
-            <span
-              className="font-serif text-verified"
-              style={{ fontSize: "52px", lineHeight: "1", fontWeight: 700 }}
-              aria-hidden="true"
-            >
-              †
-            </span>
-            <span
-              className="font-serif text-ink"
-              style={{ fontSize: "44px", lineHeight: 1, fontWeight: 700, letterSpacing: "-0.02em" }}
-            >
-              TrustGive
-            </span>
+          <div className="flex items-baseline">
+            {/* Wordmark only — see TopNav for why the dagger went. */}
+            <span className="font-serif text-wordmark-lg font-bold text-ink">TrustGive</span>
           </div>
           <p className="text-body-sm text-ink-2 max-w-md text-right hidden md:block">
             {t("footer.tagline")}

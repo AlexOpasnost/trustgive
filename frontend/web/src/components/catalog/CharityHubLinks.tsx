@@ -52,7 +52,7 @@ export function CharityHubLinks({ charity }: { charity: Charity }) {
 
   return (
     <section className="bg-surface-raised border-t border-rule">
-      <div className="max-w-(--container-default) mx-auto px-6 lg:px-12 py-12 lg:py-16">
+      <div className="max-w-(--container-default) mx-auto px-6 lg:px-12 band-tight">
         <h2 className="font-serif text-h2 font-semibold text-ink mb-4">
           {t("hubs.onProfileTitle")}
         </h2>

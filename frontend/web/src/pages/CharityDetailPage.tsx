@@ -73,7 +73,7 @@ export function CharityDetailPage() {
         <div className="relative bg-stone-200 h-[55vh] md:h-[70vh] min-h-[360px]">
           <div className="absolute inset-0 skeleton" />
         </div>
-        <div className="max-w-(--container-default) mx-auto px-6 lg:px-12 py-12">
+        <div className="max-w-(--container-default) mx-auto px-6 lg:px-12 band-tight">
           <div className="skeleton h-6 w-1/3 mb-6" />
           <div className="skeleton h-4 w-2/3 mb-2" />
           <div className="skeleton h-4 w-1/2 mb-8" />
@@ -87,7 +87,7 @@ export function CharityDetailPage() {
   if (isError || !charity) {
     if (isNotFound) {
       return (
-        <div className="max-w-(--container-narrow) mx-auto px-6 py-24 text-center">
+        <div className="max-w-(--container-narrow) mx-auto px-6 band-state text-center">
           <h1 className="text-h2 font-semibold text-ink mb-3">
             {t("catalog.notFound")}
           </h1>
@@ -105,7 +105,7 @@ export function CharityDetailPage() {
       )
     }
     return (
-      <div className="max-w-(--container-narrow) mx-auto px-6 py-24 text-center">
+      <div className="max-w-(--container-narrow) mx-auto px-6 band-state text-center">
         <h1 className="text-h2 font-semibold text-ink mb-2">{t("common.error")}</h1>
         <p className="text-body text-ink-2">{t("common.errorBody")}</p>
       </div>
@@ -136,6 +136,9 @@ export function CharityDetailPage() {
           product, so it now opens the page: name, then the verification line,
           then the identifiers. The name appears once. */}
       <section className="bg-surface-raised border-b border-rule">
+        {/* py-8 rather than one of the rhythm bands on purpose: this is the
+            page's identity strip, not a section of it, and it has to sit close
+            under the header the way a masthead does. */}
         <div className="max-w-(--container-default) mx-auto px-6 lg:px-12 py-8">
           <div className="flex items-start gap-4 md:gap-6">
             <CharityLogo
@@ -145,16 +148,7 @@ export function CharityDetailPage() {
               size="lg"
             />
             <div className="min-w-0 flex-1">
-              <h1
-                className="font-serif text-ink leading-tight"
-                style={{
-                  fontSize: "clamp(28px, 3.5vw, 40px)",
-                  fontWeight: 700,
-                  letterSpacing: "-0.02em",
-                }}
-              >
-                {name}
-              </h1>
+              <h1 className="font-serif text-section font-bold text-ink">{name}</h1>
               {tagline && (
                 <p className="text-body text-ink-2 mt-2 max-w-[60ch]">{tagline}</p>
               )}
@@ -241,16 +235,11 @@ export function CharityDetailPage() {
       {/* === METHODOLOGY (cream/serif secondary surface) === */}
       {methodology && (
         <section className="bg-paper border-y border-rule">
-          <div className="max-w-(--container-default) mx-auto px-6 lg:px-12 py-12 lg:py-16">
+          <div className="max-w-(--container-default) mx-auto px-6 lg:px-12 band-tight">
             <h2 className="font-serif text-h2 font-semibold text-ink mb-4">
               {t("detail.methodology")}
             </h2>
-            <p
-              className="font-serif text-ink-2 max-w-[65ch] italic"
-              style={{ fontSize: "18px", lineHeight: "30px" }}
-            >
-              {methodology}
-            </p>
+            <p className="font-serif text-prose text-ink-2 max-w-[65ch] italic">{methodology}</p>
           </div>
         </section>
       )}
@@ -262,7 +251,7 @@ export function CharityDetailPage() {
           drop the whole section rather than leave a dangling header. */}
       {(charity.money_breakdown || charity.total_revenue_usd != null) && (
         <section className="bg-surface-raised">
-          <div className="max-w-(--container-default) mx-auto px-6 lg:px-12 py-12 lg:py-16">
+          <div className="max-w-(--container-default) mx-auto px-6 lg:px-12 band-tight">
             <h2 className="font-serif text-h2 font-semibold text-ink mb-6">
               {t("charity.moneyGoes")}
             </h2>
@@ -280,7 +269,7 @@ export function CharityDetailPage() {
       {/* === SOURCE DOCUMENTS === */}
       {charity.source_documents.length > 0 && (
         <section className="bg-surface-raised border-t border-rule">
-          <div className="max-w-(--container-default) mx-auto px-6 lg:px-12 py-12 lg:py-16">
+          <div className="max-w-(--container-default) mx-auto px-6 lg:px-12 band-tight">
             <h2 className="font-serif text-h2 font-semibold text-ink mb-6">
               {t("charity.sourceDocuments")}
             </h2>
@@ -316,7 +305,7 @@ export function CharityDetailPage() {
           section. Every charity must communicate its trust state (v3.18). */}
       {charity.source_documents.length === 0 && (
         <section className="bg-surface-raised border-t border-rule">
-          <div className="max-w-(--container-default) mx-auto px-6 lg:px-12 py-12 lg:py-16">
+          <div className="max-w-(--container-default) mx-auto px-6 lg:px-12 band-tight">
             <h2 className="font-serif text-h2 font-semibold text-ink mb-4">
               {t("charity.sourceDocuments")}
             </h2>
@@ -335,7 +324,7 @@ export function CharityDetailPage() {
           opinion about how well it spends the money, because nothing here
           measures that. */}
       <section className="bg-paper border-t border-rule">
-        <div className="max-w-(--container-default) mx-auto px-6 lg:px-12 py-12 lg:py-16">
+        <div className="max-w-(--container-default) mx-auto px-6 lg:px-12 band-tight">
           <h2 className="font-serif text-h2 font-semibold text-ink mb-4">
             {t("charity.notChecked.title")}
           </h2>
@@ -355,7 +344,7 @@ export function CharityDetailPage() {
       {/* === PRESS MENTIONS === */}
       {charity.news_mentions.length > 0 && (
         <section className="bg-surface-raised border-t border-rule">
-          <div className="max-w-(--container-default) mx-auto px-6 lg:px-12 py-12 lg:py-16">
+          <div className="max-w-(--container-default) mx-auto px-6 lg:px-12 band-tight">
             <h2 className="font-serif text-h2 font-semibold text-ink mb-6">
               {t("charity.press")}
             </h2>

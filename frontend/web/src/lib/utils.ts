@@ -1,5 +1,79 @@
 import { clsx, type ClassValue } from "clsx"
-import { twMerge } from "tailwind-merge"
+import { extendTailwindMerge } from "tailwind-merge"
+
+/**
+ * The project's own type scale and palette, declared to tailwind-merge.
+ *
+ * Without this, `cn()` silently deletes class names. tailwind-merge resolves
+ * conflicts by putting every class in a group, and it only knows the groups for
+ * *stock* Tailwind names — `text-accent-on` and `text-prose` mean nothing to it,
+ * so it guessed, decided they collided with `text-body`, and dropped whichever
+ * came first.
+ *
+ * That was live. The primary Button composes `bg-verified text-verified-on` with
+ * a size variant carrying `text-body`, so the button's text colour was being
+ * merged away and the label had been rendering in inherited ink on the green
+ * fill — about 3.4:1, under the AA floor, on the donate button. It only became
+ * visible when the fill moved to ink and the label went ink-on-ink.
+ *
+ * Splitting the names into the right two groups is the fix: sizes conflict with
+ * sizes, colours conflict with colours, and neither touches the other. Anything
+ * added to `@theme` in index.css has to be added here too — `cn()` cannot infer
+ * it, and the failure mode is silent.
+ */
+const TEXT_SIZES = [
+  // Editorial scale
+  "display",
+  "section",
+  "banner",
+  "lead",
+  "prose",
+  "prose-sm",
+  // UI scale
+  "h1",
+  "h2",
+  "h3",
+  "h4",
+  "body",
+  "body-sm",
+  "caption",
+  // Brand
+  "wordmark",
+  "wordmark-lg",
+]
+
+const COLORS = [
+  "paper",
+  "surface",
+  "surface-raised",
+  "ink",
+  "ink-2",
+  "ink-3",
+  "rule",
+  "clay",
+  "accent",
+  "accent-on",
+  "verified",
+  "verified-on",
+  "verified-soft",
+  "warning",
+  "warning-soft",
+  "error",
+  "error-soft",
+  "info",
+  "info-soft",
+]
+
+const twMerge = extendTailwindMerge({
+  extend: {
+    classGroups: {
+      "font-size": [{ text: TEXT_SIZES }],
+      "text-color": [{ text: COLORS }],
+      "bg-color": [{ bg: COLORS }],
+      "border-color": [{ border: COLORS }],
+    },
+  },
+})
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))

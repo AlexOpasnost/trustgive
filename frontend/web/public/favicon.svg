@@ -2,19 +2,25 @@
   <!-- Cream paper background -->
   <rect width="32" height="32" fill="#F5F1E8"/>
   <!--
-    Dagger (†, U+2020) — the academic citation mark. Drawn as paths so the
-    favicon never depends on system fonts. Forest-green = TrustGive verified
-    accent. Proportions are tuned to read at 16x16 — the crossbar wider than
-    the stem keeps the silhouette clear at small sizes.
+    The wordmark's initial, cut as a Source Serif "T". Drawn as paths so the
+    favicon never depends on a system font.
+
+    It replaces a dagger (†). That glyph was picked as the academic citation
+    mark, which is what this project is about, but at icon size it reads as a
+    cross — wrong for a secular worldwide catalogue — and it was drawn in the
+    forest green that now means "a regulator confirmed this record" and nothing
+    else. A favicon makes no such claim, so it is ink on paper like the rest of
+    the site.
   -->
-  <g fill="#0E7C5C">
-    <!-- Top serif cap -->
-    <rect x="13" y="4" width="6" height="1.5"/>
-    <!-- Stem above the crossbar -->
-    <rect x="15" y="5.5" width="2" height="5.5"/>
-    <!-- Horizontal crossbar -->
-    <rect x="6.5" y="11" width="19" height="2.5"/>
-    <!-- Tapering stem below crossbar to a point -->
-    <path d="M 14.5 13.5 L 17.5 13.5 L 17 25.5 L 16 28 L 15 25.5 Z"/>
+  <g fill="#181612">
+    <!-- Top bar -->
+    <rect x="5" y="6" width="22" height="3.5"/>
+    <!-- Bracket serifs turning down at each end of the bar -->
+    <rect x="5" y="9.5" width="2.5" height="2"/>
+    <rect x="24.5" y="9.5" width="2.5" height="2"/>
+    <!-- Stem -->
+    <rect x="14" y="9.5" width="4" height="14.5"/>
+    <!-- Foot serif -->
+    <rect x="10.5" y="24" width="11" height="3"/>
   </g>
 </svg>

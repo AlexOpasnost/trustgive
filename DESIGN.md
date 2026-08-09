@@ -1,10 +1,134 @@
 # Design System: TrustGive
 
-> **Status**: v3.1 — sub-filter chips + sidebar revision (delta on top of v3.0)
-> **Created**: 2026-05-05 · **Updated v3.0**: 2026-05-07 · **Updated v3.1**: 2026-05-07 · **Designer**: Designer agent
+> **Status**: v3.2 — type scale, vertical rhythm, colour discipline, wordmark (STRATEGY Block F)
+> **Created**: 2026-05-05 · **Updated v3.0**: 2026-05-07 · **Updated v3.1**: 2026-05-07 · **Updated v3.2**: 2026-08-05 · **Designer**: Designer agent
 > **Approval gates this satisfies**: Gate 2 (Design) — re-approval requested for v3.1 (catalog filter rework only)
 > **Read first**: `SPEC.md` v1.0, then v3.1 (this section) — supersedes catalog-filter parts of v3.0. Everything else in v3.0 (homepage 3-bucket hero, CharityCard photo-top, detail page) stays unchanged.
 > **v3.1 scope**: in-bucket sub-filter chips (per-bucket cause taxonomy), sidebar removed entirely from `/charities`, country moved to a top-bar chip group, bucket page subtitles refreshed.
+
+---
+
+## v3.2 — 2026-08-05 — Type scale, rhythm, colour discipline, wordmark
+
+STRATEGY Block F, run last on purpose: the structure had stopped moving.
+
+Nothing here is a redesign. Every value below is one the site already had — the
+work was finding where the same decision was being made in several places at
+once, and leaving it in exactly one.
+
+### §A. A type scale that describes the site
+
+The tokens in `index.css` said body text was 16px. The pages said 19px, in an
+inline `style={{ fontSize }}` written on top of the `text-body` class it then
+overrode — **41 times**. The class was decorative; the inline rule was the truth.
+
+Predictable result, once nobody could see the numbers together: four page titles
+at `clamp(…52px)`, `clamp(…52px)`, `clamp(…46px)` and `clamp(…44px)`; body prose
+at 18px in two files and 19px in six. None of those differences was chosen.
+
+Six editorial steps now, beside the existing UI steps:
+
+| Token | Value | Used for |
+|---|---|---|
+| `text-display` | clamp(32px, 4.5vw, 52px) / 1.1 | page titles |
+| `text-section` | clamp(28px, 3.5vw, 40px) / 1.2 | section headings, charity name |
+| `text-banner` | clamp(48px, 6vw, 80px) / 1.05 | label over a full-bleed image |
+| `text-lead` | 20 / 34 | the paragraph under a page title |
+| `text-prose` | 19 / 32 | body prose |
+| `text-prose-sm` | 17 / 28 | lists, asides, notes |
+
+Tokens carry size, line-height and tracking. **Weight stays at the call site**
+(`font-bold`, `font-semibold`) — weight is a decision about the role of the text,
+not about its size, and baking it in would put it in a specificity race with the
+`font-*` utilities.
+
+Inline font sizes are now an ESLint error. The rule also covers `lineHeight` and
+`letterSpacing`, since inlining either defeats the scale just as well. One
+exemption exists — `BrandedAvatar` sizes its letter as a fraction of the avatar,
+which is derived from a prop and cannot be a class — and it is written as an
+explicit disable with its reason.
+
+Two things fell out of the sweep:
+
+- `text-body-lg`, used once on the bucket-card subtitle, had **no token behind
+  it**. Tailwind generated nothing, so that line had been inheriting its size
+  rather than setting one. Now `text-lead`.
+- Source Serif was being requested from Google Fonts at weight 400 only, while
+  every page title, the wordmark and the bucket headlines ask for 700 — the
+  browser had been synthesising them. The request is now `400..700`, the variable
+  font's real axis, at no extra cost.
+
+### §B. Four vertical bands
+
+Sections alternated `py-12 lg:py-16`, `py-14 lg:py-20`, `py-16 lg:py-24`,
+`py-20 lg:py-28` and bare `py-12` / `py-16` / `py-24`, with no rule tying any of
+them together. Four bands, each tied to what the block *is*:
+
+| Class | Padding | Meaning |
+|---|---|---|
+| `band-tight` | 3rem → 4rem | continues the block above it |
+| `band` | 4rem → 6rem | a page body or an article |
+| `band-loose` | 5rem → 7rem | stands alone, wants air (the manifesto) |
+| `band-state` | 6rem, no step | the page is one short message: empty, 404 |
+
+One deliberate exception, commented in place: the charity page's identity strip
+keeps `py-8`, because it is a masthead rather than a section.
+
+### §C. Green means verified. Nothing else.
+
+The forest green was doing four jobs: the Verified badge, the brand, the primary
+action, and one of six letter-avatar colours. A colour that marks everything
+marks nothing, and this palette has exactly one thing it must be able to say.
+
+Green is now reserved. A new `--color-accent` (ink, `#181612` / `#e8e5dc` dark)
+took over the donate button, the active filter chip, the active nav underline,
+the focus ring, and links. Ink rather than a second hue: the palette already has
+paper and ink, a filled ink button is unmistakably primary, and a third colour
+would only re-open the question green got wrong.
+
+Also moved off green: the letter-avatar climate pair (a green avatar sat beside
+the green Verified chip on the same card), and `theme-color`, which had been
+painting mobile browser chrome in the verification colour.
+
+Verified on production after deploy: on `/charities`, green appears on 180
+elements and every one of them is a Verified chip or its tick; accent appears on
+the active filter chip and the active page number.
+
+### §D. Wordmark, without the dagger
+
+The mark was `†` — the academic citation mark, which is precisely what this
+project does. Good joke, wrong glyph: at wordmark size it reads as a Christian
+cross, which a secular worldwide charity catalogue should not wear, and in a list
+it reads as the "deceased" marker. Two misreadings outweigh one pun.
+
+It was also drawn in the verified green, so the logo was making a verification
+claim. Gone from the nav, the footer and the favicon; the favicon is now the
+wordmark's initial cut as a Source Serif "T", ink on paper.
+
+### §E. `cn()` was deleting classes
+
+Found while checking the new colours: `tailwind-merge` resolves conflicts by
+grouping class names, and it only knows *stock* Tailwind names. `text-accent-on`
+and `text-prose` meant nothing to it, so it guessed they collided with
+`text-body` and dropped one.
+
+That was live and older than this pass. `Button`'s primary tier composes
+`text-verified-on` with a size variant carrying `text-body`, so the button's text
+colour had been merged away — the donate label was rendering in inherited ink on
+the green fill, about **3.4:1**, under the AA floor. It only became visible when
+the fill moved to ink and the label went ink-on-ink.
+
+`utils.ts` now declares the project's sizes and colours to tailwind-merge, and
+`utils.test.ts` pins the behaviour. Anything added to `@theme` has to be added
+there too; the failure mode is silent.
+
+### §F. Recorded, not fixed
+
+Dark mode does not work. The `.dark` palette is complete and correct — checked by
+mounting a probe inside a `.dark` wrapper — but nothing ever puts that class on
+the document and no component uses a `dark:` variant, so `colorScheme` is a
+persisted preference that changes no pixel. Left in place and documented at both
+ends: shipping dark mode is a decision, not a side effect of a typography pass.
 
 ---
 
