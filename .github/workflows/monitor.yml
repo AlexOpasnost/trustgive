@@ -14,6 +14,17 @@ name: Production check
 #
 # So checking "is the site up" is useless here — the site was up throughout.
 # These checks assert what the pages must actually contain.
+#
+# Reviewed 2026-08-10, after three of the four scheduled jobs in this repo
+# turned out to be reporting something untrue. This one was sound in design and
+# had drifted in three places: the collapse floor sat at 300 against a catalogue
+# of 394 and would have slept through a quarter of it disappearing; the
+# source-document check sampled exactly one row, always the same one; and it
+# treated an unreachable registry as a dead document, which is the mistake that
+# cost the catalogue two UK charities overnight.
+#
+# A check with a constant in it needs a date next to the constant. A check
+# without one — like the count-agreement step — is worth more.
 
 on:
   schedule:
@@ -40,7 +51,31 @@ jobs:
           count=$(curl -fsS --max-time 30 'https://api.trustgive.org/api/charities/?page_size=1' \
                   | grep -o '"count":[0-9]*' | head -1 | cut -d: -f2)
           echo "published charities: $count"
-          [ "${count:-0}" -ge 300 ] || { echo "::error::catalogue collapsed to ${count:-0}"; exit 1; }
+          # Absolute floor. Deliberately a constant, and deliberately close to
+          # the real figure: at 300 against a catalogue of 394 this guard would
+          # have slept through a 24% collapse. Raise it when the catalogue grows
+          # — a floor that never moves stops guarding anything.
+          # Catalogue on 2026-08-10: 394.
+          [ "${count:-0}" -ge 360 ] || { echo "::error::catalogue collapsed to ${count:-0}"; exit 1; }
+
+      - name: The three published counts agree with each other
+        run: |
+          set -euo pipefail
+          # No constant here, so this one cannot go stale. Three endpoints
+          # derive the catalogue size independently, and the homepage reads two
+          # of them; a figure that disagrees with its siblings is how "1 verified
+          # charity" and "540+ across 27 countries" both got onto the site.
+          list=$(curl -fsS --max-time 30 'https://api.trustgive.org/api/charities/?page_size=1' \
+                 | grep -o '"count":[0-9]*' | head -1 | cut -d: -f2)
+          stats=$(curl -fsS --max-time 30 'https://api.trustgive.org/api/stats/' \
+                  | grep -o '"charities":[0-9]*' | head -1 | cut -d: -f2)
+          featured=$(curl -fsS --max-time 30 'https://api.trustgive.org/api/charities/featured/' \
+                     | grep -o '"total_count":[0-9]*' | head -1 | cut -d: -f2)
+          echo "list=$list stats=$stats featured=$featured"
+          [ -n "$list" ] && [ -n "$stats" ] && [ -n "$featured" ] \
+            || { echo "::error::one of the three counts could not be read"; exit 1; }
+          [ "$list" = "$stats" ] && [ "$list" = "$featured" ] \
+            || { echo "::error::counts disagree — list=$list stats=$stats featured=$featured"; exit 1; }
 
       - name: Homepage ships a bundle that can reach the API
         run: |
@@ -76,25 +111,67 @@ jobs:
           echo "$body" | grep -q '"featured":\[{' \
             || { echo "::error::featured array is empty — homepage cards will not render"; exit 1; }
           # Guards the under-reporting bug: the homepage subtitle reads from this.
-          [ "${total:-0}" -ge 300 ] || { echo "::error::featured count $total under-reports the catalogue"; exit 1; }
+          # See also the agreement check above, which catches the same class
+          # without a constant to keep updating.
+          [ "${total:-0}" -ge 360 ] || { echo "::error::featured count $total under-reports the catalogue"; exit 1; }
 
-      - name: Every published charity still has a source document
+      - name: Published charities still carry a source document
         run: |
           set -euo pipefail
           # The whole premise. If this ever fails, the badge is unsupported.
+          #
+          # Ten charities rather than one. Sampling only the first row made this
+          # a check on one record out of nearly four hundred, and always the
+          # same record — so it could pass indefinitely while everything behind
+          # it rotted.
+          slugs=$(curl -fsS --max-time 30 'https://api.trustgive.org/api/charities/?page_size=10' \
+                  | grep -o '"slug":"[^"]*"' | cut -d'"' -f4)
+          [ -n "$slugs" ] || { echo "::error::catalogue returned no slugs"; exit 1; }
+
+          missing=0
+          for slug in $slugs; do
+            detail=$(curl -fsS --max-time 30 "https://api.trustgive.org/api/charities/${slug}/")
+            if echo "$detail" | grep -q '"source_documents":\[{'; then
+              echo "  ok   $slug"
+            else
+              echo "::error::$slug is published with no source document"
+              missing=$((missing + 1))
+            fi
+          done
+          [ "$missing" -eq 0 ] || exit 1
+
+      - name: One source document actually opens
+        run: |
+          set -euo pipefail
+          # Separate step from the one above, because it fails for a different
+          # reason: that one is about our data, this one is about somebody
+          # else's server being up.
+          #
+          # Retried, and only a definitive 404/410 fails the run. A registry
+          # timing out is not a registry saying the filing is gone — the rule
+          # that cost the catalogue two UK charities overnight when the nightly
+          # audit demoted on "could not reach" (DATA_INTEGRITY Finding 12).
           slug=$(curl -fsS --max-time 30 'https://api.trustgive.org/api/charities/?page_size=1' \
                  | grep -o '"slug":"[^"]*"' | head -1 | cut -d'"' -f4)
-          echo "sampling: $slug"
           detail=$(curl -fsS --max-time 30 "https://api.trustgive.org/api/charities/${slug}/")
-          echo "$detail" | grep -q '"source_documents":\[{' \
-            || { echo "::error::$slug is published with no source document"; exit 1; }
-
           url=$(echo "$detail" | grep -o '"url":"https[^"]*"' | head -1 | cut -d'"' -f4)
-          echo "source: $url"
-          code=$(curl -s -o /dev/null -w '%{http_code}' --max-time 30 -L \
-                 -A 'TrustGiveMonitor/1.0 (+https://trustgive.org)' "$url")
-          echo "source responded: $code"
-          [ "$code" = "200" ] || { echo "::error::source document for $slug returned $code"; exit 1; }
+          echo "checking $slug -> $url"
+
+          code=000
+          for attempt in 1 2 3; do
+            code=$(curl -s -o /dev/null -w '%{http_code}' --max-time 30 -L \
+                   -A 'TrustGiveMonitor/1.0 (+https://trustgive.org)' "$url" || echo 000)
+            echo "  attempt $attempt: $code"
+            [ "$code" = "200" ] && break
+            sleep 5
+          done
+
+          case "$code" in
+            200) ;;
+            404|410) echo "::error::source document for $slug is gone ($code)"; exit 1 ;;
+            *)   echo "::warning::source for $slug returned $code after 3 tries — \
+registry unreachable, not proof the document is gone" ;;
+          esac
 
       - name: Key pages render
         run: |
