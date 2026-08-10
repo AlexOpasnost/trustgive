@@ -162,15 +162,25 @@ jobs:
             code=$(curl -s -o /dev/null -w '%{http_code}' --max-time 30 -L \
                    -A 'TrustGiveMonitor/1.0 (+https://trustgive.org)' "$url" || echo 000)
             echo "  attempt $attempt: $code"
-            [ "$code" = "200" ] && break
+            # `if`, not `[ … ] && break`: under `set -e` a failing test as the
+            # last command of an AND-list exits the script, so the shorter form
+            # would abort on the first non-200 and never retry at all.
+            if [ "$code" = "200" ]; then
+              break
+            fi
             sleep 5
           done
 
           case "$code" in
-            200) ;;
-            404|410) echo "::error::source document for $slug is gone ($code)"; exit 1 ;;
-            *)   echo "::warning::source for $slug returned $code after 3 tries — \
-registry unreachable, not proof the document is gone" ;;
+            200)
+              ;;
+            404|410)
+              echo "::error::source document for $slug is gone ($code)"
+              exit 1
+              ;;
+            *)
+              echo "::warning::source for $slug returned $code after 3 tries; registry unreachable, not proof the document is gone"
+              ;;
           esac
 
       - name: Key pages render
