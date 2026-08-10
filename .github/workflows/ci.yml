@@ -13,6 +13,70 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  workflows:
+    name: Workflows parse and their shell is valid
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      # Nothing else in this repository checks the files that run everything
+      # else in this repository, and on 2026-08-10 that cost a scheduled run:
+      # a warning message wrapped onto a line starting at column 1, which ends
+      # a `run: |` block scalar. GitHub could not parse monitor.yml, the run
+      # produced no jobs at all, and `gh workflow run` reported the workflow had
+      # no dispatch trigger — none of which names the actual problem.
+      #
+      # Two checks, because they catch different things and the second is the
+      # one a YAML parser cannot see.
+      - name: Every workflow is valid YAML
+        run: |
+          set -euo pipefail
+          python3 -c "
+          import sys, glob, yaml
+          bad = 0
+          for path in sorted(glob.glob('.github/workflows/*.yml')):
+              try:
+                  yaml.safe_load(open(path, encoding='utf-8'))
+                  print('ok   ', path)
+              except Exception as exc:
+                  print('FAIL ', path, exc)
+                  bad += 1
+          sys.exit(1 if bad else 0)
+          "
+
+      # Quoted, because an unquoted colon in a step name is itself a YAML
+      # mapping-value error — which this job caught on its own first run.
+      - name: "Every run: block is valid shell"
+        run: |
+          set -euo pipefail
+          # `bash -n` parses without executing. It catches the class YAML is
+          # blind to — an unbalanced quote, a broken case block, a here-doc that
+          # never closes — which would otherwise only surface at 02:00 on the
+          # schedule, in a job nobody is watching.
+          python3 - <<'PY'
+          import glob, subprocess, sys, yaml
+
+          bad = 0
+          for path in sorted(glob.glob(".github/workflows/*.yml")):
+              spec = yaml.safe_load(open(path, encoding="utf-8"))
+              for job_name, job in (spec.get("jobs") or {}).items():
+                  for step in job.get("steps") or []:
+                      body = step.get("run")
+                      if not body:
+                          continue
+                      label = f"{path}::{job_name}::{step.get('name', '(unnamed)')}"
+                      result = subprocess.run(
+                          ["bash", "-n", "-"], input=body, text=True, capture_output=True
+                      )
+                      if result.returncode:
+                          print("FAIL ", label)
+                          print("      ", result.stderr.strip())
+                          bad += 1
+                      else:
+                          print("ok   ", label)
+          sys.exit(1 if bad else 0)
+          PY
+
   backend-lint:
     name: Backend lint + typecheck
     runs-on: ubuntu-latest
