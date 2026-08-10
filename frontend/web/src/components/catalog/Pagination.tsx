@@ -87,7 +87,10 @@ export function Pagination({ currentPage, totalPages, buildHref }: Props) {
           <span
             key={p}
             aria-current="page"
-            className={`${linkBase} border-ink bg-ink text-white font-mono`}
+            // `text-white` was fine while ink was always dark. In dark mode ink
+            // is the *light* colour, so white-on-ink became white-on-cream at
+            // 1.26:1. `text-paper` inverts with it.
+            className={`${linkBase} border-ink bg-ink text-paper font-mono`}
           >
             {p}
           </span>

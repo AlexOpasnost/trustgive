@@ -4,7 +4,9 @@
     "research": "Research",
     "methodology": "Methodology",
     "about": "About",
-    "switchLang": "Switch language to Russian"
+    "switchLang": "Switch language to Russian",
+    "themeDark": "Switch to dark",
+    "themeLight": "Switch to light"
   },
   "home": {
     "exploreCatalog": "Explore the catalog",

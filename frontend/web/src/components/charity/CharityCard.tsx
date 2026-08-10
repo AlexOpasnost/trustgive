@@ -157,7 +157,7 @@ export function CharityCard({ charity }: Props) {
               inline-flex items-center gap-1
               bg-white/95 backdrop-blur-sm
               rounded-full px-3 py-1
-              text-caption font-medium text-verified
+              text-caption font-medium text-verified-fixed
               shadow-sm
             "
             aria-label={t("charity.verified")}
@@ -172,7 +172,7 @@ export function CharityCard({ charity }: Props) {
               inline-flex items-center
               bg-white/75 backdrop-blur-sm
               rounded-full px-3 py-1
-              text-caption font-medium text-ink-3
+              text-caption font-medium text-ink-fixed
               shadow-sm
             "
             aria-label={t("charity.notVerified")}

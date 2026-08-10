@@ -4,7 +4,9 @@
     "research": "Исследования",
     "methodology": "Методология",
     "about": "О нас",
-    "switchLang": "Сменить язык на английский"
+    "switchLang": "Сменить язык на английский",
+    "themeDark": "Тёмная тема",
+    "themeLight": "Светлая тема"
   },
   "home": {
     "exploreCatalog": "Открыть каталог",

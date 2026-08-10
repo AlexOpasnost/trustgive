@@ -30,6 +30,15 @@
   --color-verified-on: #fafaf7;
   --color-verified-soft: #e6f2ee;
 
+  /* Verified green for the chips that sit on a **fixed white** pill over a
+   * photograph. Deliberately absent from the `.dark` block, so it does not
+   * invert: those pills stay white in both themes, and the theme-aware
+   * `--color-verified` becomes bright mint in dark — 1.75:1 on white, an
+   * unreadable badge on every card in the catalogue. The surface is fixed, so
+   * the ink on it has to be too. */
+  --color-verified-fixed: #0e7c5c;
+  --color-ink-fixed: #3d3a32;
+
   /* Brand + interactive. Ink rather than a second hue: the palette already
    * carries paper and ink, a filled ink button is unmistakably the primary
    * action, and adding a third colour would just be re-opening the question
@@ -122,21 +131,25 @@
   --container-wide: 1280px;
 }
 
-/* Dark mode override (per DESIGN.md §2.4) — activated via .dark class on <html>.
+/* Dark mode (per DESIGN.md §2.4) — activated via the .dark class on <html>.
  *
- * Nothing puts that class there. `colorScheme` is stored in the preferences
- * store and never applied to the document, and no component uses a `dark:`
- * variant, so this whole block is currently unreachable in the running site.
- * The values are correct — they were checked by mounting a probe element inside
- * a `.dark` wrapper — and are kept ready rather than deleted. See the note in
- * store/preferences.ts. */
+ * Live since 2026-08-10. `lib/colorScheme.ts` puts the class there from the
+ * preferences store, and an inline script in index.html applies it before the
+ * first paint so a dark-mode reader never gets a cream flash between pages.
+ * Before that this block was unreachable: the palette was written, the
+ * preference was stored, and nothing connected them. */
 .dark {
   --color-paper: #0e141c;
   --color-surface: #141b26;
   --color-surface-raised: #1b2330;
   --color-ink: #e8e5dc;
   --color-ink-2: #a8aebc;
-  --color-ink-3: #777e8e;
+  /* Was #777e8e, which measured 4.25:1 on surface and 3.88:1 on surface-raised —
+     under the 4.5:1 floor for the 12px text that uses it most (footer column
+     headings, the colophon, every caption). Nobody had checked, because until
+     today nothing rendered this palette. #8790a1 clears it on all three dark
+     backgrounds: 5.75 on paper, 5.38 on surface, 4.91 on raised. */
+  --color-ink-3: #8790a1;
   --color-rule: #262e3c;
 
   --color-verified: #34d399;
@@ -148,9 +161,22 @@
   --color-accent: #e8e5dc;
   --color-accent-on: #0e141c;
 
+  /* The `-soft` backgrounds have to be overridden too, and were not.
+   *
+   * `--color-verified-soft` was flipped for dark; warning, error and info kept
+   * their cream light-mode fills, so a dark page rendered pale amber text on a
+   * pale cream box — the stale-filing warning measured **1.71:1**, and three of
+   * the six letter-avatar pairs had the same shape. It went unnoticed for the
+   * obvious reason: nothing rendered this palette until today.
+   *
+   * Contrast of the paired text on each fill, measured: warning 8.44, error
+   * 5.30, info 6.33 — in line with verified's 7.94. */
   --color-warning: #e2b65a;
+  --color-warning-soft: #2a2010;
   --color-error: #e36b6b;
+  --color-error-soft: #2e1616;
   --color-info: #7fa0f4;
+  --color-info-soft: #16203a;
 }
 
 /* --- Base --- */

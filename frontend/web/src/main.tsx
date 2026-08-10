@@ -3,12 +3,14 @@ import { createRoot } from "react-dom/client"
 
 import { App } from "./App"
 import "./index.css"
+import { initColorScheme } from "./lib/colorScheme"
 import "./lib/i18n"
 import { initPostHog } from "./lib/posthog"
 import { initSentry } from "./lib/sentry"
 
 initSentry()
 initPostHog()
+initColorScheme()
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>

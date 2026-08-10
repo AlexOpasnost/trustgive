@@ -4,6 +4,33 @@
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <!--
+      Colour scheme, applied before the first paint.
+
+      The app sets this from the preferences store (src/lib/colorScheme.ts), but
+      that runs after the bundle parses — long enough for a dark-mode reader to
+      get a full-brightness cream flash on every navigation. This reads the same
+      persisted key synchronously and gets the first frame right.
+
+      It is deliberately dumb and wrapped in try/catch: a malformed localStorage
+      value must fall back to the OS preference, never break the page.
+    -->
+    <script>
+      (function () {
+        try {
+          var raw = localStorage.getItem("trustgive.preferences")
+          var pref = raw ? (JSON.parse(raw).state || {}).colorScheme : "system"
+          var dark =
+            pref === "dark" ||
+            ((pref === "system" || !pref) &&
+              window.matchMedia("(prefers-color-scheme: dark)").matches)
+          if (dark) document.documentElement.classList.add("dark")
+          document.documentElement.style.colorScheme = dark ? "dark" : "light"
+        } catch (e) {
+          /* keep the light default */
+        }
+      })()
+    </script>
     <!-- Paper, not the verified green. This paints the browser chrome on
          mobile, and the green is reserved for saying a regulator confirmed a
          record — it should not also be the colour of the address bar. -->

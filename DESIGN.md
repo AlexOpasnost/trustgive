@@ -122,13 +122,38 @@ the fill moved to ink and the label went ink-on-ink.
 `utils.test.ts` pins the behaviour. Anything added to `@theme` has to be added
 there too; the failure mode is silent.
 
-### §F. Recorded, not fixed
+### §F. Dark mode, shipped 2026-08-10
 
-Dark mode does not work. The `.dark` palette is complete and correct — checked by
-mounting a probe inside a `.dark` wrapper — but nothing ever puts that class on
-the document and no component uses a `dark:` variant, so `colorScheme` is a
-persisted preference that changes no pixel. Left in place and documented at both
-ends: shipping dark mode is a decision, not a side effect of a typography pass.
+It had been written and never connected: the `.dark` palette was complete,
+`colorScheme` was stored and persisted, and nothing put the class on the
+document — so choosing "dark" changed a value in localStorage and not one pixel.
+
+Now `lib/colorScheme.ts` subscribes to the preferences store and toggles the
+class, exactly as `lib/i18n.ts` does for language: one authoritative source,
+pushed one way. An inline script in `index.html` reads the same persisted key
+before the bundle parses, so a dark-mode reader never gets a cream flash between
+navigations, and `color-scheme` is set on the root so scrollbars and form
+controls follow. "system" is the default and keeps following the OS — the media
+query is subscribed to, not read once — until the nav toggle replaces it with an
+explicit choice.
+
+**Turning a palette on is where you find out whether it was ever true.** Four
+defects, none of which could have been noticed while the block was unreachable,
+each found by measuring contrast rather than looking:
+
+| What | Measured | Why |
+|---|---|---|
+| Footer headings, captions | 4.25:1 on surface, 3.88:1 on raised | `--color-ink-3` was too dim in dark. Now `#8790a1` — 5.75 / 5.38 / 4.91 |
+| Stale-filing warning | **1.71:1** | `.dark` overrode `--color-warning` but not `--color-warning-soft`, so pale amber text sat on a pale cream box. Same for error and info, which are three of the six letter-avatar pairs |
+| Active page number | 1.26:1 | `bg-ink text-white` — fine while ink was always dark. In dark, ink *is* the light colour, so white-on-ink became white-on-cream |
+| "Verified" chips on cards | ~1.75:1 | The pill is a fixed white over a photograph, and `--color-verified` inverts to bright mint. New `--color-verified-fixed` / `--color-ink-fixed` are deliberately absent from `.dark`: the surface does not change, so the ink on it must not either |
+
+Sweep after the fixes: 0 contrast failures against WCAG AA on `/`, `/charities`,
+`/charities/{slug}` and `/methodology`, in both themes, verified on production.
+
+The general lesson is the project's usual one in a new place: a palette nobody
+renders is documentation, not a feature, and it will contain claims that were
+never checked.
 
 ---
 

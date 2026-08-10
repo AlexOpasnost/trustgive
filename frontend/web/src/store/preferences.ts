@@ -4,18 +4,18 @@ import { persist } from "zustand/middleware"
 export type Lang = "en" | "ru"
 
 /**
- * Stored, persisted to localStorage — and read by nobody.
+ * Applied by `lib/colorScheme.ts`, which subscribes to this store and toggles
+ * `.dark` on the document — the same one-way arrangement `lib/i18n.ts` uses for
+ * the language, and for the same reason: one authoritative place, no second copy
+ * to disagree with.
  *
- * Nothing in the app puts the `dark` class on the document, and no component
- * uses a `dark:` variant, so `setColorScheme("dark")` writes a value that
- * changes no pixel. The `.dark` palette in index.css is complete and correct
- * (verified 2026-08-05 by mounting a probe inside a `.dark` wrapper), it is
- * simply never switched on.
+ * "system" is the default and follows the OS for as long as it is selected. The
+ * nav toggle replaces it with an explicit "light" or "dark" the moment a reader
+ * disagrees with what they were given.
  *
- * Left in place rather than deleted: the palette is real work and the decision
- * to ship dark mode is the operator's, not a side effect of a typography pass.
- * But it is recorded here so the next reader does not assume, as the type name
- * invites, that this preference does something.
+ * This was dead for months — stored, persisted, and read by nothing, so choosing
+ * a scheme changed a value in localStorage and not one pixel. Wired up
+ * 2026-08-10.
  */
 export type ColorScheme = "light" | "dark" | "system"
 

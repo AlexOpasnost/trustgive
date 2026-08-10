@@ -501,7 +501,7 @@ function DetailHero({ charity, name }: { charity: Charity; name: string }) {
           inline-flex items-center gap-1.5
           backdrop-blur-sm rounded-full px-4 py-1.5
           text-body-sm font-medium shadow-sm
-          ${isVerified ? "bg-white/95 text-verified" : "bg-white/80 text-ink-3"}
+          ${isVerified ? "bg-white/95 text-verified-fixed" : "bg-white/80 text-ink-fixed"}
         `}
         aria-label={isVerified ? t("charity.verified") : t("charity.notVerified")}
       >

@@ -56,6 +56,8 @@ const COLORS = [
   "verified",
   "verified-on",
   "verified-soft",
+  "verified-fixed",
+  "ink-fixed",
   "warning",
   "warning-soft",
   "error",
