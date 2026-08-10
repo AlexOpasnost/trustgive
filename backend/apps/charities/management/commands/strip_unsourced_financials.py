@@ -56,9 +56,21 @@ from apps.charities.models import Charity, Financial
 UA = "TrustGive/1.0 (+https://trustgive.org; contact: hello@trustgive.org)"
 PP_API = "https://projects.propublica.org/nonprofits/api/v2/organizations/{ein}.json"
 
-# The fabrication signature. A genuine total landing on an exact ten million is
-# possible but vanishingly rare; 43 of them in one catalogue is not.
-ROUND_TO = Decimal("10000000")
+# The fabrication signature.
+#
+# This was 10,000,000 until 2026-08-10, and that threshold is why the August
+# clean-up only half worked: it removed 43 rows and left the same defect one
+# order of magnitude down. 70 published rows are exact multiples of 1,000,000 —
+# $35,000,000, $145,000,000, $9,000,000 — every one cited to a filing.
+#
+# The 17 that cite ProPublica, the only ones checkable from stored data, were
+# read back from ProPublica: **17 of 17 were wrong**, none matched, and the
+# errors run both ways and run large. International Rescue Committee displayed
+# $948,000,000 against an actual $1,373,898,628; Plan International USA displayed
+# $89,000,000 against $55,398,933. A genuine Form 990 total landing on an exact
+# million happens about as often as one landing on an exact ten million, and the
+# check rate here is 0%.
+ROUND_TO = Decimal("1000000")
 
 THROTTLE_SECONDS = 1.0
 

@@ -29,8 +29,11 @@ from django.core.management.base import BaseCommand
 
 from apps.charities.models import Charity, Financial, VerificationStatus
 
-# See strip_unsourced_financials for why this shape is the signal.
-ROUND_TO = Decimal("10000000")
+# See strip_unsourced_financials for why this shape is the signal, and for the
+# 17-of-17 read-back that moved this threshold from 10,000,000 down to 1,000,000
+# on 2026-08-10. The wider net is the point: at the old threshold this command
+# reported "No unsourced revenue figures found" on a catalogue holding 70 of them.
+ROUND_TO = Decimal("1000000")
 
 
 class Command(BaseCommand):
@@ -63,8 +66,18 @@ class Command(BaseCommand):
             and row.year
             and row.year > row.charity.last_filed_date.year
         ]
+        # …and a figure on a charity with *no* filing date at all cannot have
+        # come from a filing either. That case used to fall through the test
+        # above — `charity.last_filed_date and …` is False when the date is
+        # missing — so the rows least likely to be sourced were the ones this
+        # command never examined. founders-pledge sat there showing exactly
+        # $35,000,000 "IRS Form 990, FY 2023 (ProPublica)" while ProPublica held
+        # no filing with data for that EIN at all.
+        no_filing_at_all = [
+            row for row in rows if row.charity.last_filed_date is None and row.total_revenue_usd
+        ]
 
-        flagged = {row.id: row for row in round_rows + ahead_of_filing}
+        flagged = {row.id: row for row in round_rows + ahead_of_filing + no_filing_at_all}
         published = [
             row
             for row in flagged.values()
@@ -74,6 +87,7 @@ class Command(BaseCommand):
         self.stdout.write(f"financial rows            : {rows.count()}")
         self.stdout.write(f"  round revenue           : {len(round_rows)}")
         self.stdout.write(f"  year ahead of filing    : {len(ahead_of_filing)}")
+        self.stdout.write(f"  charity has no filing   : {len(no_filing_at_all)}")
         self.stdout.write(f"  distinct flagged rows   : {len(flagged)}")
         self.stdout.write(f"  of those, published     : {len(published)}")
 

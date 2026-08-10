@@ -574,6 +574,81 @@ at, so the mismatch is documented rather than silently repaired.
 
 ---
 
+## Finding 15 — The money sweep was looking one order of magnitude too high (severity: critical, fixed)
+
+Finding 8 removed 43 revenue figures that were exact multiples of $10,000,000
+and declared the money column clean. It was not. The threshold *was* the defect:
+the same fabrication survived one decimal place down, and the nightly
+`audit_financial_sources --strict` reported "No unsourced revenue figures found"
+every night against a catalogue holding **70 published rows that are exact
+multiples of $1,000,000**.
+
+Found 2026-08-10, while checking something else — `founders-pledge` showed
+exactly $35,000,000 cited to "IRS Form 990, FY 2023 (ProPublica)" for an EIN
+ProPublica holds no filing with data for.
+
+**17 of the 70 cite ProPublica and are therefore checkable. All 17 were read back
+from ProPublica. None matched.**
+
+| Charity | Displayed | Source says |
+|---|---|---|
+| international-rescue-committee | $948,000,000 | $1,373,898,628 |
+| american-indian-college-fund | $48,000,000 | $83,877,964 |
+| plan-international-usa | $89,000,000 | $55,398,933 |
+| malala-fund | $32,000,000 | $55,818,336 |
+| oxfam-america | $105,000,000 | $81,357,087 |
+| …12 more, every one wrong | | |
+
+The errors run in both directions and run large — IRC understated by 31%, Plan
+International USA overstated by 61%. A 0% agreement rate across 17 independent
+checks is not a threshold that was slightly too high; it is the same seeded batch
+the July audit found, sampled at a finer grain.
+
+**Two holes, both fixed.**
+
+1. `ROUND_TO` moved from `10_000_000` to `1_000_000` in both the detector and
+   `strip_unsourced_financials`.
+2. The "period newer than the charity's own filing" test read
+   `charity.last_filed_date and row.year > …`, so a charity with **no** filing
+   date at all was skipped — the rows least likely to be sourced were the ones
+   never examined. That is what hid `founders-pledge`.
+
+**Remediation.** `strip_unsourced_financials` repaired the 16 ProPublica-backed
+rows with the real figures and deleted 55 it could not check (UK and
+self-published, unrecoverable for the reason Finding 8 gives: the currency and
+basis of conversion were never stored). One row was skipped as unreachable and
+repaired on the re-run — the "could not ask" distinction working as designed.
+
+314 financial rows now, 0 flagged. **290 of 394 published charities show a
+revenue figure; 104 show none**, which is the honest state.
+
+---
+
+## Finding 16 — Four badges rested on registration alone (severity: medium, fixed)
+
+`/methodology` tells the reader a verified charity "has filed financial documents
+in the last 24 months". Four published US charities had not filed at all:
+
+| Charity | ProPublica holds |
+|---|---|
+| salvation-army-national | no filings of any kind |
+| catholic-relief-services | no filings of any kind |
+| catholic-charities-usa | 1 filing, no data |
+| founders-pledge | 7 filings, no data |
+
+Each resolves, returns the right legal name, and its link opens — but what opens
+is a registry record, not a filing. The badge was resting on the organisation
+existing, which is a claim the site explicitly says it does not make.
+
+Demoted by the new `demote_unfiled_charities`, at the operator's decision. Nothing
+deleted: each keeps its name, prose, photo and registry link, and returns the
+moment a filing appears. The command leaves a charity untouched when ProPublica
+cannot be reached.
+
+**394 published, 143 hidden.**
+
+---
+
 ## What now prevents recurrence
 
 | Control | Mechanism |
@@ -589,12 +664,15 @@ at, so the mismatch is documented rather than silently repaired.
 | Another organisation's registration, or a deregistered one (NZ) | `fix_nz_ccnumbers` requires legal name + the number asked for + status `Registered`; `apps/charities/tests/test_nz_registry_evidence.py` pins it against the five real mismatches |
 | A registry outage emptying the catalogue | `verdict_for()` demotes only on a real 404/410; unreachable is reported, never acted on. Pinned by `test_source_link_verdicts.py` |
 | A stale freshness stamp on a row the ETL just changed | every `save()` in `audit_source_links` now names `updated_at` alongside `verification_status` |
+| An invented money figure below the old threshold | `ROUND_TO` is $1M, not $10M, and a charity with no filing date is examined rather than skipped (Finding 15) |
+| A badge on a charity that has never filed | `demote_unfiled_charities`, run deliberately; leaves the row alone when the registry cannot be reached |
 | A known-false identifier that cannot be removed | `registration_id` is nullable (migration 0059); `clear_false_registrations` deletes one against a stated expected value and a written reason |
 | A harness bug reported as a data finding | every registry sweep carries known-good and known-fabricated controls; if the known-good ones fail, the run is discarded |
 
 ## Open items
 
-1. Decide the treatment of the 6 registry-only "verified" charities.
+1. ~~Decide the treatment of the registry-only "verified" charities.~~
+   **Decided 2026-08-10 — demote.** See Finding 16.
 2. ~~45 US EINs do not resolve on ProPublica — triage.~~ **Done 2026-08-04**:
    39 hidden US rows re-searched by name, 37 of their stored EINs were 404s,
    21 recovered and published, 18 documented with a reason in

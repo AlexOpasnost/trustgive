@@ -259,7 +259,10 @@ async function handleImageProxy(request: Request): Promise<Response> {
 // v3.22: added /api. The first v3.22 deploy shipped without bumping this and
 // the edge kept serving the 810-URL body for hours — the very failure the
 // paragraph above describes, repeated by the person who wrote it.
-const SITEMAP_VERSION = "v3.25"
+// v3.26: the catalogue went 398 -> 394 (four badges removed for having no
+// filing behind them), so the sitemap loses eight URLs and the cached copy has
+// to go with it.
+const SITEMAP_VERSION = "v3.26"
 
 /**
  * Licence on the *compilation* — the list of organisations, the identifier held
