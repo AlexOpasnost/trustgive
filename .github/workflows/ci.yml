@@ -169,6 +169,15 @@ jobs:
       - run: npm run lint
       - run: npm run typecheck
 
+      # The Worker was not typechecked anywhere. `tsconfig.app.json` includes
+      # only `src`, and wrangler bundles with esbuild, which strips types
+      # without reading them — so worker/index.ts, the code that serves every
+      # page on the site, reached production unchecked. It has its own
+      # tsconfig; this just runs it.
+      - name: Typecheck the Cloudflare Worker
+        working-directory: .
+        run: ./frontend/web/node_modules/.bin/tsc --noEmit -p worker/tsconfig.json
+
   frontend-test:
     name: Frontend vitest + build
     runs-on: ubuntu-latest

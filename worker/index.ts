@@ -259,10 +259,10 @@ async function handleImageProxy(request: Request): Promise<Response> {
 // v3.22: added /api. The first v3.22 deploy shipped without bumping this and
 // the edge kept serving the 810-URL body for hours — the very failure the
 // paragraph above describes, repeated by the person who wrote it.
-// v3.26: the catalogue went 398 -> 394 (four badges removed for having no
-// filing behind them), so the sitemap loses eight URLs and the cached copy has
-// to go with it.
-const SITEMAP_VERSION = "v3.26"
+// v3.27: unpublished charity pages now answer 404 instead of 200, so every
+// cached copy of one has to be dropped — the status code is part of what was
+// cached.
+const SITEMAP_VERSION = "v3.27"
 
 /**
  * Licence on the *compilation* — the list of organisations, the identifier held
@@ -516,18 +516,19 @@ async function handleCharityMeta(request: Request, env: Env, slug: string): Prom
   const cached = await cache.match(cacheKey)
   if (cached) return cached
 
-  let charity: CharityDetail | null = null
-  try {
-    const res = await fetch(`${API_BASE}/api/charities/${encodeURIComponent(slug)}/`, {
-      headers: { Accept: "application/json" },
-      cf: { cacheTtl: 3600 } as RequestInit["cf"],
-    })
-    if (res.ok) charity = (await res.json()) as CharityDetail
-  } catch {
-    // API unreachable — fall through to the untouched shell.
-  }
+  const lookup = await lookupBySlug<CharityDetail>(
+    `${API_BASE}/api/charities/${encodeURIComponent(slug)}/`
+  )
+  // Not published → say 404. The SPA still renders its own "no such charity"
+  // screen; the status code is what stops Google recording the page as a soft
+  // 404, and what stops a removed charity looking like a live one.
+  if (lookup.state === "gone") return plainShell(shell, 404)
+  // Could not reach the API. We do not know whether this charity exists, so we
+  // do not assert that it does not.
+  if (lookup.state === "unknown") return plainShell(shell)
 
-  if (!charity || !charity.name) return plainShell(shell) // 404 or API down → plain SPA
+  const charity = lookup.data
+  if (!charity.name) return plainShell(shell)
 
   const name = charity.name.en || charity.name.ru || slug
   const countryLabel = (charity.country && COUNTRY_LABEL[charity.country]) || ""
@@ -627,18 +628,20 @@ async function handleLegitMeta(request: Request, env: Env, slug: string): Promis
   const cached = await cache.match(cacheKey)
   if (cached) return cached
 
-  let payload: SeoPayload | null = null
-  try {
-    const res = await fetch(`${API_BASE}/api/seo/charities/${encodeURIComponent(slug)}/?lang=en`, {
-      headers: { Accept: "application/json" },
-      cf: { cacheTtl: 3600 } as RequestInit["cf"],
-    })
-    if (res.ok) payload = (await res.json()) as SeoPayload
-  } catch {
-    // API unreachable — fall through to the untouched shell.
-  }
+  // Same three-way answer as the profile page. `/legit` is verified-only by
+  // design — the endpoint 404s for anything unpublished, "because an unverified
+  // organisation has no legitimacy verdict we can stand behind" — so these are
+  // the pages most likely to be asked for and correctly absent. Two of the
+  // nineteen soft 404s were exactly this shape (msf-canada/legit,
+  // ronald-mcdonald-canada/legit).
+  const lookup = await lookupBySlug<SeoPayload>(
+    `${API_BASE}/api/seo/charities/${encodeURIComponent(slug)}/?lang=en`
+  )
+  if (lookup.state === "gone") return plainShell(shell, 404)
+  if (lookup.state === "unknown") return plainShell(shell)
 
-  if (!payload || !payload.h1) return plainShell(shell) // 404 or API down → plain SPA
+  const payload = lookup.data
+  if (!payload.h1) return plainShell(shell)
 
   const question = payload.h1
   const evidence = payload.evidence_summary?.en ?? ""
@@ -789,14 +792,49 @@ const HTML_CACHE_CONTROL =
   "public, max-age=0, s-maxage=300, stale-while-revalidate=3600, must-revalidate"
 
 /** The untouched shell, for every path where we decline to enrich the page. */
-function plainShell(html: string): Response {
+function plainShell(html: string, status: 200 | 404 = 200): Response {
   return new Response(html, {
-    status: 200,
+    status,
     headers: {
       "Content-Type": "text/html; charset=utf-8",
       "Cache-Control": "public, max-age=0, must-revalidate",
     },
   })
+}
+
+/**
+ * What the API said about a slug, kept apart from what we do about it.
+ *
+ * "found" and "gone" and "could not ask" are three different answers, and the
+ * charity handlers used to collapse the last two into one: any failure returned
+ * the shell with HTTP 200. For an unpublished charity that is a page which
+ * claims success and carries nothing — Google files it as a soft 404, and on
+ * 2026-08-05 nineteen of them appeared in Search Console the moment the
+ * catalogue tightened (wwf-italia, canadian-cancer-society, irish-red-cross,
+ * croix-rouge-francaise, cancerfonden and the rest, all rows the PUBLISHED
+ * filter hides).
+ *
+ * A registry outage must not produce the same answer as a removal. That is the
+ * distinction this project keeps having to relearn — Findings 8 and 12 in
+ * DATA_INTEGRITY — and it applies at the edge too: 404 when the API says the
+ * charity is not published, 200 when we simply could not reach it.
+ */
+type SlugLookup<T> = { state: "found"; data: T } | { state: "gone" } | { state: "unknown" }
+
+async function lookupBySlug<T>(url: string): Promise<SlugLookup<T>> {
+  try {
+    const res = await fetch(url, {
+      headers: { Accept: "application/json" },
+      cf: { cacheTtl: 3600 } as RequestInit["cf"],
+    })
+    if (res.ok) return { state: "found", data: (await res.json()) as T }
+    // 404/410 is the API stating this slug is not published. Anything else —
+    // 5xx, a gateway hiccup — is us failing to ask.
+    if (res.status === 404 || res.status === 410) return { state: "gone" }
+    return { state: "unknown" }
+  } catch {
+    return { state: "unknown" }
+  }
 }
 
 interface HubItem {
