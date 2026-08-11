@@ -191,3 +191,21 @@ jobs:
             echo "${path} -> ${code}"
             [ "$code" = "200" ] || { echo "::error::${path} returned ${code}"; exit 1; }
           done
+
+      - name: A charity that does not exist answers 404, not 200
+        run: |
+          set -euo pipefail
+          # Until 2026-08-10 it answered 200 with the SPA shell and the generic
+          # site title. Google indexed nineteen of those as soft 404s the week
+          # the catalogue tightened — every one a charity the PUBLISHED filter
+          # hides. A page that reports success while carrying nothing is this
+          # project's signature defect; it is worth a standing check.
+          #
+          # The slug is deliberately one that can never be published, so this
+          # cannot start failing because a real charity got verified.
+          for path in /charities/monitor-probe-no-such-charity \
+                      /charities/monitor-probe-no-such-charity/legit; do
+            code=$(curl -s -o /dev/null -w '%{http_code}' --max-time 30 "https://trustgive.org${path}")
+            echo "${path} -> ${code}"
+            [ "$code" = "404" ] || { echo "::error::${path} returned ${code}, expected 404"; exit 1; }
+          done
