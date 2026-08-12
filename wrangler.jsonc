@@ -1,6 +1,6 @@
 {
   "$schema": "node_modules/wrangler/config-schema.json",
-  "name": "trustgive-web",
+  "name": "trustgive",
   "compatibility_date": "2026-01-01",
   // v3.16: Worker bundles a tiny script (handles /img/v1 image proxy) plus
   // serves static SPA assets via the env.ASSETS binding. Worker entry is
