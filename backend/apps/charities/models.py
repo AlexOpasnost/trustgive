@@ -298,6 +298,21 @@ class Financial(models.Model):
     top_executive_name = models.CharField(max_length=200, blank=True, default="")
     source_url = models.URLField()
     source_label = models.CharField(max_length=200, blank=True, default="")
+
+    # What the source actually said, before anything was converted.
+    #
+    # Every amount above is in US dollars, and most regulators do not publish in
+    # US dollars. Finding 8 could repair the American rows and had to delete the
+    # British ones for exactly this reason: the figure had been converted and
+    # nobody had written down the rate, the day, or who published it, so there
+    # was no way to tell a conversion from an invention. These five fields are
+    # that record. Leave them empty only when the source itself quoted USD.
+    original_currency = models.CharField(max_length=3, blank=True, default="")
+    original_amount = models.DecimalField(max_digits=18, decimal_places=2, null=True, blank=True)
+    fx_rate = models.DecimalField(max_digits=18, decimal_places=8, null=True, blank=True)
+    fx_rate_date = models.DateField(null=True, blank=True)
+    fx_source = models.CharField(max_length=200, blank=True, default="")
+
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:

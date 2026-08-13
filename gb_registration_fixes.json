@@ -1,0 +1,48 @@
+[
+ {
+  "slug": "cure-leukaemia",
+  "action": "repoint",
+  "expect_current": "1100994",
+  "new": "1100154",
+  "why": "1100994 is PAG (Parent Action Group) Limited, removed 2011-11-09. Cure Leukaemia is 1100154, Registered, income GBP 2,918,464, company 04569174 - which Companies House independently names CURE LEUKAEMIA, and which the charity's own site states as its company number."
+ },
+ {
+  "slug": "leprosy-mission-uk",
+  "action": "repoint",
+  "expect_current": "261249",
+  "new": "1050327",
+  "why": "261249 is Sir George Weidenfeld Charitable Trust, removed 1977-09-08. leprosymission.org.uk states 'Registered Charity Number: 1050327', which the register returns as The Leprosy Mission Great Britain, Registered, income GBP 10,451,654, company 03140347 (Companies House: THE LEPROSY MISSION GREAT BRITAIN)."
+ },
+ {
+  "slug": "joseph-rowntree-foundation",
+  "action": "repoint",
+  "expect_current": "210169",
+  "new": "1184957",
+  "why": "210169 (The Joseph Rowntree Foundation) was removed 2020-03-27 on re-incorporation. jrf.org.uk states company 12132713 and 'Charity Number (England and Wales): 1184957'; the register returns 1184957 as JOSEPH ROWNTREE FOUNDATION, Registered, income GBP 35,057,000, company 12132713 (Companies House: JOSEPH ROWNTREE FOUNDATION, incorporated 2019-07-31)."
+ },
+ {
+  "slug": "breast-cancer-now",
+  "action": "verify",
+  "expect_current": "1160558",
+  "why": "Hidden by the Finding 12 timeout defect, not by any evidence. The register returns 1160558 as BREAST CANCER NOW, Registered, income GBP 59,270,000; breastcancernow.org states 'charity registered in England and Wales (1160558)'; Companies House names company 09347608 BREAST CANCER NOW."
+ },
+ {
+  "slug": "donkey-sanctuary",
+  "action": "repoint",
+  "expect_current": "264818",
+  "new": "1207593",
+  "why": "The register holds no charity 264818 at all - not as registered and not as removed - which settles open item 10: it is not a superseded record. The Donkey Sanctuary is 1207593, Registered since 2024-03-25, income GBP 59,557,831, company 15150580, which Companies House names THE DONKEY SANCTUARY. The charity's own website answers HTTP 403 to us, so it was not read; that is a check not made, not a check that failed."
+ },
+ {
+  "slug": "big-issue-foundation",
+  "action": "demote",
+  "expect_current": "1049077",
+  "why": "The charity was removed from the register on 2023-09-15 and its company, 03049322, was dissolved on 2023-12-19 (Companies House). No registered charity of this name exists; the successor at the same address, BIG ISSUE CHANGING LIVES C.I.C. (14786850), is a community interest company and not a charity. The number stays on the row because it is the correct number for the charity that existed."
+ },
+ {
+  "slug": "maggies-cancer",
+  "action": "demote",
+  "expect_current": "1058460",
+  "why": "1058460 is EURO CHARITY TRUST, a different organisation. Maggie's is a Scottish charity: maggies.org states 'Registered Charity Number: SC024414' and company SC162451, and OSCR returns SC024414 as Maggie Keswick Jencks Cancer Caring Centres Trust, known as Maggie's, status Active. TrustGive has no OSCR verification path yet, so the row is unpublished rather than repointed."
+ }
+]

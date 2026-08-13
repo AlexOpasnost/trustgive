@@ -1,8 +1,8 @@
 # TrustGive — handoff
 
-> Written 2026-08-11. Read this first, then `DATA_INTEGRITY.md` (the "Open
-> items" list is the real backlog), then `STRATEGY.md` if you need the plan.
-> Work in Russian with the owner.
+> Written 2026-08-11, updated 2026-08-13. Read this first, then
+> `DATA_INTEGRITY.md` (the "Open items" list is the real backlog), then
+> `STRATEGY.md` if you need the plan. Work in Russian with the owner.
 
 ---
 
@@ -18,8 +18,8 @@ are hidden by the `PUBLISHED` filter in `apps/charities/models.py` and return th
 moment they can be verified.
 
 Published by country: US 274 · GB 75 · AU 23 · ES 6 · IT 4 · NZ 3 · IN 3 ·
-RU 2 · DE 2 · NL 1 · BR 1. 290 of the 394 show a revenue figure; 104 show none,
-which is the honest state after the money clean-up below.
+RU 2 · DE 2 · NL 1 · BR 1. **339 of the 394 show a revenue figure; 55 show none**
+(was 290/104 before the UK money repair of 2026-08-13).
 
 ---
 
@@ -47,9 +47,34 @@ F shipped 2026-08-10: six-step type scale, four spacing bands, green reserved
 for verification only, dagger logo replaced, dark mode wired up. See `DESIGN.md`
 v3.2.
 
-### The immediate open task — UK, and it needs a decision
+### The UK task — done 2026-08-13
 
-**The Charity Commission API key is no longer a blocker.** The regulator
+All six flagged rows were re-checked against sources the extract does not derive
+from and acted on; `breast-cancer-now` and `donkey-sanctuary` are back; 65 of the
+75 published GB rows now carry the register's own income with the exchange rate
+stored beside it. Written up as **Findings 17 and 18** in `DATA_INTEGRITY.md`; the
+paragraphs below are kept because they describe the data source and its traps,
+which the next country will need.
+
+Three things came out of it that are worth carrying forward:
+
+1. **The screening pass's ten "false positives" were not false.** The register
+   publishes working and previous names in a companion extract
+   (`publicextract.charity_other_names.zip`). NSPCC, SIGHTSAVERS and SUSTRANS are
+   all in it. The gate did not need to be loosened from equality to substring —
+   it needed the register's own list of names. Do this before widening any rule.
+2. **The live search is fuzzy *and* paginated.** Asking for 219099 returns a
+   hundred RSPCA branches ahead of the RSPCA. At the default page of 20 the code
+   concluded "no such registered charity", which is the project's oldest mistake
+   in new clothes. Always go through `uk_register.lookup_number`, which answers
+   `found` / `absent` / `unknown` and calls a full page without the number
+   `unknown`.
+3. **Outside the United States, every published revenue figure was seeded.** All
+   16 of them, exact multiples of $100,000, sitting in the gap below Finding 15's
+   $1M threshold. If another country's money is ever filled, check the shape at
+   $100K first.
+
+**The Charity Commission API key is not a blocker.** The regulator
 publishes the entire register as an open daily download, no key:
 
 ```
@@ -71,45 +96,29 @@ row 0. Filter first or you will match the wrong entity.
 **Fetch it with Python, not PowerShell** — `Invoke-WebRequest` fails the TLS
 handshake against that blob host; `urllib` works.
 
-Screening all 77 GB rows against it gave 59 clean matches and this:
+**Get the companion names file too**, `publicextract.charity_other_names.zip`
+(4 MB, same host). Without it the name gate rejects NSPCC, Sightsavers, Sustrans
+and sixteen others; with it, they match on the register's own working or previous
+name and the rule stays an equality test.
 
-| Row | Stored № | Register says | Reading |
-|---|---|---|---|
-| `cure-leukaemia` | 1100994 | PAG (PARENT ACTION GROUP) LIMITED, Removed, £6,435 | wrong entity |
-| `leprosy-mission-uk` | 261249 | SIR GEORGE WEIDENFELD CHARITABLE TRUST, Removed | wrong entity |
-| `maggies-cancer` | 1058460 | EURO CHARITY TRUST, Registered, £3.1M | wrong entity |
-| `big-issue-foundation` | 1049077 | THE BIG ISSUE FOUNDATION, **Removed** | right name, dead registration |
-| `joseph-rowntree-foundation` | 210169 | THE JOSEPH ROWNTREE FOUNDATION, **Removed** | right name, dead registration |
-| `donkey-sanctuary` | 264818 | absent from the register entirely | wrong number (already hidden) |
+The commands that use all this:
 
-**All five of the first are published right now.** This is the Finding 7/11
-defect in a third country, and the first time it has been on rows the public can
-see.
+```
+python manage.py fix_gb_registrations --file=../gb_registration_fixes.json --dry-run
+python manage.py fill_gb_revenue --extract=charity.zip --other-names=other_names.zip --dry-run
+```
 
-**Do not act on this from one source.** The same screening produced ten *false*
-mismatches — NSPCC vs "National Society for the Prevention of Cruelty to
-Children", Diabetes UK vs "British Diabetic Association", Sightsavers vs "Royal
-Commonwealth Society for the Blind", Sustrans vs "Walk Wheel Cycle Trust" (a
-genuine 2025 rename). A gate that produces ten false positives in one pass has
-not earned the right to demote a famous charity unchecked. "Removed" on Joseph
-Rowntree Foundation most likely means they re-registered as a CIO under a new
-number — find the live number by name in the same extract before touching
-anything.
+Both re-verify against the live register before writing, both refuse rather than
+guess, and both report "could not read" separately from "the register said no".
+`gb_registration_fixes.json` and `gb_false_regs.json` in the project root are the
+record of what was decided and why; re-running them is a no-op, which is the
+point.
 
-**The owner was asked whether to proceed and had not answered when this was
-written.** Roughly an hour of work: confirm each of the five by name, then either
-correct the number or demote.
-
-Two easy wins waiting behind the same extract:
-
-- **`breast-cancer-now` is recoverable now.** Register says "BREAST CANCER NOW",
-  status Registered, income £59,270,000. It is hidden only because the nightly
-  audit demoted it on a timeout (Finding 12, since fixed) and nothing
-  re-promotes automatically.
-- **21 UK charities show no revenue** (a consequence of Finding 8). `latest_income`
-  in the extract fills that — but it is GBP, and the field on the model is
-  `total_revenue_usd`. Do not write a converted figure without storing the rate
-  and date; that is how Finding 8 happened in the first place.
+**Currency is stored, not assumed.** `Financial` carries `original_currency`,
+`original_amount`, `fx_rate`, `fx_rate_date` and `fx_source` since migration
+0060, and `apps/charities/fx.py` reads the ECB reference rates. If another
+country's money is ever filled, fill those five fields or the nightly audit will
+fail the run — deliberately.
 
 ### Decisions the owner has already made
 
@@ -121,7 +130,7 @@ Two easy wins waiting behind the same extract:
 | Catalogue licence | **CC0 1.0** — declared in the Dataset markup and on /api |
 | IndexNow after a change | Wait for the 06:00 UTC cron |
 | Annual report "State of Charity Transparency" | Not now |
-| UK API key | Registered, confirmation email had not arrived. Now optional — see above |
+| UK API key | Registered, confirmation email had not arrived. **Not needed** — the open extract plus the live register did the whole job |
 
 ### Search Console
 
@@ -153,6 +162,8 @@ All are written up in `DATA_INTEGRITY.md`; this is the index.
 | 14 | Four organisations were in the catalogue twice | low |
 | 15 | The money sweep looked for multiples of $10M while 70 published rows were multiples of $1M; **17 of 17 checkable ones were wrong** | critical |
 | 16 | Four badges rested on registration alone, with no filing behind them | medium |
+| 17 | Five published UK charities on another organisation's or a dead registration; confirmed against three independent sources each before anything moved | critical |
+| 18 | **Every** published revenue figure outside the US — 16 of them — was an exact multiple of $100,000, sitting just below Finding 15's threshold | critical |
 
 Plus, outside `DATA_INTEGRITY.md`:
 
@@ -204,32 +215,47 @@ Plus, outside `DATA_INTEGRITY.md`:
    bug, not a data finding.
 8. **A green scheduled job proves nothing until you read what it asserts.** All
    four workflows in this repo had a defect. `perf.yml` was red for two months
-   and everyone had learned to ignore the mail.
+   and everyone had learned to ignore the mail. The nightly money audit was the
+   next one: green for four days over 16 fabricated figures, because its
+   threshold was $1M and every survivor was a multiple of $100K (Finding 18).
+9. **A search result page can be full.** The Charity Commission's search is
+   fuzzy and paginated; asking it for the RSPCA's number returns a hundred RSPCA
+   branches first. "The number was not on the page" is not "the register does
+   not hold it". Any registry lookup you write needs three answers, not two —
+   see `uk_register.lookup_number`.
+10. **Before widening a name rule, look for the registry's own alias list.** Ten
+   apparent mismatches in the UK screening were trading names the Charity
+   Commission publishes in a companion file. The fix was to give the gate more
+   *data*, not less *rule*.
 
 ### Deploy
 
-9. **`wrangler deploy` does not always land.** Compare the bundle hash:
-   `(Get-ChildItem frontend\web\dist\assets\index-*.js)[0].Name` against what
-   trustgive.org actually serves.
-10. **Bump `SITEMAP_VERSION` in `worker/index.ts`** whenever the sitemap's
+11. **`wrangler deploy` does not always land.** Compare the bundle hash:
+    `(Get-ChildItem frontend\web\dist\assets\index-*.js)[0].Name` against what
+    trustgive.org actually serves. Wrangler lives in
+    `frontend\web\node_modules\.bin\` — there is no root `package.json`.
+12. **Bump `SITEMAP_VERSION` in `worker/index.ts`** whenever the sitemap's
     contents *or* a cached page's status code changes — it keys the edge cache.
-    Currently `v3.27`.
-11. **The CDN caches by URL before the Worker runs.** Only the TTL
+    Currently `v3.28`.
+13. **The CDN caches by URL before the Worker runs.** Only the TTL
     (`s-maxage=300`) helps. Bust with `?cb=…`, but remember any extra parameter
     on `/charities` triggers the noindex branch.
 
 ### Local limits
 
-12. **pytest needs Postgres and only runs in CI** (Docker is dead). But
+14. **pytest needs Postgres and only runs in CI** (Docker is dead). But
     **DB-free tests do run locally** — write verification logic as pure
-    functions and you get a same-second loop. That caught three real bugs this
-    session.
-13. **`wrangler dev` cannot reach the API** (egress goes through a proxy workerd
+    functions and you get a same-second loop. That caught three real bugs in the
+    first session and the pagination bug in the second.
+15. **`wrangler dev` cannot reach the API** (egress goes through a proxy workerd
     ignores). Verify the Worker on production after deploying.
-14. **Django against prod:** `backend\.venv\Scripts\python.exe manage.py <cmd>`,
+16. **Django against prod:** `backend\.venv\Scripts\python.exe manage.py <cmd>`,
     always `--dry-run` first. Neon sometimes drops the first connection — retry.
-15. **Port 5173 may hold another worktree's dev server.** Start yours elsewhere;
+    It did exactly that, once, on the first write of the UK run.
+17. **Port 5173 may hold another worktree's dev server.** Start yours elsewhere;
     do not kill theirs.
+18. **The Worker typecheck binary is `frontend/web/node_modules/.bin/tsc`.**
+    `npx tsc` pulls a decoy package off npm that is not the TypeScript compiler.
 
 ---
 
@@ -245,7 +271,11 @@ Plus, outside `DATA_INTEGRITY.md`:
 `etl.yml` checks out the repo and runs it via `railway run`, so a fix on `main`
 is live for that night's run — no deploy needed.
 
-**All four were green as of 2026-08-11.**
+**All four were green as of 2026-08-11.** `audit_financial_sources --strict`
+watches a wider net since 2026-08-13 (Finding 18): $100K instead of $1M, plus a
+rule that a non-US figure must state the currency it was converted from. It ran
+clean immediately after the repair — 362 rows, 0 flagged — but the next country
+whose money gets filled will fail it unless the five FX fields are written.
 
 ---
 

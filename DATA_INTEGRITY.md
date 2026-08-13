@@ -649,6 +649,120 @@ cannot be reached.
 
 ---
 
+## Finding 17 — Five published UK charities, and what a second source changed (severity: critical, fixed)
+
+Screening all 77 GB rows against the Charity Commission's open daily extract on
+2026-08-11 flagged six. The same pass produced **ten false mismatches** on trading
+names, so nothing was acted on: a gate with that error rate has not earned the
+right to demote a famous charity. Each of the six was re-checked on 2026-08-13
+against sources the extract does not derive from — the **live** register search,
+**Companies House**, **OSCR**, and each organisation's own website, which a
+registered charity in England and Wales is required by law to state its number on.
+
+| Row | Stored | The extract said | Second and third sources | Verdict |
+|---|---|---|---|---|
+| `cure-leukaemia` | 1100994 | PAG (Parent Action Group) Limited, Removed 2011-11-09 | live register agrees; cureleukaemia.co.uk states company 4569174; Companies House names 04569174 CURE LEUKAEMIA; the register ties that company to charity **1100154**, CURE LEUKAEMIA, Registered, £2,918,464 | wrong entity → repointed |
+| `leprosy-mission-uk` | 261249 | Sir George Weidenfeld Charitable Trust, Removed 1977-09-08 | live register agrees; leprosymission.org.uk states "Registered Charity Number: **1050327**"; that number returns The Leprosy Mission Great Britain, Registered, £10,451,654, company 03140347, which Companies House names identically | wrong entity → repointed |
+| `joseph-rowntree-foundation` | 210169 | The Joseph Rowntree Foundation, **Removed** 2020-03-27 | jrf.org.uk states company 12132713 and "Charity Number (England and Wales): **1184957**"; that number returns JOSEPH ROWNTREE FOUNDATION, Registered, £35,057,000, company 12132713 (Companies House: incorporated 2019-07-31) | re-incorporated → repointed |
+| `big-issue-foundation` | 1049077 | The Big Issue Foundation, **Removed** 2023-09-15 | Companies House: company 03049322 **dissolved** 2023-12-19; the successor at the same address, BIG ISSUE CHANGING LIVES C.I.C. (14786850), is a community interest company, not a charity; bigissue.org.uk states no charity number anywhere | no longer a charity → demoted |
+| `maggies-cancer` | 1058460 | EURO CHARITY TRUST, Registered | maggies.org states "Registered Charity Number: **SC024414**" and company SC162451; OSCR returns SC024414 as Maggie Keswick Jencks Cancer Caring Centres Trust, known as Maggie's, Active; Companies House names SC162451 identically | wrong entity, and its regulator is OSCR → demoted, number cleared |
+| `donkey-sanctuary` | 264818 | absent | absent from the live register in **both** scopes, registered and removed — so it is not a superseded record, it is a number the register does not hold. The Donkey Sanctuary is **1207593**, Registered 2024-03-25, £59,557,831, company 15150580 (Companies House: THE DONKEY SANCTUARY) | wrong number → repointed, and open item 10 closed |
+
+`breast-cancer-now` was restored in the same pass. It had been hidden by the
+Finding 12 timeout defect and nothing re-promotes automatically; it came back by
+passing the check, not by being un-hidden — 1160558, BREAST CANCER NOW,
+Registered, £59,270,000, corroborated by breastcancernow.org and by Companies
+House naming 09347608 BREAST CANCER NOW.
+
+**Published stays at 394**: two demoted, two restored.
+
+**What the ten false mismatches turned out to be.** The register records working
+and previous names in a companion extract (`publicextract.charity_other_names`),
+and every one of them is in it — NSPCC beside its legal name, SIGHTSAVERS beside
+Royal Commonwealth Society for the Blind, SUSTRANS beside its 2025 rename to Walk
+Wheel Cycle Trust. The gate did not need loosening from an equality test to a
+substring one; it needed the register's own list of names. Offering those turned
+19 refusals into matches in the revenue pass below, with the equality rule intact.
+
+**One thing the new code got wrong first, and how it showed.** The live search is
+fuzzy *and* paginated. Asking it for 219099 returns a hundred RSPCA branches
+sorted ahead of the RSPCA itself, and at the site's default page of 20 the answer
+came back "the register returns no registered charity 219099". That is this
+project's oldest mistake in new clothes. `uk_register.lookup_number` now returns
+three verdicts — `found`, `absent`, `unknown` — and a full page with no matching
+row is `unknown`. `TestLookupNumberHasThreeAnswers` pins it.
+
+Applied by the new `fix_gb_registrations`, which re-earns every write against the
+live register rather than trusting the file it is given. Its five known-bad
+controls — a name that belongs to somebody else, a fabricated number, a removed
+registration, a demotion aimed at a healthy row, and a stale `expect_current` —
+were all refused in the same run that accepted the known-good one.
+
+---
+
+## Finding 18 — Outside the United States, the money column was seeded end to end (severity: critical, fixed)
+
+Finding 15 moved `ROUND_TO` from $10,000,000 to $1,000,000 and the nightly audit
+went quiet: 369 rows, 0 flagged, verified 2026-08-09. It was still one decimal
+place too coarse.
+
+**Every published revenue figure outside the United States — all 16 of them — was
+an exact multiple of $100,000, and not one was a multiple of $1,000,000.** 13 GB,
+2 RU, 1 IN. That is why the sweep found nothing: the survivors sat precisely in
+the gap between the threshold and the next one down.
+
+The thirteen British ones are checkable against the Charity Commission, and they
+are not close:
+
+| Charity | Displayed | Register's income |
+|---|---|---|
+| mermaids-trans-uk | $4,500,000 | £1,337,663 |
+| stonewall-uk | $9,500,000 | £4,741,953 |
+| rewilding-britain | $3,500,000 | £2,404,550 |
+| calm-uk | $10,500,000 | £8,656,407 |
+| cool-earth | $3,400,000 | £4,848,211 |
+| …8 more, no exchange rate reconciles them | | |
+
+Eight of the thirteen carried the label "Annual report & accounts (Charity
+Commission UK)" — the same label on the 21 rows Finding 8 deleted. Finding 8
+removed the multiples of ten million under that label and left the multiples of a
+hundred thousand beside them.
+
+**Why the UK rows were called unrecoverable, and why that is no longer true.**
+Finding 8 said the figures could not be repaired because "the currency and the
+basis of the conversion were never stored". That was a statement about the
+schema, not about the world: the Charity Commission publishes income for every
+registered charity. `Financial` now records `original_currency`,
+`original_amount`, `fx_rate`, `fx_rate_date` and `fx_source` (migration 0060), so
+a converted figure carries what it was converted from, at what rate, on what day,
+published by whom. `apps.charities.fx` reads the European Central Bank's euro
+reference rates and derives GBP→USD as a cross rate; it returns the rate *with*
+its date, backfills to the previous publication when a financial period ends on a
+weekend, and raises rather than guessing when no rate is within reach.
+
+**Remediation.** The new `fill_gb_revenue` wrote 65 of the 75 published GB rows,
+each one gated on: the extract naming this organisation (working and previous
+names included), status Registered, an income with a financial period end behind
+it, and the **live** register returning the same number with the same income to
+the pound. It also replaced each row's `last_filed_date` with the real period end.
+The 10 it skipped are catalogue display names the register records no equal name
+for — Stonewall against "Stonewall Equality Limited", ShelterBox against
+"ShelterBox Trust". Their money is left empty rather than the gate widened.
+
+`strip_unsourced_financials` then deleted the 6 that remained, 4 of them outside
+Britain and unrecoverable for the original reason. Its `[DROP]` line used to read
+"source does not support it" for every row including ones nothing had been asked
+about; it now says which of the two happened.
+
+`ROUND_TO` is $100,000 in both the detector and the stripper, and the audit gained
+a fourth rule: a figure on a non-US charity must state the currency it came from,
+and a non-USD one must carry its rate. 362 financial rows now, 0 flagged.
+
+**339 of 394 published charities show a revenue figure, up from 290** — and every
+one of the 65 new British figures can be recomputed from what is stored beside it.
+
+---
+
 ## What now prevents recurrence
 
 | Control | Mechanism |
@@ -664,7 +778,12 @@ cannot be reached.
 | Another organisation's registration, or a deregistered one (NZ) | `fix_nz_ccnumbers` requires legal name + the number asked for + status `Registered`; `apps/charities/tests/test_nz_registry_evidence.py` pins it against the five real mismatches |
 | A registry outage emptying the catalogue | `verdict_for()` demotes only on a real 404/410; unreachable is reported, never acted on. Pinned by `test_source_link_verdicts.py` |
 | A stale freshness stamp on a row the ETL just changed | every `save()` in `audit_source_links` now names `updated_at` alongside `verification_status` |
-| An invented money figure below the old threshold | `ROUND_TO` is $1M, not $10M, and a charity with no filing date is examined rather than skipped (Finding 15) |
+| An invented money figure below the old threshold | `ROUND_TO` is $100K, not $1M and not $10M, and a charity with no filing date is examined rather than skipped (Findings 15, 18) |
+| A conversion that cannot be checked | `Financial` stores `original_currency`, `original_amount`, `fx_rate`, `fx_rate_date`, `fx_source` (migration 0060); `audit_financial_sources` flags a non-US figure that states no currency, or a non-USD one with no rate |
+| A rate invented for a day the market was shut | `fx.cross_rate` backfills to the previous ECB publication and reports the day it actually used; it raises rather than guessing when none is within reach |
+| Another organisation's registration, or a removed one (GB) | `fix_gb_registrations` re-checks every action against the live register — name-set equality, status, and the number asked for — and refuses a demotion the register does not support; `apps/charities/tests/test_uk_registry_evidence.py` pins it against the six real cases and the ten false ones |
+| A paginated search read as an absence | `uk_register.lookup_number` answers `found` / `absent` / `unknown`, and a full page without the number asked for is `unknown` |
+| A trading name mistaken for a different charity | the register's own `publicextract.charity_other_names` is offered to the gate, so the rule stays token-set *equality* instead of being widened to a substring test |
 | A badge on a charity that has never filed | `demote_unfiled_charities`, run deliberately; leaves the row alone when the registry cannot be reached |
 | A known-false identifier that cannot be removed | `registration_id` is nullable (migration 0059); `clear_false_registrations` deletes one against a stated expected value and a written reason |
 | A harness bug reported as a data finding | every registry sweep carries known-good and known-fabricated controls; if the known-good ones fail, the run is discarded |
@@ -680,9 +799,12 @@ cannot be reached.
 3. Non-US coverage: 141 charities remain `listed`; Canada (28) is still blocked —
    see [`VERIFICATION_COVERAGE.md`](VERIFICATION_COVERAGE.md). Australia is now
    23 of 25 and New Zealand 3 of 7.
-4. 35 charities now display no revenue (Finding 8). For the 21 UK ones the figure
-   is recoverable in principle — the Charity Commission publishes income on the
-   register — but not from anything currently stored, and its API needs a key.
+4. ~~35 charities now display no revenue (Finding 8). For the 21 UK ones the
+   figure is recoverable in principle.~~ **Done 2026-08-13** — and the item
+   understated the problem in both directions. No key was needed (the register is
+   an open daily download), and the 13 UK rows that *did* show a figure were
+   seeded too. 65 GB rows now carry the register's own income with the exchange
+   rate stored beside it. See Finding 18.
 5. ~~Nothing runs the Finding 8 sweep on a schedule.~~ **Already done, and this
    item was stale**: `audit_financial_sources --strict` has been in the nightly
    ETL since 2026-08-03, and it implements *both* of the manual script's
@@ -697,20 +819,39 @@ cannot be reached.
 7. ~~**`Charity.registration_id` cannot be emptied.**~~ **Done 2026-08-09** —
    migration 0059 + `clear_false_registrations`; 5 false identifiers removed.
    See Finding 13.
-8. **Two UK charities are hidden by a bug that no longer exists.**
-   `breast-cancer-now` and `donkey-sanctuary` were demoted overnight by the
-   Finding 12 defect, and nothing re-promotes automatically. Both documents
-   return 200, but neither can be re-verified the way the US, AU and NZ rows
-   were: the Charity Commission's page carries no charity name in its
-   server-rendered HTML. They come back when the UK path has a real name check —
-   which is what the Charity Commission API key is for.
+8. ~~**Two UK charities are hidden by a bug that no longer exists.**~~
+   **Done 2026-08-13** — the UK path now has a real name check, without an API
+   key. `breast-cancer-now` is published on 1160558 and `donkey-sanctuary` on
+   1207593 (its stored 264818 was wrong, not merely superseded). See Finding 17.
 9. **20 Canadian numbers remain unverifiable.** They answer 417, the same as a
    fabricated control, but the registry has not said "no such charity" in words.
    Re-derive them from CRA's search by name; do not delete on the 417 alone.
-10. **`donkey-sanctuary` may hold the wrong number.** Its stored registration is
-   `264818`, and that register page prints "THE DONKEY SANCTUARY — 1207593".
-   Whether `264818` is a superseded record or the wrong charity entirely has not
-   been established; it is unpublished either way, so nothing false is on display.
+10. ~~**`donkey-sanctuary` may hold the wrong number.**~~ **Settled 2026-08-13:**
+   the live register holds no 264818 in either scope — not as registered and not
+   as removed — so it was not a superseded record. Repointed to 1207593. See
+   Finding 17.
+11. **Maggie's is regulated by OSCR, and TrustGive has no Scottish path.**
+   `maggies-cancer` is unpublished with no number, because SC024414 is a real,
+   readable registration that nothing here knows how to verify. OSCR's record is
+   server-rendered and names the charity, its known-by name, its status and its
+   website, and OSCR publishes an open register download of its own — so the work
+   is a `fix_gb_registrations`-shaped gate for `SC…` numbers, not a research
+   problem. Worth checking at the same time whether any other GB row is Scottish
+   or Northern Irish; this screening found only this one.
+12. **Ten published GB rows still show no revenue**, because the register records
+   no name equal to the catalogue's display name — Stonewall against "Stonewall
+   Equality Limited", ShelterBox against "ShelterBox Trust", Age International
+   against Age UK (whose number it correctly shares, and which its own site
+   states). Each needs a human decision about which name the catalogue should
+   carry; none is a defect in the data.
+13. **Nine GB rows share a `last_filed_date` of exactly 2024-03-31**, seven of
+   them published — the same nine the revenue pass could not write, plus the two
+   demoted ones. One shared date across nine charities is the shape of an
+   assumption, not of nine filings; 31 March is a common UK year end, so it is
+   suspicious rather than proven. No published row anywhere in the catalogue
+   carries the 1-January signature of Finding 1 (checked 2026-08-13, 394 of 394).
+   `fill_gb_revenue` replaces the field with the register's real period end for
+   every row it writes, so resolving item 12 resolves most of this too.
 
 ## Method
 

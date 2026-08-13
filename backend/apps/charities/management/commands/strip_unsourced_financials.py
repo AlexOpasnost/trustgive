@@ -70,7 +70,16 @@ PP_API = "https://projects.propublica.org/nonprofits/api/v2/organizations/{ein}.
 # $89,000,000 against $55,398,933. A genuine Form 990 total landing on an exact
 # million happens about as often as one landing on an exact ten million, and the
 # check rate here is 0%.
-ROUND_TO = Decimal("1000000")
+#
+# 2026-08-13: 1,000,000 was still one decimal place too coarse. It left 16
+# published rows whose figures are exact multiples of *100,000* and not of a
+# million — $8,400,000, $10,500,000, $65,300,000 — so the nightly audit reported
+# "No unsourced revenue figures found" over a money column that was, outside the
+# United States, seeded end to end: every non-US published figure in the
+# catalogue had this shape. Two of the British ones were checkable against the
+# Charity Commission and both were wrong by a multiple — mermaids-trans-uk showed
+# $4,500,000 against £1,337,663 and stonewall-uk $9,500,000 against £4,741,953.
+ROUND_TO = Decimal("100000")
 
 THROTTLE_SECONDS = 1.0
 
@@ -182,9 +191,25 @@ class Command(BaseCommand):
                         row.total_revenue_usd = real
                         row.save(update_fields=["total_revenue_usd"])
                 else:
+                    # Two different reasons end here, and the message has to say
+                    # which one. For a US row we asked ProPublica and it answered
+                    # that it holds no such figure. For every other row nothing
+                    # was asked at all — there is no stored currency or basis to
+                    # re-derive the number from — and the only evidence is the
+                    # shape. Both justify deleting an unsupported figure; only
+                    # the first is the source saying no, and printing that
+                    # sentence over the second is how this project has repeatedly
+                    # turned "we could not ask" into "the answer was no".
+                    asked = charity.country == "US" and ein.isdigit() and bool(row.year)
+                    reason = (
+                        f"ProPublica holds no such figure for FY{row.year}"
+                        if asked
+                        else "nothing stored can re-derive it; the round shape is the only "
+                        "evidence and it is the fabrication shape"
+                    )
                     self.stdout.write(
                         f"[DROP]   {charity.slug} FY{row.year}: {row.total_revenue_usd} "
-                        f"({row.source_label or 'no label'}) — source does not support it"
+                        f"({row.source_label or 'no label'}) — {reason}"
                     )
                     deleted += 1
                     dropped_ids.add(row.id)

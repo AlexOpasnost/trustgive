@@ -262,7 +262,12 @@ async function handleImageProxy(request: Request): Promise<Response> {
 // v3.27: unpublished charity pages now answer 404 instead of 200, so every
 // cached copy of one has to be dropped — the status code is part of what was
 // cached.
-const SITEMAP_VERSION = "v3.27"
+// v3.28: the UK re-check moved four charities across that same line.
+// /charities/breast-cancer-now and /charities/donkey-sanctuary are published and
+// must stop answering 404; /charities/maggies-cancer and
+// /charities/big-issue-foundation are unpublished and must stop answering 200.
+// Both directions are cached status codes, so the key has to change.
+const SITEMAP_VERSION = "v3.28"
 
 /**
  * Licence on the *compilation* — the list of organisations, the identifier held

@@ -31,9 +31,16 @@ from apps.charities.models import Charity, Financial, VerificationStatus
 
 # See strip_unsourced_financials for why this shape is the signal, and for the
 # 17-of-17 read-back that moved this threshold from 10,000,000 down to 1,000,000
-# on 2026-08-10. The wider net is the point: at the old threshold this command
-# reported "No unsourced revenue figures found" on a catalogue holding 70 of them.
-ROUND_TO = Decimal("1000000")
+# on 2026-08-10, then down again to 100,000 on 2026-08-13. The wider net is the
+# point: at each previous threshold this command printed "No unsourced revenue
+# figures found" over a catalogue that still held them — 70 of them at the first
+# move, and at the second every single published figure outside the United
+# States, 16 rows, all exact multiples of 100,000.
+#
+# Nothing below 100,000 is worth adding: converted figures carry cents, and US
+# Form 990 totals are exact dollars, so a real one landing on a round hundred
+# thousand is rare enough to be worth a look when it happens.
+ROUND_TO = Decimal("100000")
 
 
 class Command(BaseCommand):
@@ -77,7 +84,25 @@ class Command(BaseCommand):
             row for row in rows if row.charity.last_filed_date is None and row.total_revenue_usd
         ]
 
-        flagged = {row.id: row for row in round_rows + ahead_of_filing + no_filing_at_all}
+        # A figure on a charity outside the United States came from a regulator
+        # that does not publish in dollars, so it was converted, and a conversion
+        # with no rate behind it cannot be checked against anything. That is the
+        # precise reason Finding 8 could repair the American rows and had to
+        # delete the British ones. `original_currency` must be stated even when
+        # it is USD — "the source quoted dollars" is a claim, and a blank field
+        # is not that claim.
+        unstated_currency = [
+            row
+            for row in rows
+            if row.total_revenue_usd
+            and row.charity.country != "US"
+            and (not row.original_currency or (row.original_currency != "USD" and not row.fx_rate))
+        ]
+
+        flagged = {
+            row.id: row
+            for row in round_rows + ahead_of_filing + no_filing_at_all + unstated_currency
+        }
         published = [
             row
             for row in flagged.values()
@@ -88,6 +113,7 @@ class Command(BaseCommand):
         self.stdout.write(f"  round revenue           : {len(round_rows)}")
         self.stdout.write(f"  year ahead of filing    : {len(ahead_of_filing)}")
         self.stdout.write(f"  charity has no filing   : {len(no_filing_at_all)}")
+        self.stdout.write(f"  converted, rate unstated: {len(unstated_currency)}")
         self.stdout.write(f"  distinct flagged rows   : {len(flagged)}")
         self.stdout.write(f"  of those, published     : {len(published)}")
 
