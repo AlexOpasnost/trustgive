@@ -763,6 +763,66 @@ one of the 65 new British figures can be recomputed from what is stored beside i
 
 ---
 
+## Finding 19 — A published research article rests on dates nobody read (severity: high, open)
+
+Found 2026-08-13, while re-running `research_query.py` to measure figures for a
+third article. The UK median lag had moved from 28 months to 16.4, which is not
+something a fortnight does to a national regulator. The cause is Finding 18's
+repair: `fill_gb_revenue` replaced `last_filed_date` with the financial period
+end the register actually publishes, and the old values turned out to be
+assumptions.
+
+**52 of the 75 published UK charities carried the identical date 2024-03-31.**
+43 of them have since been checked against the register. **None came back as
+2024-03-31.**
+
+| What the register actually says | Rows |
+|---|---:|
+| 2025-03-31 | 27 |
+| 2024-12-31 | 10 |
+| 2025-12-31 | 2 |
+| 2025-09-30 | 2 |
+| 2024-10-31 | 1 |
+| 2025-05-31 | 1 |
+| *not yet checked (the 9 rows the revenue pass could not write)* | 9 |
+
+31 March genuinely is the most common financial year end in Britain, which is
+why this survived: the value is well-formed, plausible, and shared by a group of
+charities that really do share a year end. It was simply **a year stale**, and
+applied to charities whose year ends in December, September, October and May as
+well. This is Finding 1 — a date that is derived rather than read — in a country
+Finding 1 never looked at.
+
+**What it invalidates.** `/research/how-old-is-charity-financial-data`, published
+2026-08-03 and live now:
+
+| Published figure | Measured 2026-08-13 |
+|---|---|
+| UK median lag 28 months, range 19–31 | **16.4 months, range 7.4–28.4** |
+| "2024-03-31" the third-largest period-end cluster, 63 rows | 19 rows — **52 of the original 63 were this artefact** |
+| 0 charities with a filing under 12 months old | **6** |
+| 344 of 365 older than 24 months (94%) | 325 of 394 (**82%**) |
+
+The article's central claim — that almost nothing available to a donor is fresher
+than two years — is directionally right for the United States and materially
+overstated for Britain. It reads as a finding about regulators; a large part of
+the British half was a finding about our own placeholder.
+
+**Not yet fixed, because the remedy is an editorial decision.** The figures in
+`content/research.ts` are deliberately frozen with the date they were measured,
+so this is not a bug to patch quietly. Either the article is re-measured and
+carries a visible correction, or a separate correction is published. That choice
+belongs to the operator. Until it is made, **no outreach should point at this
+article.**
+
+**Unmeasured:** the same question has not been asked of the non-UK rows. US dates
+come from ProPublica's `tax_prd` and were repaired under Finding 1; AU, NZ, RU,
+IN, ES, IT, DE, NL and BR have never been checked for shared placeholder dates.
+`2023-12-31` currently covers 138 published rows and `2023-06-30` 70, and nothing
+has confirmed those are read rather than assumed.
+
+---
+
 ## What now prevents recurrence
 
 | Control | Mechanism |
@@ -844,14 +904,15 @@ one of the 65 new British figures can be recomputed from what is stored beside i
    against Age UK (whose number it correctly shares, and which its own site
    states). Each needs a human decision about which name the catalogue should
    carry; none is a defect in the data.
-13. **Nine GB rows share a `last_filed_date` of exactly 2024-03-31**, seven of
-   them published — the same nine the revenue pass could not write, plus the two
-   demoted ones. One shared date across nine charities is the shape of an
-   assumption, not of nine filings; 31 March is a common UK year end, so it is
-   suspicious rather than proven. No published row anywhere in the catalogue
-   carries the 1-January signature of Finding 1 (checked 2026-08-13, 394 of 394).
-   `fill_gb_revenue` replaces the field with the register's real period end for
-   every row it writes, so resolving item 12 resolves most of this too.
+13. ~~**Nine GB rows share a `last_filed_date` of exactly 2024-03-31.**~~
+   **Answered, and it was worse than suspected** — 52 of 75 shared it before the
+   repair, and all 43 checkable ones were wrong. See Finding 19. What remains:
+   **decide how `/research/how-old-is-charity-financial-data` is corrected**, and
+   **check the other countries for the same shape** — 138 published rows share
+   `2023-12-31` and 70 share `2023-06-30`, and nothing has established those are
+   read rather than assumed. No published row carries the 1-January signature of
+   Finding 1 (checked 2026-08-13, 394 of 394), so whatever this is, it is not
+   that code path.
 
 ## Method
 

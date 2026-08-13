@@ -132,6 +132,31 @@ fail the run — deliberately.
 | Annual report "State of Charity Transparency" | Not now |
 | UK API key | Registered, confirmation email had not arrived. **Not needed** — the open extract plus the live register did the whole job |
 
+### The next open task — promotion, and one thing blocking it
+
+Blocks A–F are done, but **block D is half done**: `/research` exists with two
+articles from 2026-08-03 and *the outreach they were written for has never
+happened* — no Hacker News post, no Reddit, no letters to journalists, no Product
+Hunt. Checked against CHANGELOG: only plans, no runs. The bottleneck is not that
+there is nothing to show.
+
+**Do not point anyone at `/research/how-old-is-charity-financial-data` until
+Finding 19 is resolved.** Its British figures rest on a placeholder date.
+
+There is now a stronger peg than either published piece: the catalogue audited
+itself and published its own failures — five charities on other organisations'
+registration numbers, every non-US revenue figure fabricated, and the nightly
+check that reported "clean" over all of it. That is the genre STRATEGY §12 says
+is the only one that works: a finding others have reason to cite, not a product
+announcement.
+
+**Search Console cannot be read from the browser Claude in Chrome connects to.**
+That profile is signed in as `alexiosdiachenko@gmail.com`, which has no
+properties at all and is refused on `sc-domain:trustgive.org`. The property is on
+some other Google account. Ask the owner which, or ask them to switch profiles —
+do not guess, and do not tell them to add an email address, which was the wrong
+answer once already.
+
 ### Search Console
 
 The owner clicked **VALIDATE FIX** on the Soft 404 issue on 2026-08-11. Expect
@@ -164,6 +189,7 @@ All are written up in `DATA_INTEGRITY.md`; this is the index.
 | 16 | Four badges rested on registration alone, with no filing behind them | medium |
 | 17 | Five published UK charities on another organisation's or a dead registration; confirmed against three independent sources each before anything moved | critical |
 | 18 | **Every** published revenue figure outside the US — 16 of them — was an exact multiple of $100,000, sitting just below Finding 15's threshold | critical |
+| 19 | 52 of 75 UK rows shared one assumed filing date, and a **published research article** was built on it. Open: the correction is an editorial call | high |
 
 Plus, outside `DATA_INTEGRITY.md`:
 
