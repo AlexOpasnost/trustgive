@@ -149,6 +149,52 @@ export const GUIDES: GuideMeta[] = [
       { kind: "faq", key: "faq", count: 5 },
     ],
   },
+  {
+    // Written by the operator, edited rather than drafted here: the sections
+    // that carry the argument — why this exists, why the catalogue is small,
+    // why it takes no payments, why the failures are published — are his, and
+    // the factual sections around them are the support. That is the right way
+    // round for a piece explaining a project's own reasoning, and it is why
+    // this one reads differently from the rest of the section.
+    slug: "what-charity-registration-actually-proves",
+    reviewed: "2026-08-13",
+    minutes: 6,
+    body: [
+      { kind: "para", key: "intro1" },
+
+      { kind: "heading", key: "s1" },
+      { kind: "para", key: "s1p1" },
+      { kind: "para", key: "s1p2" },
+
+      { kind: "heading", key: "s2" },
+      { kind: "para", key: "s2p1" },
+      { kind: "case", key: "s2case", case: "deregistered" },
+
+      { kind: "heading", key: "s3" },
+      { kind: "para", key: "s3p1" },
+
+      { kind: "heading", key: "s4" },
+      { kind: "para", key: "s4p1" },
+      { kind: "case", key: "s4case", case: "statusCodeIsNotEvidence" },
+
+      { kind: "heading", key: "s5" },
+      { kind: "para", key: "s5p1" },
+
+      { kind: "heading", key: "s6" },
+      { kind: "para", key: "s6p1" },
+
+      { kind: "heading", key: "s7" },
+      { kind: "para", key: "s7p1" },
+      { kind: "para", key: "s7p2" },
+      { kind: "para", key: "s7p3" },
+
+      { kind: "heading", key: "s8" },
+      { kind: "para", key: "s8p1" },
+
+      { kind: "heading", key: "s9" },
+      { kind: "para", key: "s9p1" },
+    ],
+  },
 ]
 
 export const GUIDE_SLUGS = GUIDES.map((g) => g.slug)

@@ -269,7 +269,8 @@ async function handleImageProxy(request: Request): Promise<Response> {
 // Both directions are cached status codes, so the key has to change.
 // v3.29: /guides and /guides/{slug} are new URLs in the sitemap, and the shell
 // was previously served for them with the homepage's title.
-const SITEMAP_VERSION = "v3.29"
+// v3.30: second guide published, so /guides and its index markup both change.
+const SITEMAP_VERSION = "v3.30"
 
 /**
  * Licence on the *compilation* — the list of organisations, the identifier held
@@ -309,7 +310,10 @@ const RESEARCH_SLUGS = [
  * to grow to ten; when it does, both it and the research list should move behind
  * an API endpoint rather than being maintained twice in two languages of source.
  */
-const GUIDE_SLUGS = ["how-to-check-if-a-charity-is-legitimate"] as const
+const GUIDE_SLUGS = [
+  "how-to-check-if-a-charity-is-legitimate",
+  "what-charity-registration-actually-proves",
+] as const
 
 async function handleSitemap(): Promise<Response> {
   const cache = (caches as unknown as { default: Cache }).default
@@ -1594,7 +1598,8 @@ const GUIDE_META: Record<
     title: string
     description: string
     reviewed: string
-    faq: { q: string; a: string }[]
+    /** Omitted when the guide is an argument rather than a set of questions. */
+    faq?: { q: string; a: string }[]
   }
 > = {
   "how-to-check-if-a-charity-is-legitimate": {
@@ -1641,6 +1646,17 @@ const GUIDE_META: Record<
           "Impersonating a real charity is more common than inventing one.",
       },
     ],
+  },
+  "what-charity-registration-actually-proves": {
+    title: "What charity registration actually proves · TrustGive",
+    description:
+      "Registration means an organisation passed a legal test and has to file. It " +
+      "says nothing about effectiveness, honesty, or whether the charity still " +
+      "exists — and here is why this catalogue is built on it anyway.",
+    reviewed: "2026-08-13",
+    // No FAQ: this one argues a position rather than answering a list of
+    // questions, and FAQPage markup over an article that has no questions on
+    // the page would describe content the reader never sees.
   },
 }
 
@@ -1825,16 +1841,18 @@ async function handleGuide(request: Request, env: Env, slug: string): Promise<Re
     publisher: { "@type": "Organization", name: "TrustGive", url: SITE_BASE },
     isAccessibleForFree: true,
   }
-  const faqPage = {
-    "@context": "https://schema.org",
-    "@type": "FAQPage",
-    url: canonical,
-    mainEntity: meta.faq.map((entry) => ({
-      "@type": "Question",
-      name: entry.q,
-      acceptedAnswer: { "@type": "Answer", text: entry.a },
-    })),
-  }
+  const faqPage = meta.faq?.length
+    ? {
+        "@context": "https://schema.org",
+        "@type": "FAQPage",
+        url: canonical,
+        mainEntity: meta.faq.map((entry) => ({
+          "@type": "Question",
+          name: entry.q,
+          acceptedAnswer: { "@type": "Answer", text: entry.a },
+        })),
+      }
+    : null
 
   const headExtras =
     `<link rel="canonical" href="${escapeAttr(canonical)}">` +
@@ -1842,7 +1860,9 @@ async function handleGuide(request: Request, env: Env, slug: string): Promise<Re
     `<meta name="twitter:title" content="${escapeAttr(meta.title)}">` +
     `<meta name="twitter:description" content="${escapeAttr(meta.description)}">` +
     `<script type="application/ld+json">${JSON.stringify(article).replace(/</g, "\\u003c")}</script>` +
-    `<script type="application/ld+json">${JSON.stringify(faqPage).replace(/</g, "\\u003c")}</script>`
+    (faqPage
+      ? `<script type="application/ld+json">${JSON.stringify(faqPage).replace(/</g, "\\u003c")}</script>`
+      : "")
 
   const html = await new HTMLRewriter()
     .on("title", {
