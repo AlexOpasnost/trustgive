@@ -231,24 +231,24 @@
     "articles": {
       "what-charity-registration-actually-proves": {
         "title": "What charity registration actually proves",
-        "standfirst": "Nobody asks whether an organisation is registered. They ask whether their money will be stolen and whether it will do any good. Registration answers a third question, which they did not ask.",
+        "standfirst": "Hardly anyone wants to know whether an organisation is registered. What they want to know is whether their money will be stolen, and whether it will do any good. Registration answers a third question that nobody asked.",
 
-        "intro1": "Someone searches, finds the word \"registered\", and hears in it an answer to both of their questions. It is one word answering a third one.",
+        "intro1": "You search, the word \"registered\" comes back at you, and it sounds like the answer to both worries. It is answering something else entirely.",
 
         "s1Title": "What registration means literally",
-        "s1p1": "Registration means two things and exactly two: the organisation met the legal test for charitable status in its jurisdiction, and it is required to file. That is all. It is a statement about paperwork.",
-        "s1p2": "And the test differs everywhere. In England and Wales it is the Charity Commission, in Scotland OSCR, in Northern Ireland CCNI; in the United States federal status comes from the IRS, and charity registration is separate in almost every state. An organisation missing from the register you happen to be searching may be entirely genuine.",
+        "s1p1": "Strictly speaking, registration carries two pieces of information. The organisation met the legal test for charitable status wherever it is based, and it now has to file. Nothing else follows from it. What you are looking at is a fact about paperwork.",
+        "s1p2": "The test itself also differs from place to place. England and Wales have the Charity Commission, Scotland has OSCR, Northern Ireland has CCNI. In the United States, federal status comes from the IRS, while charity registration is handled separately by almost every state. So an organisation that is absent from whichever register you happened to search may be perfectly genuine.",
 
         "s2Title": "What it does not mean",
-        "s2p1": "Not effectiveness, not honesty, and not that the organisation exists now. That last one is the least obvious. Registers keep serving pages for charities that have closed: the name is right, the income figure is there, and one word of status changes.",
-        "s2case": "The Big Issue Foundation was removed from the register on 15 September 2023, and its company was dissolved at Companies House on 19 December 2023. Its register page still opens and still looks perfectly healthy.",
+        "s2p1": "It says nothing about effectiveness or honesty, and nothing about whether the organisation still exists. People miss that last one most often. Registers go on serving pages for charities that have shut down. The name is right, the income figure sits where it always did, and a single word of status is all that moves.",
+        "s2case": "The Big Issue Foundation came off the register on 15 September 2023, and Companies House dissolved the company on 19 December 2023. Its register page opens to this day, and looks entirely healthy.",
 
         "s3Title": "Why I built the catalogue around it anyway",
         "s3p1": "I originally wanted to donate to charities helping children in Africa, and then caught myself thinking: will the money actually go where it should? I started looking for any information about various charities and realised that finding it by hand is hard. So I decided to build a site where you can open the regulator's document for each charity and check it yourself.",
 
         "s4Title": "Why it is still worth checking",
-        "s4p1": "Registration cuts away the bottom layer: invented organisations, and people impersonating a well-known charity. That is not much, but it is checkable — unlike ratings of effectiveness. And even that minimum is harder than it looks.",
-        "s4case": "Three national registers — the Canadian CRA, the Australian ABR and New Zealand's Charities Services — return a normal page with a 200 status for an identifier we invented. A check that stops at \"the link opened\" passes all three. We were burned by this five times in a row, in different countries.",
+        "s4p1": "What registration does clear away is the bottom layer of fraud, the invented organisations and the people passing themselves off as a well-known charity. Not much, but unlike ratings of effectiveness you can actually check it. Even that minimum turns out to be harder than it sounds.",
+        "s4case": "Three national registers, the Canadian CRA, the Australian ABR and New Zealand's Charities Services, will hand back an ordinary page with a 200 status for an identifier we made up. Any check that stops at \"the link opened\" sails through all three. It caught us five times in a row, in different countries.",
 
         "s5Title": "Why the catalogue is small",
         "s5p1": "The catalogue started with 541 organisations, but during the manual check I realised that not all of them have proper financial reporting — and the site was presented as a system of verified charities. I was offered the chance to pour in thousands more from ProPublica, and I turned it down: that would have meant publishing records nobody had checked.",
@@ -257,9 +257,9 @@
         "s6p1": "There are several reasons. The main one is how complicated registration and paperwork are. The other is plain security: TrustGive is my personal project, and with a money-transfer system in place I cannot guarantee your funds will arrive — situations vary, and that would cost the site its credibility.",
 
         "s7Title": "What we check and what we do not",
-        "s7p1": "One rule: a record is published only if the regulator's document opens and names the same organisation. An identifier that merely resolves is not evidence.",
-        "s7p2": "Of 537 records in the database, 394 are published. The other 143 sit there and return the day they can be confirmed. Canada: 28 organisations, none published — the CRA register gives no stable public address for a record, and that is written on the Data Sources page in plain words.",
-        "s7p3": "What we do not check and do not attempt: effectiveness, quality of governance, the share spent on administration. And one more thing almost nobody says out loud — freshness. The median age of the available filings across the catalogue is 31 months. Six organisations out of 394 have a filing less than twelve months old.",
+        "s7p1": "There is one rule here. A record goes live only when the regulator's document opens and names the same organisation. An identifier that merely resolves proves nothing.",
+        "s7p2": "The database holds 537 records, and 394 of them are published. The remaining 143 wait, and they come back the day someone can confirm them. Canada accounts for 28 organisations and not one is published, because the CRA register offers no stable public address for a record. We say exactly that on the Data Sources page.",
+        "s7p3": "We do not check effectiveness, the quality of governance, or the share that goes on administration, and we do not attempt to. There is one more thing almost nobody says out loud: freshness. Across the catalogue, the median age of the filings we can reach is 31 months. Six organisations out of 394 have a filing under twelve months old.",
 
         "s8Title": "Why we publish our own mistakes",
         "s8p1": "I think this kind of information helps users understand that this site is about the truth first. I was not trying to build an ordinary project for show: it is a service where a person can check a charity themselves before sending anything. It also shows that getting this wrong is easy. We got it wrong ourselves, even though checking is our whole job.",
