@@ -18,7 +18,6 @@ Exits non-zero if anything is found, so it can go in CI.
 
 from __future__ import annotations
 
-import json
 import pathlib
 import sys
 import unicodedata
