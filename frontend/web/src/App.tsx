@@ -7,6 +7,8 @@ import { AboutPage } from "./pages/AboutPage"
 import { ApiPage } from "./pages/ApiPage"
 import { CharityDetailPage } from "./pages/CharityDetailPage"
 import { DataSourcesPage } from "./pages/DataSourcesPage"
+import { GuidePage } from "./pages/GuidePage"
+import { GuidesPage } from "./pages/GuidesPage"
 import { HomePage } from "./pages/HomePage"
 import { HubPage } from "./pages/HubPage"
 import { LegitPage } from "./pages/LegitPage"
@@ -49,6 +51,8 @@ export function App() {
             <Route path="api" element={<ApiPage />} />
             <Route path="research" element={<ResearchPage />} />
             <Route path="research/:slug" element={<ResearchArticlePage />} />
+            <Route path="guides" element={<GuidesPage />} />
+            <Route path="guides/:slug" element={<GuidePage />} />
             <Route path="ru" element={<Navigate to="/" replace />} />
             <Route path="*" element={<NotFoundPage />} />
           </Route>

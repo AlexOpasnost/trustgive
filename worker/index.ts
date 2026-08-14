@@ -267,7 +267,9 @@ async function handleImageProxy(request: Request): Promise<Response> {
 // must stop answering 404; /charities/maggies-cancer and
 // /charities/big-issue-foundation are unpublished and must stop answering 200.
 // Both directions are cached status codes, so the key has to change.
-const SITEMAP_VERSION = "v3.28"
+// v3.29: /guides and /guides/{slug} are new URLs in the sitemap, and the shell
+// was previously served for them with the homepage's title.
+const SITEMAP_VERSION = "v3.29"
 
 /**
  * Licence on the *compilation* — the list of organisations, the identifier held
@@ -286,10 +288,28 @@ const CATALOGUE_LICENCE = "https://creativecommons.org/publicdomain/zero/1.0/"
  * bundles with no shared module. Two entries is cheap to keep in step; if this
  * list grows, move it behind an API endpoint the way hubs and stats are.
  */
+/**
+ * The editorial pages whose structured data is injected at the edge.
+ *
+ * A named type rather than the same literal union written out three times: it
+ * was written out three times, and adding "guides" to two of them compiled
+ * against the third for exactly as long as it took to run the typechecker.
+ */
+type StructuredPage = "data-sources" | "about" | "api" | "research" | "guides"
+
 const RESEARCH_SLUGS = [
   "how-old-is-charity-financial-data",
   "what-we-could-not-verify",
 ] as const
+
+/**
+ * Published guide slugs, mirroring frontend/web/src/content/guides.ts.
+ *
+ * Same duplication, same reason as RESEARCH_SLUGS. This list is the one expected
+ * to grow to ten; when it does, both it and the research list should move behind
+ * an API endpoint rather than being maintained twice in two languages of source.
+ */
+const GUIDE_SLUGS = ["how-to-check-if-a-charity-is-legitimate"] as const
 
 async function handleSitemap(): Promise<Response> {
   const cache = (caches as unknown as { default: Cache }).default
@@ -313,6 +333,14 @@ async function handleSitemap(): Promise<Response> {
     ...RESEARCH_SLUGS.map((slug) => ({
       loc: `${base}/research/${slug}`,
       priority: "0.7",
+    })),
+    // Guides are the top-of-funnel half: the pages that answer the question
+    // somebody types before they know this site exists. Priority above the
+    // research pieces for that reason, not because they matter more.
+    { loc: `${base}/guides`, priority: "0.8" },
+    ...GUIDE_SLUGS.map((slug) => ({
+      loc: `${base}/guides/${slug}`,
+      priority: "0.8",
     })),
   ]
 
@@ -1340,7 +1368,7 @@ async function handleHomePage(request: Request, env: Env): Promise<Response> {
 async function handleStructuredDataPage(
   request: Request,
   env: Env,
-  page: "data-sources" | "about" | "api" | "research",
+  page: StructuredPage,
 ): Promise<Response> {
   const url = new URL(request.url)
   const canonical = `${SITE_BASE}${url.pathname.replace(/\/$/, "")}`
@@ -1429,6 +1457,21 @@ async function handleStructuredDataPage(
         url: `${SITE_BASE}/research/${slug}`,
       })),
     }
+  } else if (page === "guides") {
+    jsonLd = {
+      "@context": "https://schema.org",
+      "@type": "CollectionPage",
+      name: "TrustGive guides",
+      url: canonical,
+      description: STRUCTURED_PAGE_META.guides.description,
+      publisher: { "@type": "Organization", name: "TrustGive", url: SITE_BASE },
+      hasPart: Object.entries(GUIDE_META).map(([slug, meta]) => ({
+        "@type": "Article",
+        headline: meta.title.replace(" · TrustGive", ""),
+        dateModified: meta.reviewed,
+        url: `${SITE_BASE}/guides/${slug}`,
+      })),
+    }
   } else {
     jsonLd = {
       "@context": "https://schema.org",
@@ -1493,11 +1536,12 @@ async function handleStructuredDataPage(
 
 /** Path → which structured-data block that page gets. Trailing slash stripped
  *  by the caller, so both `/about` and `/about/` resolve. */
-const STRUCTURED_DATA_PAGES: Record<string, "data-sources" | "about" | "api" | "research"> = {
+const STRUCTURED_DATA_PAGES: Record<string, StructuredPage> = {
   "/data-sources": "data-sources",
   "/about": "about",
   "/api": "api",
   "/research": "research",
+  "/guides": "guides",
 }
 
 /**
@@ -1530,6 +1574,77 @@ const RESEARCH_META: Record<
 }
 
 /**
+ * Per-guide head copy, the date each was last checked against its sources, and
+ * the questions it answers.
+ *
+ * `reviewed` rather than `published`, and it is not a formality. A how-to about
+ * reading registers is a claim about how those registers behave *now*; the date
+ * that means something is the day someone last confirmed it, which is the same
+ * standard the catalogue holds itself to for every charity in it.
+ *
+ * `faq` is duplicated from the locale strings so `FAQPage` markup can be
+ * server-rendered — a crawler reading the raw response sees no article body at
+ * all, because the body lives in the SPA. Keep the wording in step with
+ * `guides.articles.<slug>.faq` in en.json, or the markup will claim answers the
+ * page does not give.
+ */
+const GUIDE_META: Record<
+  string,
+  {
+    title: string
+    description: string
+    reviewed: string
+    faq: { q: string; a: string }[]
+  }
+> = {
+  "how-to-check-if-a-charity-is-legitimate": {
+    title: "How to check if a charity is legitimate · TrustGive",
+    description:
+      "Six checks against the public registers, in the order that catches the most " +
+      "problems soonest — written around five entries this catalogue published on " +
+      "the wrong organisation's registration number.",
+    reviewed: "2026-08-13",
+    faq: [
+      {
+        q: "Does being registered mean a charity is well run?",
+        a:
+          "No. Registration means an organisation met the legal test for charitable " +
+          "status and files what it is required to file. It is a statement about " +
+          "paperwork, not about whether the money achieves anything.",
+      },
+      {
+        q: "The register shows a filing from two years ago. Is that a red flag?",
+        a:
+          "Usually not. Regulators publish on a lag, and the figure you can see today " +
+          "typically describes a financial year that ended one to three years ago. A " +
+          "gap of five years or more is worth asking about.",
+      },
+      {
+        q: "What if the charity is not in any register I can find?",
+        a:
+          "That is a question, not an answer. Small organisations fall below " +
+          "registration thresholds, some countries have no central register, and " +
+          "religious and educational bodies are often exempt.",
+      },
+      {
+        q: "Is a charity's own website good enough evidence?",
+        a:
+          "For finding the registration number, yes — in several countries stating it " +
+          "is a legal requirement. For confirming the number is real, no. Use the site " +
+          "to learn what to look up, then look it up in the register.",
+      },
+      {
+        q: "Someone contacted me claiming to be a well-known charity. How do I check?",
+        a:
+          "Do not use any link, phone number or address they gave you. Search for the " +
+          "charity independently and use the contact details on its own website. " +
+          "Impersonating a real charity is more common than inventing one.",
+      },
+    ],
+  },
+}
+
+/**
  * Head copy for those pages, mirroring the English locale strings.
  *
  * The SPA sets `document.title` after it mounts, so a crawler reading the raw
@@ -1539,7 +1654,7 @@ const RESEARCH_META: Record<
  * crawler gets; the reader still sees their own language once React renders.
  */
 const STRUCTURED_PAGE_META: Record<
-  "data-sources" | "about" | "api" | "research",
+  StructuredPage,
   { title: string; description: string }
 > = {
   "data-sources": {
@@ -1565,6 +1680,13 @@ const STRUCTURED_PAGE_META: Record<
     description:
       "Findings from auditing a catalogue of regulator filings: what could not be " +
       "verified, why it clusters by country, and where naive verification lies.",
+  },
+  guides: {
+    title: "Guides · TrustGive",
+    description:
+      "How to check a charity yourself against the public registers — written " +
+      "around the mistakes this catalogue made first, with the identifiers and " +
+      "the registry's own answers.",
   },
 }
 
@@ -1665,7 +1787,110 @@ async function handleResearchArticle(
   return response
 }
 
+/**
+ * `/guides/{slug}` — head copy, `Article` and `FAQPage` markup for one guide.
+ *
+ * Same split as the research handler: only the head is server-rendered, the body
+ * stays in the SPA and its locale files. The one thing duplicated is the FAQ,
+ * because `FAQPage` markup describing questions a crawler cannot see on the page
+ * is markup that does not match its content — and that is a quality problem, not
+ * a clever shortcut.
+ *
+ * `dateModified` and no `datePublished`. A guide is not a dated document the way
+ * a finding is; what a reader needs to know is when somebody last checked it
+ * against the registers it describes.
+ */
+async function handleGuide(request: Request, env: Env, slug: string): Promise<Response> {
+  const meta = GUIDE_META[slug]
+  const shell = await env.ASSETS.fetch(request)
+  // Unknown slug: hand back the shell and let the SPA say "no such guide".
+  if (!meta) return shell
+
+  const canonical = `${SITE_BASE}/guides/${slug}`
+  const cacheKey = new Request(`${canonical}?ld=${SITEMAP_VERSION}`)
+  const cache = (caches as unknown as { default: Cache }).default
+  const cached = await cache.match(cacheKey)
+  if (cached) return cached
+
+  const headline = meta.title.replace(" · TrustGive", "")
+  const article = {
+    "@context": "https://schema.org",
+    "@type": "Article",
+    headline,
+    description: meta.description,
+    dateModified: meta.reviewed,
+    url: canonical,
+    inLanguage: ["en", "ru"],
+    author: { "@type": "Organization", name: "TrustGive", url: SITE_BASE },
+    publisher: { "@type": "Organization", name: "TrustGive", url: SITE_BASE },
+    isAccessibleForFree: true,
+  }
+  const faqPage = {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    url: canonical,
+    mainEntity: meta.faq.map((entry) => ({
+      "@type": "Question",
+      name: entry.q,
+      acceptedAnswer: { "@type": "Answer", text: entry.a },
+    })),
+  }
+
+  const headExtras =
+    `<link rel="canonical" href="${escapeAttr(canonical)}">` +
+    `<meta property="og:url" content="${escapeAttr(canonical)}">` +
+    `<meta name="twitter:title" content="${escapeAttr(meta.title)}">` +
+    `<meta name="twitter:description" content="${escapeAttr(meta.description)}">` +
+    `<script type="application/ld+json">${JSON.stringify(article).replace(/</g, "\\u003c")}</script>` +
+    `<script type="application/ld+json">${JSON.stringify(faqPage).replace(/</g, "\\u003c")}</script>`
+
+  const html = await new HTMLRewriter()
+    .on("title", {
+      element(el) {
+        el.setInnerContent(meta.title)
+      },
+    })
+    .on('meta[name="description"]', {
+      element(el) {
+        el.setAttribute("content", meta.description)
+      },
+    })
+    .on('meta[property="og:title"]', {
+      element(el) {
+        el.setAttribute("content", meta.title)
+      },
+    })
+    .on('meta[property="og:description"]', {
+      element(el) {
+        el.setAttribute("content", meta.description)
+      },
+    })
+    .on('meta[property="og:type"]', {
+      element(el) {
+        el.setAttribute("content", "article")
+      },
+    })
+    .on("head", {
+      element(el) {
+        el.append(headExtras, { html: true })
+      },
+    })
+    .transform(shell)
+    .text()
+
+  const response = new Response(html, {
+    status: 200,
+    headers: {
+      "Content-Type": "text/html; charset=utf-8",
+      "Cache-Control": HTML_CACHE_CONTROL,
+    },
+  })
+  await cache.put(cacheKey, response.clone())
+  return response
+}
+
 const RESEARCH_ARTICLE = /^\/research\/([^/]+)\/?$/
+const GUIDE_ARTICLE = /^\/guides\/([^/]+)\/?$/
 
 // Order matters: the legit page adds a `/legit` segment, so it's matched before
 // the single-segment detail regex below.
@@ -1773,6 +1998,11 @@ export default {
       const researchMatch = RESEARCH_ARTICLE.exec(url.pathname)
       if (researchMatch) {
         return handleResearchArticle(request, env, decodeURIComponent(researchMatch[1]))
+      }
+      // Same ordering rule for "/guides".
+      const guideMatch = GUIDE_ARTICLE.exec(url.pathname)
+      if (guideMatch) {
+        return handleGuide(request, env, decodeURIComponent(guideMatch[1]))
       }
     }
 

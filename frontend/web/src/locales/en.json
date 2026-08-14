@@ -1,6 +1,7 @@
 {
   "nav": {
     "catalog": "Catalog",
+    "guides": "Guides",
     "research": "Research",
     "methodology": "Methodology",
     "about": "About",
@@ -213,6 +214,105 @@
     "linkCode": "Source code",
     "linkMethodology": "Verification method",
     "linkApi": "Public API"
+  },
+  "guides": {
+    "title": "Guides",
+    "lead": "How to check a charity yourself, using the same public registers this catalogue uses. Every guide is anchored in something we got wrong here first — the mistakes are more instructive than the advice.",
+    "minutes_one": "{{count}} min read",
+    "minutes_other": "{{count}} min read",
+    "reviewed": "Checked against the sources {{date}}",
+    "caseLabel": "What went wrong here",
+    "findingRef": "Data integrity finding {{n}}",
+    "checkItYourself": "Check it yourself",
+    "backToIndex": "All guides",
+    "footnote": "These guides describe registers that change. If something here no longer matches what a register does, that is a mistake worth telling us about: hello@trustgive.org.",
+    "unknownTitle": "No such guide",
+    "unknownBody": "This guide doesn't exist. It may have been renamed — the index lists everything published.",
+    "articles": {
+      "how-to-check-if-a-charity-is-legitimate": {
+        "title": "How to check if a charity is legitimate",
+        "standfirst": "Six checks, in the order that catches the most problems soonest. None of them requires paying for anything, and the first four take about ten minutes.",
+
+        "intro1": "Almost every guide to this question tells you to look the charity up in an official register. That advice is correct and it is not enough, because it stops one step short of the part that actually goes wrong. A register entry can open, load cleanly, and describe a completely different organisation from the one asking you for money.",
+        "intro2": "We know because we did it. This catalogue publishes charities only when a regulator's document opens and names the same organisation, and we still shipped five entries that failed that test. What follows is the checklist we now use, written around the specific ways it can fail.",
+
+        "s1Title": "The short version",
+        "s1p1": "If you only have ten minutes, do these in order and stop at the first one that fails.",
+        "s1steps": {
+          "0": "Find the charity's registration number on the charity's own website, not from a search result or an email. In the United Kingdom a registered charity is required by law to state it; in the United States you want the EIN.",
+          "1": "Type that number into the regulator's own register — the Charity Commission, the IRS Tax Exempt Organization Search, the ACNC, whichever applies.",
+          "2": "Read the name the register gives back. It must be the organisation you are looking at, not merely something similar.",
+          "3": "Read the status. \"Registered\" and \"Removed\" are both real answers, and only one of them means what you want.",
+          "4": "Open the most recent filing or annual return and check it exists and covers a period that has actually ended."
+        },
+        "s1p2": "The rest of this guide is about why each of those steps is worded the way it is, because every one of them replaced a shorter version that let something through.",
+
+        "s2Title": "A page that loads is not evidence",
+        "s2p1": "The most common mistake is treating \"the link worked\" as confirmation. It isn't. Several national charity registers return a normal, healthy page for an identifier that does not exist at all — no error, no warning, just a page.",
+        "s2case": "We tested fabricated identifiers against three national registers. All three answered with HTTP 200 — the code that means \"here is the page you asked for\" — for numbers we had invented. Any check that stops at \"did the page load\" would have passed all three. This is why every automated check in this catalogue now reads the content of the page and ignores the status code entirely.",
+        "s2p2": "For you, as a reader, the practical form of this rule is simple: do not accept a link as proof. Open it and read the organisation's name off the page.",
+
+        "s3Title": "The number can belong to someone else",
+        "s3p1": "An identifier is not a name. It is a key into a database, and a wrong key returns a real record about a real organisation — which is exactly what makes it convincing. A wrong number does not look broken. It looks fine.",
+        "s3case": "We published Cure Leukaemia against Charity Commission number 1100994 for months. That number belongs to PAG (Parent Action Group) Limited, a charity removed from the register in 2011. The link opened, the page was real, the number resolved — and it was about a different organisation that no longer existed. Cure Leukaemia's actual number is 1100154.",
+        "s3p2": "So the check is not \"does the number resolve\". The check is \"does the register, when given this number, name this organisation\". Compare the whole name, not part of it: an entry that shares two words out of four is not a match.",
+
+        "s4Title": "Registered once is not registered now",
+        "s4p1": "Registers keep serving pages for charities that have closed. The record does not disappear — it changes status, often in a single word that is easy to read past when you are looking for reassurance.",
+        "s4case": "The Big Issue Foundation was removed from the Charity Commission's register on 15 September 2023, and its company was dissolved at Companies House on 19 December 2023. Its register page still opens, still carries the right name, still shows an income figure. Everything about it looks right except the status, and the organisation it describes is no longer a registered charity.",
+
+        "s5Title": "You may be looking in the wrong register",
+        "s5p1": "Countries with more than one charity regulator are a reliable source of confusion. A charity absent from the register you are searching may be perfectly legitimate and registered somewhere else.",
+        "s5case": "We had Maggie's stored against an England-and-Wales number, 1058460, which the Charity Commission answers with Euro Charity Trust — a different organisation entirely. Maggie's is a Scottish charity, registered with OSCR as SC024414, and its own website says so plainly. We were searching the wrong regulator and accepted the first number that came back.",
+        "s5list": {
+          "0": "United Kingdom: England and Wales (Charity Commission), Scotland (OSCR, numbers beginning SC), Northern Ireland (CCNI, numbers beginning NIC).",
+          "1": "United States: the IRS for federal tax-exempt status, plus a separate charity registration in most states.",
+          "2": "Canada: the CRA maintains the list of registered charities.",
+          "3": "Australia: the ACNC register, with the ABN as the identifier.",
+          "4": "New Zealand: Charities Services, numbers beginning CC."
+        },
+
+        "s6Title": "Search results are not answers",
+        "s6p1": "Register search boxes are usually fuzzy: they match on words, they return neighbours, and they paginate. The organisation you asked about may not be the first result, or on the first page at all.",
+        "s6case": "Searching the Charity Commission for 219099 — the RSPCA — returns dozens of local RSPCA branches sorted ahead of the RSPCA itself. Our own code asked for that number, read the first page of results, did not find it there, and concluded the register held no such charity. It holds it. The row was simply further down.",
+        "s6p2": "When you search, confirm the number on the result you open matches the number you typed. If it does not, you are reading about a different organisation, however similar the name.",
+
+        "s7Title": "Signs worth taking seriously",
+        "s7list": {
+          "0": "The organisation cannot or will not give you a registration number.",
+          "1": "The number it gives resolves to a different name in the register.",
+          "2": "The register says the registration has been removed, revoked, or is under investigation.",
+          "3": "The donation page is on a domain unrelated to the charity's own, and nothing on the charity's own site links to it.",
+          "4": "Pressure to give immediately — a deadline, a matching offer expiring tonight, a caller who will not let you check and call back.",
+          "5": "No filings at all, in a jurisdiction where filing is required for an organisation of that size."
+        },
+        "s7caution": "None of these is proof of fraud on its own. Small charities file late, websites are built badly, and a legitimate organisation can look disorganised. Treat them as reasons to check further, not as verdicts.",
+
+        "s8Title": "Common questions",
+        "faq": {
+          "0": {
+            "q": "Does being registered mean a charity is well run?",
+            "a": "No. Registration means an organisation met the legal test for charitable status and files what it is required to file. It is a statement about paperwork, not about whether the money achieves anything. A registered charity can be ineffective, and an effective organisation can be unregistered."
+          },
+          "1": {
+            "q": "The register shows a filing from two years ago. Is that a red flag?",
+            "a": "Usually not. Regulators publish on a lag, and the figure you can see today typically describes a financial year that ended one to three years ago. That is normal almost everywhere. A gap of five years or more is worth asking about."
+          },
+          "2": {
+            "q": "What if the charity is not in any register I can find?",
+            "a": "That is a question, not an answer. Small organisations fall below registration thresholds, some countries have no central register, and religious and educational bodies are often exempt. Ask the organisation directly which register it is on and under what name."
+          },
+          "3": {
+            "q": "Is a charity's own website good enough evidence?",
+            "a": "For finding the registration number, yes — in several countries stating it is a legal requirement. For confirming the number is real, no. Use the site to learn what to look up, then look it up in the register."
+          },
+          "4": {
+            "q": "Someone contacted me claiming to be a well-known charity. How do I check?",
+            "a": "Do not use any link, phone number or address they gave you. Search for the charity independently, go to its own website, and use the contact details published there. Impersonation of real charities is more common than invented ones, because the real name survives the first check."
+          }
+        }
+      }
+    }
   },
   "research": {
     "title": "Research",
