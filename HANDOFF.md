@@ -140,6 +140,19 @@ happened* — no Hacker News post, no Reddit, no letters to journalists, no Prod
 Hunt. Checked against CHANGELOG: only plans, no runs. The bottleneck is not that
 there is nothing to show.
 
+**`/guides` was added 2026-08-13** — the top-of-funnel half STRATEGY §10 says is
+missing ("нет текста, который стоит ранжировать"). Ten are planned, the operator
+set the order; one is live. Structure in `frontend/web/src/content/guides.ts`,
+prose in the locale files, `Article` + `FAQPage` injected by the Worker. Kept
+separate from `/research` deliberately: research figures are frozen snapshots so
+they stay citable, guides have to stay current, and one section cannot be both.
+Every guide is anchored in a case this catalogue got wrong, with the identifier
+and the finding — that is what stops them being the same commodity text.
+
+A draft of guide 2 sits in `content-drafts/`, structured as questions for the
+operator to answer in their own words rather than prose to approve. That is the
+right shape for these: the facts are ours, the argument should be theirs.
+
 **Do not point anyone at `/research/how-old-is-charity-financial-data` until
 Finding 19 is resolved.** Its British figures rest on a placeholder date.
 
