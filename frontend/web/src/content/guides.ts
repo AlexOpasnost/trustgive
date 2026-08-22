@@ -101,6 +101,20 @@ export const GUIDE_CASES = {
     identifier: "219099",
     registryAnswer: "ROYAL SOCIETY FOR THE PREVENTION OF CRUELTY TO ANIMALS",
   },
+  registeredButNeverFiled: {
+    /**
+     * Finding 16. Four published US charities held tax-exempt status and had
+     * filed nothing a reader could open — the badge was resting on the
+     * organisation existing, which is a claim the site says it does not make.
+     */
+    finding: 16,
+    charities: [
+      "salvation-army-national",
+      "catholic-relief-services",
+      "catholic-charities-usa",
+      "founders-pledge",
+    ],
+  },
 } as const
 
 export const GUIDES: GuideMeta[] = [
@@ -193,6 +207,51 @@ export const GUIDES: GuideMeta[] = [
 
       { kind: "heading", key: "s9" },
       { kind: "para", key: "s9p1" },
+    ],
+  },
+  {
+    // Every factual claim here was read off an IRS page on 2026-08-17 and each
+    // section links to the one it came from. Tax rules are the sort of thing a
+    // writer half-remembers correctly and gets wrong in the detail — the
+    // thresholds move, and a stale number here would be exactly the class of
+    // false statement the rest of the site exists to avoid.
+    slug: "what-501c3-status-actually-means",
+    reviewed: "2026-08-17",
+    minutes: 9,
+    body: [
+      { kind: "para", key: "intro1" },
+      { kind: "para", key: "intro2" },
+
+      { kind: "heading", key: "s1" },
+      { kind: "para", key: "s1p1" },
+      { kind: "list", key: "s1list", count: 3 },
+      { kind: "para", key: "s1p2" },
+
+      { kind: "heading", key: "s2" },
+      { kind: "para", key: "s2p1" },
+      { kind: "list", key: "s2list", count: 2 },
+      { kind: "para", key: "s2p2" },
+
+      { kind: "heading", key: "s3" },
+      { kind: "para", key: "s3p1" },
+      { kind: "para", key: "s3p2" },
+      { kind: "caution", key: "s3caution" },
+
+      { kind: "heading", key: "s4" },
+      { kind: "para", key: "s4p1" },
+      { kind: "list", key: "s4list", count: 3 },
+      { kind: "para", key: "s4p2" },
+
+      { kind: "heading", key: "s5" },
+      { kind: "para", key: "s5p1" },
+      { kind: "case", key: "s5case", case: "registeredButNeverFiled" },
+
+      { kind: "heading", key: "s6" },
+      { kind: "para", key: "s6p1" },
+      { kind: "steps", key: "s6steps", count: 4 },
+
+      { kind: "heading", key: "s7" },
+      { kind: "faq", key: "faq", count: 5 },
     ],
   },
 ]

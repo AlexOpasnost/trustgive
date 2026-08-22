@@ -270,7 +270,8 @@ async function handleImageProxy(request: Request): Promise<Response> {
 // v3.29: /guides and /guides/{slug} are new URLs in the sitemap, and the shell
 // was previously served for them with the homepage's title.
 // v3.30: second guide published, so /guides and its index markup both change.
-const SITEMAP_VERSION = "v3.30"
+// v3.31: third guide.
+const SITEMAP_VERSION = "v3.31"
 
 /**
  * Licence on the *compilation* — the list of organisations, the identifier held
@@ -313,6 +314,7 @@ const RESEARCH_SLUGS = [
 const GUIDE_SLUGS = [
   "how-to-check-if-a-charity-is-legitimate",
   "what-charity-registration-actually-proves",
+  "what-501c3-status-actually-means",
 ] as const
 
 async function handleSitemap(): Promise<Response> {
@@ -1644,6 +1646,50 @@ const GUIDE_META: Record<
           "Do not use any link, phone number or address they gave you. Search for the " +
           "charity independently and use the contact details on its own website. " +
           "Impersonating a real charity is more common than inventing one.",
+      },
+    ],
+  },
+  "what-501c3-status-actually-means": {
+    title: "What 501(c)(3) status actually means · TrustGive",
+    description:
+      "A line in the US tax code, not a seal of approval. What the IRS actually " +
+      "requires, what it means for a donor's deduction, how it is lost without " +
+      "notice, and the four things it does not prove.",
+    reviewed: "2026-08-17",
+    faq: [
+      {
+        q: "Is a 501(c)(3) the same as a nonprofit?",
+        a:
+          "No. \"Nonprofit\" is a state-level corporate form; 501(c)(3) is a federal " +
+          "tax status. An organisation can be incorporated as a nonprofit and never " +
+          "obtain, or later lose, 501(c)(3) status.",
+      },
+      {
+        q: "What is the difference between 501(c)(3) and 501(c)(4)?",
+        a:
+          "Both are tax-exempt, but only gifts to a 501(c)(3) are generally deductible " +
+          "for the donor. A 501(c)(4) may campaign politically in ways a 501(c)(3) may " +
+          "not. Some groups run both, with similar names.",
+      },
+      {
+        q: "Does 501(c)(3) status mean the charity is well run?",
+        a:
+          "No. The status tests purpose and structure, not performance. Nothing in the " +
+          "application or the annual return asks whether the work achieves anything.",
+      },
+      {
+        q: "The charity is not in the IRS search tool. Is it fake?",
+        a:
+          "Not necessarily. Churches need not apply for recognition, very small " +
+          "organisations may file only the electronic postcard, and the data is " +
+          "refreshed periodically rather than live.",
+      },
+      {
+        q: "How current is any of this?",
+        a:
+          "Less than you would expect. The IRS publishes on a lag, and Form 990 data " +
+          "describes a fiscal year that has usually been over for a while. Across this " +
+          "catalogue the median age of the newest available filing is 31 months.",
       },
     ],
   },
