@@ -231,76 +231,76 @@
     "articles": {
       "what-501c3-status-actually-means": {
         "title": "What 501(c)(3) status actually means",
-        "standfirst": "It is a line in the US tax code, not a seal of approval. Here is precisely what an organisation had to do to get it, what it buys you as a donor, and the four things people reliably assume it proves that it does not.",
+        "standfirst": "A line in the US tax code, not a seal of approval. What an organisation had to do to get it, what it is worth to you as a donor, and the four things people reliably assume it proves when it does not.",
 
-        "intro1": "\"501(c)(3)\" gets used as a synonym for \"real charity\", and it is close enough to be useful and far enough to mislead. It is a subsection of the Internal Revenue Code under which the IRS grants federal tax exemption. Everything it tells you follows from that and nothing else does.",
-        "intro2": "The distinction matters most at the moment it usually gets blurred — when someone is deciding whether to give. So this walks through what the status requires, what it gives you, and where it stops.",
+        "intro1": "People say \"501(c)(3)\" when they mean \"real charity\". The shorthand works often enough to stick around and fails often enough to cause trouble. What the term actually names is a subsection of the Internal Revenue Code, the one the IRS grants federal tax exemption under. Whatever the status tells you comes from that. Nothing else comes from it at all.",
+        "intro2": "The blurring tends to happen at the worst possible moment, when somebody is deciding whether to give. What follows is what the status demands, what it hands you, and the point where it runs out.",
 
         "s1Title": "What the organisation had to satisfy",
-        "s1p1": "The IRS grants the status to an organisation \"organized and operated exclusively\" for one of the exempt purposes the section lists — charitable, religious, educational, scientific, literary, testing for public safety, fostering national or international amateur sports competition, and preventing cruelty to children or animals. Beyond the purpose, three conditions carry most of the weight:",
+        "s1p1": "The status goes to organisations \"organized and operated exclusively\" for one of the exempt purposes the section names: charitable, religious, educational, scientific, literary, testing for public safety, fostering national or international amateur sports competition, and preventing cruelty to children or animals. Purpose aside, three conditions do most of the work.",
         "s1list": {
-          "0": "No private benefit. In the IRS's own words, \"none of its earnings may inure to any private shareholder or individual\". Profit is allowed; distributing it to insiders is not.",
-          "1": "No political campaigning. Section 501(c)(3) organisations are, in the IRS's phrasing, \"absolutely prohibited\" from intervening in a campaign for or against a candidate. Lobbying on issues is permitted but limited.",
-          "2": "Annual reporting to the IRS, in almost all cases, on a form in the 990 series."
+          "0": "No private benefit. The IRS puts it this way: \"none of its earnings may inure to any private shareholder or individual\". Making a surplus is fine. Handing it to insiders is not.",
+          "1": "No political campaigning. On intervening in a campaign for or against a candidate, the IRS calls Section 501(c)(3) organisations \"absolutely prohibited\". Lobbying on issues is allowed, within limits.",
+          "2": "Annual reporting to the IRS. Almost always on a form in the 990 series."
         },
-        "s1p2": "That is the whole test. Notice what is not in it: nothing about competence, nothing about results, nothing about how much of a donation reaches the work.",
+        "s1p2": "That is the entire test. What it leaves out is worth reading twice. Competence is not in there. Results are not in there. Neither is any measure of how much of a donation reaches the work.",
 
         "s2Title": "Public charity or private foundation",
-        "s2p1": "Every 501(c)(3) falls into one of two categories, and the difference changes both what the organisation must do and what you can deduct.",
+        "s2p1": "Every 501(c)(3) sits in one of two categories. The category changes what the organisation has to do, and it changes what you can deduct.",
         "s2list": {
-          "0": "A public charity draws support from the general public, government, or other public charities — the churches, hospitals, universities and the ordinary donation-funded organisations most people picture.",
-          "1": "A private foundation is typically funded from a single source, often a family or a company, and usually makes grants rather than running programmes. It faces stricter rules and an excise tax on investment income."
+          "0": "A public charity is supported by the general public, by government, or by other public charities. Churches, hospitals, universities and the ordinary donation-funded organisations most people picture.",
+          "1": "A private foundation usually has one source of money behind it, often a family or a company, and tends to make grants instead of running programmes. Stricter rules apply to it, along with an excise tax on investment income."
         },
-        "s2p2": "For a donor the practical difference is the deduction limit: gifts to public charities can be deducted against a higher share of income than gifts to private foundations. The IRS publishes both categories, and its Tax Exempt Organization Search shows which one an organisation is.",
+        "s2p2": "For a donor the difference that bites is the deduction limit. Gifts to public charities can be deducted against a higher share of your income than gifts to private foundations. Both categories are public, and the IRS Tax Exempt Organization Search will tell you which one you are looking at.",
 
         "s3Title": "What it means for your donation",
-        "s3p1": "A contribution to a 501(c)(3) is generally tax-deductible for a US taxpayer who itemises. That is the practical benefit most people are actually asking about when they check the status, and it is real.",
-        "s3p2": "It is also narrower than it sounds. Deductibility depends on the organisation's category, on what you received in return, and on your own tax position. The IRS assigns deductibility status codes precisely because the limits vary, and its search tool shows the code for each organisation.",
-        "s3caution": "Deductibility is a statement about your tax return, not about the organisation's quality. A well-run charity and a badly run one are equally deductible.",
+        "s3p1": "For a US taxpayer who itemises, a contribution to a 501(c)(3) is generally tax-deductible. That is the benefit most people are really asking after when they check the status, and it is genuine.",
+        "s3p2": "It is narrower than it sounds, though. How much you can deduct depends on the organisation's category, on anything you got back in return, and on your own tax position. Limits vary enough that the IRS assigns deductibility status codes, and its search tool shows the code for every organisation.",
+        "s3caution": "None of that says anything about quality. Deductibility describes your tax return. A well-run charity and a badly run one are equally deductible.",
 
         "s4Title": "The status can be taken away, quietly",
-        "s4p1": "This is the part that catches people, because nothing announces it. An organisation that fails to file its required annual return for three consecutive years loses its exemption automatically — no hearing, no notice to donors. In the IRS's words, an automatically revoked organisation \"is not eligible to receive tax-deductible contributions\".",
+        "s4p1": "Here is the part that catches people out, because nothing announces it. Miss the required annual return three consecutive years running and the exemption goes automatically. There is no hearing, and donors are not told. An automatically revoked organisation, in the IRS's words, \"is not eligible to receive tax-deductible contributions\".",
         "s4list": {
-          "0": "The IRS publishes the Automatic Revocation of Exemption list, so the loss is public and checkable.",
-          "1": "An organisation can apply to have the status reinstated, sometimes retroactively — so a name on the list is not necessarily a dead organisation.",
-          "2": "Its old website, brochures and donation page will usually say nothing about any of this."
+          "0": "The loss is public and checkable. The IRS publishes the Automatic Revocation of Exemption list.",
+          "1": "Reinstatement can be applied for, and sometimes granted retroactively, so a name on that list is not automatically a dead organisation.",
+          "2": "The website, the brochures and the donation page will usually carry on as though nothing happened."
         },
-        "s4p2": "Which is why the check worth doing is not \"did they ever have 501(c)(3) status\" but \"do they have it now\".",
+        "s4p2": "So the question worth asking is not whether they ever held 501(c)(3) status. It is whether they hold it today.",
 
         "s5Title": "What it does not mean",
-        "s5p1": "Not effectiveness. Not efficiency. Not that anybody has looked at the results. And — less obviously — not that the organisation has actually filed anything you can read. Status and filing are separate facts, and an organisation can hold the first while owing the second.",
-        "s5case": "Four US charities in this catalogue carried a verified badge on tax-exempt status alone, with no filing behind it: the national Salvation Army office, Catholic Relief Services, Catholic Charities USA and Founders Pledge. Two had no filings of any kind on ProPublica; two had filings that contained no data. Each one resolves, returns the right legal name, and its link opens — but what opens is a registry record, not a return. All four were unpublished.",
+        "s5p1": "It does not mean effectiveness, or efficiency, or that anyone has ever looked at the results. Less obviously, it does not mean the organisation has filed anything you can actually read. Status and filing are two separate facts, and an organisation can hold the first while still owing the second.",
+        "s5case": "Four US charities in this catalogue carried a verified badge on tax-exempt status alone, with nothing filed behind it: the national Salvation Army office, Catholic Relief Services, Catholic Charities USA and Founders Pledge. Two of them had no filings of any kind on ProPublica, and the other two had filings that contained no data. Every one resolves, returns the right legal name, and opens when you click it. What opens is a registry record rather than a return. All four were unpublished.",
 
         "s6Title": "How to check it yourself",
-        "s6p1": "Four steps, none of which costs anything.",
+        "s6p1": "Four steps. None of them costs anything.",
         "s6steps": {
-          "0": "Get the organisation's EIN — its nine-digit employer identification number — from its own website or its donation receipt.",
-          "1": "Look it up in the IRS Tax Exempt Organization Search. Confirm the name matches, and read the deductibility code.",
-          "2": "Check the same tool's Automatic Revocation list, or look for the revocation posting date, to be sure the status is current rather than historical.",
-          "3": "Open the most recent Form 990 and check that it exists and contains figures. A return with no financial data tells you almost nothing."
+          "0": "Find the organisation's EIN, the nine-digit employer identification number, on its own website or on a donation receipt.",
+          "1": "Run it through the IRS Tax Exempt Organization Search. Check that the name matches, and read the deductibility code.",
+          "2": "Check the Automatic Revocation list in the same tool, or look for a revocation posting date, so you know the status is current and not historical.",
+          "3": "Open the most recent Form 990 and confirm it exists and carries figures. A return with no financial data in it tells you almost nothing."
         },
 
         "s7Title": "Common questions",
         "faq": {
           "0": {
             "q": "Is a 501(c)(3) the same as a nonprofit?",
-            "a": "No. \"Nonprofit\" is a state-level corporate form; 501(c)(3) is a federal tax status. An organisation can be incorporated as a nonprofit and never obtain, or later lose, 501(c)(3) status. They are granted by different governments for different reasons."
+            "a": "No. \"Nonprofit\" is a corporate form granted at state level, while 501(c)(3) is a federal tax status. A body can be incorporated as a nonprofit and never obtain 501(c)(3) status, or hold it and lose it later. Different governments grant them, for different reasons."
           },
           "1": {
             "q": "What is the difference between 501(c)(3) and 501(c)(4)?",
-            "a": "Both are tax-exempt, but only gifts to a 501(c)(3) are generally deductible for the donor. A 501(c)(4) social welfare organisation may campaign politically in ways a 501(c)(3) may not. Some groups run both, with similar names, which is a common source of confusion."
+            "a": "Both are tax-exempt, but only gifts to a 501(c)(3) are generally deductible for the donor. A 501(c)(4) social welfare organisation is free to campaign politically in ways a 501(c)(3) is not. Some groups run one of each under similar names, which confuses people constantly."
           },
           "2": {
             "q": "Does 501(c)(3) status mean the charity is well run?",
-            "a": "No. The status tests purpose and structure, not performance. Nothing in the application or the annual return asks whether the work achieves anything."
+            "a": "No. The status examines purpose and structure, never performance. Nothing in the application or in the annual return asks whether the work achieves anything."
           },
           "3": {
             "q": "The charity is not in the IRS search tool. Is it fake?",
-            "a": "Not necessarily. Churches are not required to apply for recognition, very small organisations may file only the electronic postcard, and the tool's data is refreshed periodically rather than live. Absence is a reason to ask, not a verdict."
+            "a": "Not necessarily. Churches do not have to apply for recognition, very small organisations may file nothing but the electronic postcard, and the tool's data is refreshed periodically rather than live. Absence is a reason to ask a question, not a verdict."
           },
           "4": {
             "q": "How current is any of this?",
-            "a": "Less than you would expect. The IRS publishes on a lag and Form 990 data describes a fiscal year that has usually been over for a while. Across this catalogue the median age of the newest available filing is 31 months."
+            "a": "Less current than you would expect. The IRS publishes on a lag, and Form 990 data describes a fiscal year that has usually been over for some time. Across this catalogue, the median age of the newest available filing is 31 months."
           }
         }
       },
